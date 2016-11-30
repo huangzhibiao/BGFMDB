@@ -8,7 +8,6 @@
 
 #import "BGFMDB.h"
 #import "FMDB.h"
-#import "MJExtension.h"
 #import <objc/runtime.h>
 
 #define SQLITE_NAME @"BGSqlite.sqlite"
@@ -21,8 +20,38 @@
 
 static BGFMDB* BGFmdb;
 
-#warning 键值只能传NSString
 @implementation BGFMDB
+
+/**
+ json字符转字典
+ */
+-(id )dictionaryWithJsonString:(NSString *)jsonString {
+    if (jsonString == nil) {
+        return nil;
+    }
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *err;
+    id dic = [NSJSONSerialization JSONObjectWithData:jsonData
+                                             options:NSJSONReadingMutableContainers
+                                               error:&err];
+    
+    if(err) {
+        NSLog(@"json解析失败：%@",err);
+        return nil;
+    }
+    return dic;
+    
+}
+/**
+ 字典转json字符
+ */
+-(NSString*)dictionaryToJson:(NSDictionary *)dic
+{
+    NSError *parseError = nil;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dic options:NSJSONWritingPrettyPrinted error:&parseError];
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+}
+
 
 -(instancetype)init{
     self = [super init];
@@ -124,7 +153,9 @@ static BGFMDB* BGFmdb;
         return;
     }else;
     __block BOOL result;
+    //__weak typeof(self) BGSelf = self;
     [self.queue inDatabase:^(FMDatabase *db) {
+        //__strong typeof(BGSelf) strongSelf = BGSelf;
         NSArray* keys = dict.allKeys;
         NSArray* values = dict.allValues;
         NSMutableString* SQL = [[NSMutableString alloc] init];
@@ -196,6 +227,13 @@ static BGFMDB* BGFmdb;
         }
         // 1.查询数据
         FMResultSet *rs = [db executeQuery:SQL];
+        if(!rs){//查询错误
+            NSLog(@"查询错误,可能是类变量名发生了改变或字段不存在!,请存储后再读取");
+            if (complete) {
+                complete(nil);
+            }
+            return;
+        }
         // 2.遍历结果集
         while (rs.next) {
             NSMutableDictionary* dictM = [[NSMutableDictionary alloc] init];
@@ -359,57 +397,175 @@ static BGFMDB* BGFmdb;
         complete(result);
     }
 }
+/**
+ 动态添加表字段
+ */
+-(void)addTable:(NSString*)name key:(NSString*)key complete:(void (^)(BOOL isSuccess))complete{
+    if (name==nil){
+        NSLog(@"表名不能为空!");
+        if (complete) {
+            complete(NO);
+        }
+        return;
+    }
+    __block BOOL result;
+    [self.queue inDatabase:^(FMDatabase *db) {
+        result = [db executeUpdate:[NSString stringWithFormat:@"alter table %@ add %@ text",name,key]];
+    }];
+    if (complete) {
+        complete(result);
+    }
 
+}
+//根据类获取变量名列表
+-(NSArray*)getClassIvarList:(__unsafe_unretained Class)cla{
+    unsigned int numIvars; //成员变量个数
+    Ivar *vars = class_copyIvarList(cla, &numIvars);
+    NSMutableArray* keys = [NSMutableArray array];
+    for(int i = 0; i < numIvars; i++) {
+        Ivar thisIvar = vars[i];
+        NSString* key = [NSString stringWithUTF8String:ivar_getName(thisIvar)];//获取成员变量的名
+        if ([key containsString:@"_"]) {
+            key = [key substringFromIndex:1];
+        }
+        [keys addObject:key];//存储对象的变量名
+    }
+    free(vars);//释放资源
+    return keys;
+}
+//判断类的变量名是否变更,然后改变表字段结构
+-(void)changeTableWhenClassIvarChange:(__unsafe_unretained Class)cla{
+    NSMutableArray* newKeys = [NSMutableArray array];
+    NSString* tableName = [NSString stringWithFormat:@"%@",cla];
+    __weak typeof(self) BGSelf = self;
+    [self.queue inDatabase:^(FMDatabase *db){
+        __strong typeof(BGSelf) strongSelf = BGSelf;
+        for (NSString* key in [strongSelf getClassIvarList:cla]) {
+            if(![db columnExists:key inTableWithName:tableName]){
+                //记录下不存在的字段
+                [newKeys addObject:key];
+                NSLog(@"表字段发生了改变...");
+            }
+        }
+    }];
+    for(NSString* key in newKeys){
+        [self addTable:tableName key:key complete:^(BOOL isSuccess) {
+            if (isSuccess) {
+                NSLog(@"添加表字段成功");
+            }else{
+                NSLog(@"添加表字段失败!");
+            }
+        }];
+    }
+}
 /**
  存储一个对象
  */
 -(void)saveObject:(id)object complete:(void (^)(BOOL isSuccess))complete{
-    NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
-    unsigned int numIvars; //成员变量个数
-    Ivar *vars = class_copyIvarList([object class], &numIvars);
-    NSString *key=nil;
-    for(int i = 0; i < numIvars; i++) {
-        Ivar thisIvar = vars[i];
-        key = [NSString stringWithUTF8String:ivar_getName(thisIvar)];  //获取成员变量的名字
-        key = [key substringFromIndex:1];
-        [dictM setObject:[object valueForKey:key] forKey:key];
-        //NSLog(@"variable name :%@ = %@", key,[object valueForKey:key]);
-        //key = [NSString stringWithUTF8String:ivar_getTypeEncoding(thisIvar)]; //获取成员变量的数据类型
-        //NSLog(@"variable type :%@", key);
-    }
-    free(vars);
     //检查是否建立了跟对象相对应的数据表
     NSString* tableName = [NSString stringWithFormat:@"%@",[object class]];
+    __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist) {
+        __strong typeof(BGSelf) strongSelf = BGSelf;
         if (!isExist){//如果不存在就新建
-            [self createTableWithTableName:tableName keys:dictM.allKeys complete:^(BOOL isSuccess) {
+            [strongSelf createTableWithTableName:tableName keys:[strongSelf getClassIvarList:[object class]] complete:^(BOOL isSuccess) {
                 if (isSuccess) {
                     NSLog(@"建表成功 第一次建立 %@ 对应的表",tableName);
                 }
             }];
         }
+        NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
+        unsigned int numIvars; //成员变量个数
+        Ivar *vars = class_copyIvarList([object class], &numIvars);
+        for(int i = 0; i < numIvars; i++) {
+            Ivar thisIvar = vars[i];
+            NSString *key = [NSString stringWithUTF8String:ivar_getName(thisIvar)];//获取成员变量的名字
+            if ([key containsString:@"_"]) {
+                key = [key substringFromIndex:1];
+            }
+            
+            //NSLog(@"variable name :%@ = %@", key,[object valueForKey:key]);
+            NSString* type = [NSString stringWithUTF8String:ivar_getTypeEncoding(thisIvar)]; //获取成员变量的数据类型
+            NSLog(@"variable type :%@", type);
+            if([type isEqualToString:[NSString stringWithFormat:@"@\"%@\"",@"NSArray"]]){
+                NSArray* arr = [object valueForKey:key];
+                NSMutableDictionary* dM = [NSMutableDictionary dictionary];
+                for(int i=0;i<arr.count;i++){
+                    dM[[NSString stringWithFormat:@"%d",i]] = arr[i];
+                }
+                NSString* jsonStr = [NSString stringWithFormat:@"NSArray%@",[self dictionaryToJson:dM]];
+                [dictM setObject:jsonStr forKey:key];
+            }else if([type isEqualToString:[NSString stringWithFormat:@"@\"%@\"",@"NSDictionary"]]){
+                NSString* jsonStr = [NSString stringWithFormat:@"NSDictionary%@",[self dictionaryToJson:[object valueForKey:key]]];
+                [dictM setObject:jsonStr forKey:key];
+            }else{
+                //setObjectForKey: object cannot be nil
+                [dictM setObject:([object valueForKey:key]==nil)?@"0":[object valueForKey:key] forKey:key];
+            }
+    
+        }
+        free(vars);//释放资源
+        __weak typeof(BGSelf) secondSelf = strongSelf;
+        [strongSelf insertIntoTableName:tableName Dict:dictM complete:^(BOOL isSuccess) {
+            if (isSuccess) {
+                if (complete) {
+                    complete(isSuccess);
+                }
+            }else{
+                //检查表字段是否有改变
+                [secondSelf changeTableWhenClassIvarChange:[object class]];
+                [secondSelf insertIntoTableName:tableName Dict:dictM complete:complete];
+            }
+        }];
     }];
-    [self insertIntoTableName:tableName Dict:dictM complete:complete];
+    
 }
+
+//数组转换
+-(NSArray*)translateResult:(__unsafe_unretained Class)cla with:(NSArray*)array{
+    
+    NSArray* keys = [self getClassIvarList:cla];
+    NSMutableArray* arrM = [NSMutableArray array];
+    for(NSDictionary* dict in array){
+        id claObj = [[cla alloc] init];
+        for(NSString* key in keys){
+            if([[NSString stringWithFormat:@"%@",dict[key]] containsString:@"NSArray"]){
+                NSDictionary* jsonDict = [self dictionaryWithJsonString:[[NSString stringWithFormat:@"%@",dict[key]] stringByReplacingOccurrencesOfString:@"NSArray" withString:@""]];
+                NSMutableArray* tempArrM = [NSMutableArray array];
+                for(id obj in jsonDict.allValues){
+                    [tempArrM addObject:obj];
+                }
+                [claObj setValue:tempArrM forKey:key];
+            }else if ([[NSString stringWithFormat:@"%@",dict[key]] containsString:@"NSDictionary"]){
+                NSDictionary* jsonDict = [self dictionaryWithJsonString:[[NSString stringWithFormat:@"%@",dict[key]] stringByReplacingOccurrencesOfString:@"NSDictionary" withString:@""]];
+                [claObj setValue:jsonDict forKey:key];
+            }else{
+             [claObj setValue:dict[key] forKey:key];
+            }
+        }
+        [arrM addObject:claObj];
+    }
+    
+    return arrM;
+}
+
 /**
  查询全部对象
  */
 -(void)queryAllObject:(__unsafe_unretained Class)cla complete:(void (^)(NSArray* array))complete{
     //检查是否建立了跟对象相对应的数据表
     NSString* tableName = [NSString stringWithFormat:@"%@",cla];
-    
+    __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist) {
+        __strong typeof(BGSelf) strongSelf = BGSelf;
         if (!isExist){//如果不存在就返回空
             if (complete) {
                 complete(nil);
             }
         }else{
-            [self queryWithTableName:tableName complete:^(NSArray *array) {
-                NSMutableArray* arrM = [NSMutableArray array];
-                for(NSDictionary* dict in array){
-                    id claObj = [cla objectWithKeyValues:dict];
-                    [arrM addObject:claObj];
-                }
+            __weak typeof(BGSelf) secondSelf = strongSelf;
+            [strongSelf queryWithTableName:tableName complete:^(NSArray *array) {
+                NSArray* arrM = [secondSelf translateResult:cla with:array];
                 if (complete) {
                     complete(arrM);
                 }
@@ -425,19 +581,17 @@ static BGFMDB* BGFmdb;
 -(void)queryObjectWithClass:(__unsafe_unretained Class)cla keys:(NSArray*)keys where:(NSArray*)where complete:(void (^)(NSArray* array))complete{
     //检查是否建立了跟对象相对应的数据表
     NSString* tableName = [NSString stringWithFormat:@"%@",cla];
-    
-    [self isExistWithTableName:tableName complete:^(BOOL isExist) {
+    __weak typeof(self) BGSelf = self;
+    [self isExistWithTableName:tableName complete:^(BOOL isExist){
+        __strong typeof(BGSelf) strongSelf = BGSelf;
         if (!isExist){//如果不存在就返回空
             if (complete) {
                 complete(nil);
             }
         }else{
-            [self queryWithTableName:tableName keys:keys where:where complete:^(NSArray *array) {
-                NSMutableArray* arrM = [NSMutableArray array];
-                for(NSDictionary* dict in array){
-                    id claObj = [cla objectWithKeyValues:dict];
-                    [arrM addObject:claObj];
-                }
+            __weak typeof(BGSelf) secondSelf = strongSelf;
+            [strongSelf queryWithTableName:tableName keys:keys where:where complete:^(NSArray *array) {
+                NSArray* arrM = [secondSelf translateResult:cla with:array];
                 if (complete) {
                     complete(arrM);
                 }
@@ -452,13 +606,15 @@ static BGFMDB* BGFmdb;
  */
 -(void)updateWithClass:(__unsafe_unretained Class)cla valueDict:(NSDictionary*)valueDict where:(NSArray*)where complete:(void (^)(BOOL isSuccess))complete{
     NSString* tableName = [NSString stringWithFormat:@"%@",cla];
-    [self isExistWithTableName:tableName complete:^(BOOL isExist) {
+    __weak typeof(self) BGSelf = self;
+    [self isExistWithTableName:tableName complete:^(BOOL isExist){
+        __strong typeof(BGSelf) strongSelf = BGSelf;
         if (!isExist){//如果不存在就返回NO
             if (complete) {
                 complete(NO);
             }
         }else{
-          [self updateWithTableName:tableName valueDict:valueDict where:where complete:complete];
+          [strongSelf updateWithTableName:tableName valueDict:valueDict where:where complete:complete];
         }
     }];
 }
@@ -469,13 +625,15 @@ static BGFMDB* BGFmdb;
  */
 -(void)deleteWithClass:(__unsafe_unretained Class)cla where:(NSArray*)where complete:(void (^)(BOOL isSuccess))complete{
     NSString* tableName = [NSString stringWithFormat:@"%@",cla];
-    [self isExistWithTableName:tableName complete:^(BOOL isExist) {
+    __weak typeof(self) BGSelf = self;
+    [self isExistWithTableName:tableName complete:^(BOOL isExist){
+        __strong typeof(BGSelf) strongSelf = BGSelf;
         if (!isExist){//如果不存在就返回NO
             if (complete) {
                 complete(NO);
             }
         }else{
-            [self deleteWithTableName:tableName where:where complete:complete];
+            [strongSelf deleteWithTableName:tableName where:where complete:complete];
         }
     }];
     
@@ -485,13 +643,15 @@ static BGFMDB* BGFmdb;
  */
 -(void)clearWithClass:(__unsafe_unretained Class)cla complete:(void (^)(BOOL isSuccess))complete{
     NSString* tableName = [NSString stringWithFormat:@"%@",cla];
+    __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist) {
+        __strong typeof(BGSelf) strongSelf = BGSelf;
         if (!isExist){//如果不存在就返回NO
             if (complete) {
                 complete(NO);
             }
         }else{
-            [self clearTable:tableName complete:complete];
+            [strongSelf clearTable:tableName complete:complete];
         }
     }];
 }
@@ -500,13 +660,15 @@ static BGFMDB* BGFmdb;
  */
 -(void)dropWithClass:(__unsafe_unretained Class)cla complete:(void (^)(BOOL isSuccess))complete{
     NSString* tableName = [NSString stringWithFormat:@"%@",cla];
-    [self isExistWithTableName:tableName complete:^(BOOL isExist) {
+    __weak typeof(self) BGSelf = self;
+    [self isExistWithTableName:tableName complete:^(BOOL isExist){
+        __strong typeof(BGSelf) strongSelf = BGSelf;
         if (!isExist){//如果不存在就返回NO
             if (complete) {
                 complete(NO);
             }
         }else{
-            [self dropTable:tableName complete:complete];
+            [strongSelf dropTable:tableName complete:complete];
         }
     }];
 }

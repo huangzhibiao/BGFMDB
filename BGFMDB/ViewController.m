@@ -58,9 +58,16 @@
     
     //存储对象使用示例
     people* p = [[people alloc] init];
-    p.name = @"马坤";
-    p.num = @(8);
-    p.age = 12;
+    p.name = @"标哥";
+    p.num = @(820);
+    p.age = 20;
+    p.sex = @"男";
+    [p setValue:@(110) forKey:@"testAge"];
+    p->testName = @"测试名字";
+    p.sex_old = @"新名";
+    p.students = @[@(1),@"呵呵"];
+    p.info = @{@"name":@"标哥",@"年龄":@(1)};
+    
     [[BGFMDB intance] saveObject:p complete:^(BOOL isSuccess){}];
     //[[BGFMDB intance] updateWithClass:[people class] valueDict:@{@"name":@"fuck"} where:nil complete:^(BOOL isSuccess){}];
     //[[BGFMDB intance] deleteWithClass:[people class] where:@[@"num",@"=",@"8"] complete:^(BOOL isSuccess){}];
@@ -80,10 +87,11 @@
     }];*/
     [[BGFMDB intance] queryObjectWithClass:[people class] keys:nil where:nil complete:^(NSArray *array) {
         for(people* p in array){
-            NSLog(@"查询结果  name = %@,num = %@,age = %d",p.name,p.num,p.age);
+            NSLog(@"查询结果  testAge = %d,testName = %@,name = %@,num = %@,age = %d,students = %@",p->testAge,p->testName,p.name,p.num,p.age,p.students);
         }
+
     }];
-    
+    NSLog(@"qqqq");
 }
 
 -(void)initTableview{

@@ -5,7 +5,7 @@
 //  Created by huangzhibiao on 16/4/28.
 //  Copyright © 2016年 Biao. All rights reserved.
 //
-
+#warning 存储对象时,如果变量名改变了,请先存储再查询,不然可能查询不到新增的变量名(字段名)
 #import <Foundation/Foundation.h>
 
 @interface BGFMDB : NSObject
@@ -57,6 +57,10 @@
  删除表
  */
 -(void)dropTable:(NSString*)name complete:(void (^)(BOOL isSuccess))complete;
+/**
+ 动态添加表字段
+ */
+-(void)addTable:(NSString*)name key:(NSString*)key complete:(void (^)(BOOL isSuccess))complete;
 
 /**----------------------------------华丽分割线---------------------------------------------*/
 #pragma mark --> 以下是存储一个对象的API

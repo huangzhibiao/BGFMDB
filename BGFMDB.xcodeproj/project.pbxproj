@@ -23,15 +23,6 @@
 		D70663581CD1F144009E4B4D /* BGFMDB.m in Sources */ = {isa = PBXBuildFile; fileRef = D70663571CD1F144009E4B4D /* BGFMDB.m */; };
 		D706635A1CD20637009E4B4D /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D70663591CD20637009E4B4D /* libsqlite3.tbd */; };
 		D781DEBC1D9A5506007B6FB4 /* people.m in Sources */ = {isa = PBXBuildFile; fileRef = D781DEBB1D9A5506007B6FB4 /* people.m */; };
-		D781DED11D9A62BD007B6FB4 /* MJArgument.m in Sources */ = {isa = PBXBuildFile; fileRef = D781DEBF1D9A62BD007B6FB4 /* MJArgument.m */; };
-		D781DED21D9A62BD007B6FB4 /* MJIvar.m in Sources */ = {isa = PBXBuildFile; fileRef = D781DEC21D9A62BD007B6FB4 /* MJIvar.m */; };
-		D781DED31D9A62BD007B6FB4 /* MJMember.m in Sources */ = {isa = PBXBuildFile; fileRef = D781DEC41D9A62BD007B6FB4 /* MJMember.m */; };
-		D781DED41D9A62BD007B6FB4 /* MJMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = D781DEC61D9A62BD007B6FB4 /* MJMethod.m */; };
-		D781DED51D9A62BD007B6FB4 /* MJType.m in Sources */ = {isa = PBXBuildFile; fileRef = D781DEC81D9A62BD007B6FB4 /* MJType.m */; };
-		D781DED61D9A62BD007B6FB4 /* MJTypeEncoding.m in Sources */ = {isa = PBXBuildFile; fileRef = D781DECA1D9A62BD007B6FB4 /* MJTypeEncoding.m */; };
-		D781DED71D9A62BD007B6FB4 /* NSObject+MJCoding.m in Sources */ = {isa = PBXBuildFile; fileRef = D781DECC1D9A62BD007B6FB4 /* NSObject+MJCoding.m */; };
-		D781DED81D9A62BD007B6FB4 /* NSObject+MJKeyValue.m in Sources */ = {isa = PBXBuildFile; fileRef = D781DECE1D9A62BD007B6FB4 /* NSObject+MJKeyValue.m */; };
-		D781DED91D9A62BD007B6FB4 /* NSObject+MJMember.m in Sources */ = {isa = PBXBuildFile; fileRef = D781DED01D9A62BD007B6FB4 /* NSObject+MJMember.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,25 +88,6 @@
 		D70663591CD20637009E4B4D /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		D781DEBA1D9A5506007B6FB4 /* people.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = people.h; sourceTree = "<group>"; };
 		D781DEBB1D9A5506007B6FB4 /* people.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = people.m; sourceTree = "<group>"; };
-		D781DEBE1D9A62BD007B6FB4 /* MJArgument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJArgument.h; sourceTree = "<group>"; };
-		D781DEBF1D9A62BD007B6FB4 /* MJArgument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJArgument.m; sourceTree = "<group>"; };
-		D781DEC01D9A62BD007B6FB4 /* MJExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJExtension.h; sourceTree = "<group>"; };
-		D781DEC11D9A62BD007B6FB4 /* MJIvar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJIvar.h; sourceTree = "<group>"; };
-		D781DEC21D9A62BD007B6FB4 /* MJIvar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJIvar.m; sourceTree = "<group>"; };
-		D781DEC31D9A62BD007B6FB4 /* MJMember.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJMember.h; sourceTree = "<group>"; };
-		D781DEC41D9A62BD007B6FB4 /* MJMember.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJMember.m; sourceTree = "<group>"; };
-		D781DEC51D9A62BD007B6FB4 /* MJMethod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJMethod.h; sourceTree = "<group>"; };
-		D781DEC61D9A62BD007B6FB4 /* MJMethod.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJMethod.m; sourceTree = "<group>"; };
-		D781DEC71D9A62BD007B6FB4 /* MJType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJType.h; sourceTree = "<group>"; };
-		D781DEC81D9A62BD007B6FB4 /* MJType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJType.m; sourceTree = "<group>"; };
-		D781DEC91D9A62BD007B6FB4 /* MJTypeEncoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJTypeEncoding.h; sourceTree = "<group>"; };
-		D781DECA1D9A62BD007B6FB4 /* MJTypeEncoding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJTypeEncoding.m; sourceTree = "<group>"; };
-		D781DECB1D9A62BD007B6FB4 /* NSObject+MJCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+MJCoding.h"; sourceTree = "<group>"; };
-		D781DECC1D9A62BD007B6FB4 /* NSObject+MJCoding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+MJCoding.m"; sourceTree = "<group>"; };
-		D781DECD1D9A62BD007B6FB4 /* NSObject+MJKeyValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+MJKeyValue.h"; sourceTree = "<group>"; };
-		D781DECE1D9A62BD007B6FB4 /* NSObject+MJKeyValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+MJKeyValue.m"; sourceTree = "<group>"; };
-		D781DECF1D9A62BD007B6FB4 /* NSObject+MJMember.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+MJMember.h"; sourceTree = "<group>"; };
-		D781DED01D9A62BD007B6FB4 /* NSObject+MJMember.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+MJMember.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -223,7 +195,6 @@
 		D70663441CD1F0F8009E4B4D /* libs */ = {
 			isa = PBXGroup;
 			children = (
-				D781DEBD1D9A62BD007B6FB4 /* MJExtension */,
 				D70663451CD1F10D009E4B4D /* FMDB */,
 			);
 			path = libs;
@@ -245,32 +216,6 @@
 				D70663501CD1F10D009E4B4D /* FMResultSet.m */,
 			);
 			path = FMDB;
-			sourceTree = "<group>";
-		};
-		D781DEBD1D9A62BD007B6FB4 /* MJExtension */ = {
-			isa = PBXGroup;
-			children = (
-				D781DEBE1D9A62BD007B6FB4 /* MJArgument.h */,
-				D781DEBF1D9A62BD007B6FB4 /* MJArgument.m */,
-				D781DEC01D9A62BD007B6FB4 /* MJExtension.h */,
-				D781DEC11D9A62BD007B6FB4 /* MJIvar.h */,
-				D781DEC21D9A62BD007B6FB4 /* MJIvar.m */,
-				D781DEC31D9A62BD007B6FB4 /* MJMember.h */,
-				D781DEC41D9A62BD007B6FB4 /* MJMember.m */,
-				D781DEC51D9A62BD007B6FB4 /* MJMethod.h */,
-				D781DEC61D9A62BD007B6FB4 /* MJMethod.m */,
-				D781DEC71D9A62BD007B6FB4 /* MJType.h */,
-				D781DEC81D9A62BD007B6FB4 /* MJType.m */,
-				D781DEC91D9A62BD007B6FB4 /* MJTypeEncoding.h */,
-				D781DECA1D9A62BD007B6FB4 /* MJTypeEncoding.m */,
-				D781DECB1D9A62BD007B6FB4 /* NSObject+MJCoding.h */,
-				D781DECC1D9A62BD007B6FB4 /* NSObject+MJCoding.m */,
-				D781DECD1D9A62BD007B6FB4 /* NSObject+MJKeyValue.h */,
-				D781DECE1D9A62BD007B6FB4 /* NSObject+MJKeyValue.m */,
-				D781DECF1D9A62BD007B6FB4 /* NSObject+MJMember.h */,
-				D781DED01D9A62BD007B6FB4 /* NSObject+MJMember.m */,
-			);
-			path = MJExtension;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -405,21 +350,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D781DED71D9A62BD007B6FB4 /* NSObject+MJCoding.m in Sources */,
-				D781DED31D9A62BD007B6FB4 /* MJMember.m in Sources */,
-				D781DED51D9A62BD007B6FB4 /* MJType.m in Sources */,
-				D781DED21D9A62BD007B6FB4 /* MJIvar.m in Sources */,
-				D781DED81D9A62BD007B6FB4 /* NSObject+MJKeyValue.m in Sources */,
-				D781DED11D9A62BD007B6FB4 /* MJArgument.m in Sources */,
-				D781DED41D9A62BD007B6FB4 /* MJMethod.m in Sources */,
-				D781DED91D9A62BD007B6FB4 /* NSObject+MJMember.m in Sources */,
 				D70663181CD1EF67009E4B4D /* ViewController.m in Sources */,
 				D70663531CD1F10D009E4B4D /* FMDatabasePool.m in Sources */,
 				D70663151CD1EF67009E4B4D /* AppDelegate.m in Sources */,
 				D70663541CD1F10D009E4B4D /* FMDatabaseQueue.m in Sources */,
 				D70663581CD1F144009E4B4D /* BGFMDB.m in Sources */,
 				D70663121CD1EF67009E4B4D /* main.m in Sources */,
-				D781DED61D9A62BD007B6FB4 /* MJTypeEncoding.m in Sources */,
 				D781DEBC1D9A5506007B6FB4 /* people.m in Sources */,
 				D70663511CD1F10D009E4B4D /* FMDatabase.m in Sources */,
 				D70663551CD1F10D009E4B4D /* FMResultSet.m in Sources */,
