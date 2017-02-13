@@ -22,6 +22,7 @@
 		D70663551CD1F10D009E4B4D /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = D70663501CD1F10D009E4B4D /* FMResultSet.m */; };
 		D70663581CD1F144009E4B4D /* BGFMDB.m in Sources */ = {isa = PBXBuildFile; fileRef = D70663571CD1F144009E4B4D /* BGFMDB.m */; };
 		D706635A1CD20637009E4B4D /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D70663591CD20637009E4B4D /* libsqlite3.tbd */; };
+		D771E72C1E4C4A7200067E80 /* BGManageObject.m in Sources */ = {isa = PBXBuildFile; fileRef = D771E72B1E4C4A7200067E80 /* BGManageObject.m */; };
 		D781DEBC1D9A5506007B6FB4 /* people.m in Sources */ = {isa = PBXBuildFile; fileRef = D781DEBB1D9A5506007B6FB4 /* people.m */; };
 /* End PBXBuildFile section */
 
@@ -86,6 +87,8 @@
 		D70663561CD1F144009E4B4D /* BGFMDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BGFMDB.h; sourceTree = "<group>"; };
 		D70663571CD1F144009E4B4D /* BGFMDB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BGFMDB.m; sourceTree = "<group>"; };
 		D70663591CD20637009E4B4D /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		D771E72A1E4C4A7200067E80 /* BGManageObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BGManageObject.h; sourceTree = "<group>"; };
+		D771E72B1E4C4A7200067E80 /* BGManageObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BGManageObject.m; sourceTree = "<group>"; };
 		D781DEBA1D9A5506007B6FB4 /* people.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = people.h; sourceTree = "<group>"; };
 		D781DEBB1D9A5506007B6FB4 /* people.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = people.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -188,6 +191,8 @@
 				D70663441CD1F0F8009E4B4D /* libs */,
 				D70663561CD1F144009E4B4D /* BGFMDB.h */,
 				D70663571CD1F144009E4B4D /* BGFMDB.m */,
+				D771E72A1E4C4A7200067E80 /* BGManageObject.h */,
+				D771E72B1E4C4A7200067E80 /* BGManageObject.m */,
 			);
 			path = BGFMDB;
 			sourceTree = "<group>";
@@ -359,6 +364,7 @@
 				D781DEBC1D9A5506007B6FB4 /* people.m in Sources */,
 				D70663511CD1F10D009E4B4D /* FMDatabase.m in Sources */,
 				D70663551CD1F10D009E4B4D /* FMResultSet.m in Sources */,
+				D771E72C1E4C4A7200067E80 /* BGManageObject.m in Sources */,
 				D70663521CD1F10D009E4B4D /* FMDatabaseAdditions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

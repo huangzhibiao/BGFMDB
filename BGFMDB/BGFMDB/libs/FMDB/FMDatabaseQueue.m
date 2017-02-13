@@ -143,7 +143,6 @@ static const void * const kDispatchQueueSpecificKey = &kDispatchQueueSpecificKey
     assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
     
     FMDBRetain(self);
-    
     dispatch_sync(_queue, ^() {
         
         FMDatabase *db = [self database];
