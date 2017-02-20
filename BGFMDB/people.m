@@ -8,15 +8,11 @@
 
 #import "people.h"
 
-@implementation People
+@implementation Man
 
--(void)test{
-    NSLog(@"test...");
-}
-//设置ID为主键.
--(NSString *)primaryKey{
-    return @"ID";
-}
+@end
+
+@implementation People
 
 @end
 

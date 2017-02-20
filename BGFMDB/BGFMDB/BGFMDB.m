@@ -6,11 +6,11 @@
 //  Copyright © 2016年 Biao. All rights reserved.
 //
 
+
 #import "BGFMDB.h"
 #import "FMDB.h"
-#import <objc/runtime.h>
 
-#define SQLITE_NAME @"BGSqlite.sqlite"
+#define debug(sql) if(self.debug){NSLog(@"SQL语句: %@",sql);}
 
 @interface BGFMDB()
 
@@ -22,36 +22,12 @@ static BGFMDB* BGFmdb;
 
 @implementation BGFMDB
 
-/**
- json字符转json格式数据 .
- */
--(id )jsonWithString:(NSString* _Nonnull)jsonString {
-    if (jsonString == nil) {
-        return nil;
+-(void)dealloc{
+    if (self.queue) {
+        [self.queue close];//关闭数据库
+        self.queue = nil;
     }
-    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-    NSError *err;
-    id dic = [NSJSONSerialization JSONObjectWithData:jsonData
-                                             options:NSJSONReadingMutableContainers
-                                               error:&err];
-    
-    if(err) {
-        NSLog(@"json解析失败：%@",err);
-        return nil;
-    }
-    return dic;
-    
 }
-/**
- 字典转json字符 .
- */
--(NSString*)dataToJson:(id _Nonnull)data
-{
-    NSError *parseError = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:data options:NSJSONWritingPrettyPrinted error:&parseError];
-    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-}
-
 
 -(instancetype)init{
     self = [super init];
@@ -81,14 +57,8 @@ static BGFMDB* BGFmdb;
 /**
  数据库中是否存在表.
  */
--(void)isExistWithTableName:(NSString* _Nonnull)name complete:(void (^_Nonnull)(BOOL isExist))complete{
-    if (name==nil){
-        NSLog(@"表名不能为空!");
-        if (complete) {
-            complete(NO);
-        }
-        return;
-    }
+-(void)isExistWithTableName:(NSString* _Nonnull)name complete:(Complete_B)complete{
+    NSAssert(name,@"表名不能为空!");
     __block BOOL result;
     [self.queue inDatabase:^(FMDatabase *db){
         result = [db tableExists:name];
@@ -98,24 +68,13 @@ static BGFMDB* BGFmdb;
     }
 }
 
+
 /**
  创建表(如果存在则不创建).
  */
--(void)createTableWithTableName:(NSString* _Nonnull)name keys:(NSArray* _Nonnull)keys primaryKey:(NSString* _Nullable)primarykey complete:(void (^_Nonnull)(BOOL isSuccess))complete{
-    if (name == nil) {
-        NSLog(@"表名不能为空!");
-        if (complete) {
-            complete(NO);
-        }
-        return;
-    }else if (keys == nil){
-        NSLog(@"字段数组不能为空!");
-        if (complete) {
-            complete(NO);
-        }
-        return;
-    }else;
-    
+-(void)createTableWithTableName:(NSString* _Nonnull)name keys:(NSArray<NSString*>* _Nonnull)keys primaryKey:(NSString* _Nullable)primarykey complete:(Complete_B)complete{
+    NSAssert(name,@"表名不能为空!");
+    NSAssert(keys,@"字段数组不能为空!");
     //创表
     __block BOOL result;
     [self.queue inDatabase:^(FMDatabase *db){
@@ -125,13 +84,13 @@ static BGFMDB* BGFmdb;
         for(int i=0;i<keys.count;i++){
             
             if(primarykey){
-                if([primarykey isEqualToString:keys[i]]){
-                    [sql appendFormat:@"%@ text primary key",keys[i]];
+                if([BGTool isPrimary:primarykey with:keys[i]]){
+                    [sql appendFormat:@"%@ primary key",[BGTool keyAndType:keys[i]]];
                 }else{
-                    [sql appendFormat:@"%@ text",keys[i]];
+                    [sql appendString:[BGTool keyAndType:keys[i]]];
                 }
             }else{
-                [sql appendFormat:@"%@ text",keys[i]];
+                [sql appendString:[BGTool keyAndType:keys[i]]];
             }
             
             if (i == (keys.count-1)) {
@@ -139,7 +98,8 @@ static BGFMDB* BGFmdb;
             }else{
                 [sql appendString:@","];
             }
-        }NSLog(@"建表语句 = %@",sql);
+        }
+        debug(sql);
         result = [db executeUpdate:sql];
     }];
     if (complete){
@@ -149,24 +109,11 @@ static BGFMDB* BGFmdb;
 /**
  插入数据.
  */
--(void)insertIntoTableName:(NSString* _Nonnull)name Dict:(NSDictionary* _Nonnull)dict complete:(void (^_Nonnull)(BOOL isSuccess))complete{
-    if (name == nil) {
-        NSLog(@"表名不能为空!");
-        if (complete) {
-            complete(NO);
-        }
-        return;
-    }else if (dict == nil){
-        NSLog(@"插入值字典不能为空!");
-        if (complete) {
-            complete(NO);
-        }
-        return;
-    }else;
+-(void)insertIntoTableName:(NSString* _Nonnull)name Dict:(NSDictionary* _Nonnull)dict complete:(Complete_B)complete{
+    NSAssert(name,@"表名不能为空!");
+    NSAssert(dict,@"插入值字典不能为空!");
     __block BOOL result;
-    //__weak typeof(self) BGSelf = self;
     [self.queue inDatabase:^(FMDatabase *db) {
-        //__strong typeof(BGSelf) strongSelf = BGSelf;
         NSArray* keys = dict.allKeys;
         NSArray* values = dict.allValues;
         NSMutableString* SQL = [[NSMutableString alloc] init];
@@ -188,8 +135,9 @@ static BGFMDB* BGFmdb;
                 [SQL appendString:@","];
             }
         }
+        
+        debug(SQL);
         result = [db executeUpdate:SQL withArgumentsInArray:values];
-        //NSLog(@"插入 -- %d",result);
     }];
     if (complete) {
         complete(result);
@@ -198,16 +146,10 @@ static BGFMDB* BGFmdb;
 /**
  根据条件查询字段.
  */
--(void)queryWithTableName:(NSString* _Nonnull)name keys:(NSArray* _Nullable)keys where:(NSArray* _Nullable)where complete:(void (^_Nonnull)(NSArray* _Nullable array))complete{
-    if (name == nil) {
-        NSLog(@"表名不能为空!");
-        if (complete) {
-            complete(nil);
-        }
-        return;
-    }
-    
+-(void)queryWithTableName:(NSString* _Nonnull)name keys:(NSArray<NSString*>* _Nullable)keys where:(NSArray* _Nullable)where complete:(Complete_A)complete{
+    NSAssert(name,@"表名不能为空!");
     __block NSMutableArray* arrM = [[NSMutableArray alloc] init];
+    __block NSArray* arguments;
     [self.queue inDatabase:^(FMDatabase *db) {
         NSMutableString* SQL = [[NSMutableString alloc] init];
         [SQL appendString:@"select"];
@@ -223,28 +165,17 @@ static BGFMDB* BGFmdb;
             [SQL appendString:@" *"]; 
         }
         [SQL appendFormat:@" from %@",name];
-        if ((where!=nil) && (where.count>0)){
-            if(!(where.count%3)){
-                [SQL appendString:@" where "];
-                for(int i=0;i<where.count;i+=3){
-                    [SQL appendFormat:@"%@%@'%@'",where[i],where[i+1],where[i+2]];
-                    if (i != (where.count-3)) {
-                        [SQL appendString:@" and "];
-                    }
-                }
-            }else{
-              NSLog(@"条件数组错误!");
-            }
+        
+        if((where!=nil) && (where.count>0)){
+            NSArray* results = [BGTool where:where];
+            [SQL appendString:results[0]];
+            arguments = results[1];
         }
+        
+        debug(SQL);
         // 1.查询数据
-        FMResultSet *rs = [db executeQuery:SQL];
-        if(!rs){//查询错误
-            NSLog(@"查询错误,可能是类变量名发生了改变或字段不存在!,请存储后再读取");
-            if (complete) {
-                complete(nil);
-            }
-            return;
-        }
+        FMResultSet *rs = [db executeQuery:SQL withArgumentsInArray:arguments];
+        NSAssert(rs,@"查询错误,可能是 类变量名 发生了改变或 字段 不存在!,请存储后再读取,或检查条件数组 字段名称 是否正确");
         // 2.遍历结果集
         while (rs.next) {
             NSMutableDictionary* dictM = [[NSMutableDictionary alloc] init];
@@ -254,6 +185,7 @@ static BGFMDB* BGFmdb;
             [arrM addObject:dictM];
         }
     }];
+    
     if (complete) {
         complete(arrM);
     }
@@ -261,25 +193,60 @@ static BGFMDB* BGFmdb;
 }
 
 /**
- 全部查询.
+ 查询对象.
  */
--(void)queryWithTableName:(NSString* _Nonnull)name param:(NSString* _Nullable)param complete:(void (^ _Nonnull )(NSArray*_Nullable array))complete{
-    if (name==nil){
-        NSLog(@"表名不能为空!");
-        if (complete) {
-            complete(nil);
+-(void)queryWithTableName:(NSString* _Nonnull)name param:(NSString* _Nullable)param where:(NSArray* _Nullable)where complete:(Complete_A)complete{
+    NSAssert(name,@"表名不能为空!");
+    __block NSMutableArray* arrM = [[NSMutableArray alloc] init];
+    __block NSArray* arguments;
+    [self.queue inDatabase:^(FMDatabase *db) {
+        NSMutableString* SQL = [NSMutableString string];
+        [SQL appendFormat:@"select * from %@",name];
+        
+        if ((where!=nil) && (where.count>0)){
+            if((where!=nil) && (where.count>0)){
+                NSArray* results = [BGTool where:where];
+                [SQL appendString:results[0]];
+                arguments = results[1];
+            }
         }
-        return;
-    }
+        
+        !param?:[SQL appendFormat:@" %@",param];
+        debug(SQL);
+        // 1.查询数据
+        FMResultSet *rs = [db executeQuery:SQL withArgumentsInArray:arguments];
+        // 2.遍历结果集
+        while (rs.next) {
+            NSMutableDictionary* dictM = [[NSMutableDictionary alloc] init];
+            for (int i=0;i<[[[rs columnNameToIndexMap] allKeys] count];i++) {
+                dictM[[rs columnNameForIndex:i]] = [rs objectForColumnIndex:i];
+            }
+            [arrM addObject:dictM];
+        }
+    }];
     
+    if (complete) {
+        complete(arrM);
+    }
+    //NSLog(@"查询 -- %@",arrM);
+}
+
+-(void)queryWithTableName:(NSString* _Nonnull)name forKeyPath:(NSString* _Nonnull)keyPath value:(id _Nonnull)value complete:(Complete_A)complete{
+    NSAssert([keyPath containsString:@"."], @"keyPath错误,正确形式如: user.stident.name");
+    NSAssert(value,@"值不能为空!");
+    NSArray* keypaths = [keyPath componentsSeparatedByString:@"."];
+    NSMutableString* keyPathParam = [NSMutableString string];
+    for(int i=1;i<keypaths.count;i++){
+        i!=1?:[keyPathParam appendString:@"%"];
+        [keyPathParam appendFormat:@"%@",keypaths[i]];
+        [keyPathParam appendString:@"%"];
+    }
+    [keyPathParam appendFormat:@"%@",value];
+    [keyPathParam appendString:@"%"];
     __block NSMutableArray* arrM = [[NSMutableArray alloc] init];
     [self.queue inDatabase:^(FMDatabase *db) {
-        NSString* SQL;
-        if (param) {
-            SQL = [NSString stringWithFormat:@"select * from %@ %@",name,param];
-        }else{
-            SQL = [NSString stringWithFormat:@"select * from %@",name];
-        }
+        NSString* SQL = [NSString stringWithFormat:@"select * from People where %@ like '%@'",keypaths[0],keyPathParam];
+        debug(SQL);
         // 1.查询数据
         FMResultSet *rs = [db executeQuery:SQL];
         // 2.遍历结果集
@@ -291,49 +258,42 @@ static BGFMDB* BGFmdb;
             [arrM addObject:dictM];
         }
     }];
+    
     if (complete) {
         complete(arrM);
     }
-    //NSLog(@"查询 -- %@",arrM);
 }
 
 /**
  更新数据.
  */
--(void)updateWithTableName:(NSString* _Nonnull)name valueDict:(NSDictionary* _Nonnull)valueDict where:(NSArray* _Nullable)where complete:(void (^_Nonnull)(BOOL isSuccess))complete{
-    if (name == nil) {
-        NSLog(@"表名不能为空!");
-        if (complete) {
-            complete(NO);
-        }
-        return;
-    }
+-(void)updateWithTableName:(NSString* _Nonnull)name valueDict:(NSDictionary* _Nonnull)valueDict where:(NSArray* _Nullable)where complete:(Complete_B)complete{
+    NSAssert(name,@"表名不能为空!");
+    
     __block BOOL result;
+    __block NSMutableArray* arguments = [NSMutableArray array];
     [self.queue inDatabase:^(FMDatabase *db) {
         NSMutableString* SQL = [[NSMutableString alloc] init];
         [SQL appendFormat:@"update %@ set ",name];
         for(int i=0;i<valueDict.allKeys.count;i++){
-            [SQL appendFormat:@"%@='%@'",valueDict.allKeys[i],valueDict[valueDict.allKeys[i]]];
+            [SQL appendFormat:@"%@=?",valueDict.allKeys[i]];
+            [arguments addObject:valueDict[valueDict.allKeys[i]]];
             if (i != (valueDict.allKeys.count-1)) {
                 [SQL appendString:@","];
             }
         }
         if ((where!=nil) && (where.count>0)){
-            if(!(where.count%3)){
-                [SQL appendString:@" where "];
-                for(int i=0;i<where.count;i+=3){
-                    [SQL appendFormat:@"%@%@'%@'",where[i],where[i+1],where[i+2]];
-                    if (i != (where.count-3)) {
-                        [SQL appendString:@" and "];
-                    }
-                }
-            }else{
-                NSLog(@"条件数组格式错误!");
+            if((where!=nil) && (where.count>0)){
+                NSArray* results = [BGTool where:where];
+                [SQL appendString:results[0]];
+                [arguments addObjectsFromArray:results[1]];
             }
         }
-        result = [db executeUpdate:SQL];
+        debug(SQL);
+        result = [db executeUpdate:SQL withArgumentsInArray:arguments];
         //NSLog(@"更新:  %@",SQL);
     }];
+    
     if (complete) {
         complete(result);
     }
@@ -342,32 +302,26 @@ static BGFMDB* BGFmdb;
 /**
  根据条件删除数据.
  */
--(void)deleteWithTableName:(NSString* _Nonnull)name where:(NSArray* _Nonnull)where complete:(void (^_Nonnull)(BOOL isSuccess))complete{
-    if (name == nil) {
-        NSLog(@"表名不能为空!");
-        if (complete) {
-            complete(NO);
-        }
-        return;
-    }else if (where==nil || (where.count%3)){
-        NSLog(@"条件数组错误!");
-        if (complete) {
-            complete(NO);
-        }
-        return;
-    }else;
+-(void)deleteWithTableName:(NSString* _Nonnull)name where:(NSArray* _Nonnull)where complete:(Complete_B)complete{
+    NSAssert(name,@"表名不能为空!");
+    NSAssert(where,@"条件数组错误! 不能为空");
     __block BOOL result;
+    __block NSMutableArray* arguments = [NSMutableArray array];
     [self.queue inDatabase:^(FMDatabase *db) {
         NSMutableString* SQL = [[NSMutableString alloc] init];
-        [SQL appendFormat:@"delete from %@ where ",name];
-        for(int i=0;i<where.count;i+=3){
-            [SQL appendFormat:@"%@%@'%@'",where[i],where[i+1],where[i+2]];
-            if (i != (where.count-3)) {
-                [SQL appendString:@" and "];
+        [SQL appendFormat:@"delete from %@",name];
+        
+        if ((where!=nil) && (where.count>0)){
+            if((where!=nil) && (where.count>0)){
+                NSArray* results = [BGTool where:where];
+                [SQL appendString:results[0]];
+                [arguments addObjectsFromArray:results[1]];
             }
         }
-        result = [db executeUpdate:SQL];
+        debug(SQL);
+        result = [db executeUpdate:SQL withArgumentsInArray:arguments];
     }];
+    
     if (complete){
         complete(result);
     }
@@ -375,17 +329,12 @@ static BGFMDB* BGFmdb;
 /**
  根据表名删除表格全部内容.
  */
--(void)clearTable:(NSString* _Nonnull)name complete:(void (^_Nonnull)(BOOL isSuccess))complete{
-    if (name==nil){
-        NSLog(@"表名不能为空!");
-        if (complete) {
-            complete(NO);
-        }
-        return;
-    }
+-(void)clearTable:(NSString* _Nonnull)name complete:(Complete_B)complete{
+    NSAssert(name,@"表名不能为空!");
     __block BOOL result;
     [self.queue inDatabase:^(FMDatabase *db) {
         NSString* SQL = [NSString stringWithFormat:@"delete from %@",name];
+        debug(SQL);
         result = [db executeUpdate:SQL];
     }];
     if (complete) {
@@ -396,17 +345,12 @@ static BGFMDB* BGFmdb;
 /**
  删除表.
  */
--(void)dropTable:(NSString* _Nonnull)name complete:(void (^_Nonnull)(BOOL isSuccess))complete{
-    if (name==nil){
-        NSLog(@"表名不能为空!");
-        if (complete) {
-            complete(NO);
-        }
-        return;
-    }
+-(void)dropTable:(NSString* _Nonnull)name complete:(Complete_B)complete{
+    NSAssert(name,@"表名不能为空!");
     __block BOOL result;
     [self.queue inDatabase:^(FMDatabase *db) {
         NSString* SQL = [NSString stringWithFormat:@"drop table %@",name];
+        debug(SQL);
         result = [db executeUpdate:SQL];
     }];
     if (complete) {
@@ -416,50 +360,118 @@ static BGFMDB* BGFmdb;
 /**
  动态添加表字段.
  */
--(void)addTable:(NSString* _Nonnull)name key:(NSString* _Nonnull)key complete:(void (^_Nonnull)(BOOL isSuccess))complete{
-    if (name==nil){
-        NSLog(@"表名不能为空!");
-        if (complete) {
-            complete(NO);
-        }
-        return;
-    }
+-(void)addTable:(NSString* _Nonnull)name key:(NSString* _Nonnull)key complete:(Complete_B)complete{
+    NSAssert(name,@"表名不能为空!");
     __block BOOL result;
-    [self.queue inDatabase:^(FMDatabase *db) {
-        result = [db executeUpdate:[NSString stringWithFormat:@"alter table %@ add %@ text",name,key]];
+    [self.queue inDatabase:^(FMDatabase *db){
+        NSString* SQL = [NSString stringWithFormat:@"alter table %@ add %@",name,[BGTool keyAndType:key]];
+        debug(SQL);
+        result = [db executeUpdate:SQL];
     }];
     if (complete) {
         complete(result);
     }
 
 }
-//根据类获取变量名列表.
--(NSArray*)getClassIvarList:(__unsafe_unretained Class)cla{
-    unsigned int numIvars; //成员变量个数
-    Ivar *vars = class_copyIvarList(cla, &numIvars);
-    NSMutableArray* keys = [NSMutableArray array];
-    for(int i = 0; i < numIvars; i++) {
-        Ivar thisIvar = vars[i];
-        NSString* key = [NSString stringWithUTF8String:ivar_getName(thisIvar)];//获取成员变量的名
-        if ([key containsString:@"_"]) {
-            key = [key substringFromIndex:1];
+/**
+ 查询该表中有多少条数据
+ */
+-(NSInteger)countForTable:(NSString* _Nonnull)name where:(NSArray* _Nullable)where{
+    NSAssert(name,@"表名不能为空!");
+    NSAssert(!(where.count%3),@"条件数组错误!");
+    NSMutableString* strM = [NSMutableString string];
+    !where?:[strM appendString:@" where "];
+    for(int i=0;i<where.count;i+=3){
+        if ([where[i+2] isKindOfClass:[NSString class]]) {
+            [strM appendFormat:@"%@%@'%@'",where[i],where[i+1],where[i+2]];
+        }else{
+            [strM appendFormat:@"%@%@%@",where[i],where[i+1],where[i+2]];
         }
-        [keys addObject:key];//存储对象的变量名
+        
+        if (i != (where.count-3)) {
+            [strM appendString:@" and "];
+        }
     }
-    free(vars);//释放资源
-    return keys;
+    __block NSUInteger count=0;
+    [self.queue inDatabase:^(FMDatabase *db){
+        NSString* SQL = [NSString stringWithFormat:@"select count (*) from %@%@",name,strM];
+        debug(SQL);
+        [db executeStatements:SQL withResultBlock:^int(NSDictionary *resultsDictionary) {
+            count = [[resultsDictionary.allValues lastObject] integerValue];
+            return 1;
+        }];
+    }];
+    return count;
+}
+/**
+ 刷新数据库，即将旧数据库的数据复制到新建的数据库,这是为了去掉没用的字段.
+ */
+-(void)refreshTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* _Nonnull)keys complete:(Complete_I)complete{
+    NSAssert(name,@"表名不能为空!");
+    NSAssert(keys,@"字段数组不能为空!");
+    __block dealState refreshstate = Error;
+    __block BOOL recordError = NO;
+    __block BOOL recordSuccess = NO;
+    __weak typeof(self) BGSelf = self;
+    //先查询出旧表数据
+    [self queryWithTableName:name keys:nil where:nil complete:^(NSArray * _Nullable array){
+        __strong typeof(BGSelf) strongSelf = BGSelf;
+        //接着删掉旧表
+        [BGSelf dropTable:name complete:^(BOOL isSuccess){
+            __strong typeof(BGSelf) secondSelf = strongSelf;
+            if (isSuccess) {
+                //创建新表
+                [strongSelf createTableWithTableName:name keys:keys primaryKey:nil complete:^(BOOL isSuccess){
+                    if(isSuccess){
+                        for(NSDictionary* oldDict in array){
+                            NSMutableDictionary* newDict = [NSMutableDictionary dictionary];
+                            for(NSString* keyAndType in keys){
+                                NSString* key = [keyAndType componentsSeparatedByString:@"*"][0];
+                                if (oldDict[key]) {
+                                    newDict[key] = oldDict[key];
+                                }
+                            }
+                            //将旧表的数据插入到新表
+                            [secondSelf insertIntoTableName:name Dict:newDict complete:^(BOOL isSuccess){
+                                if (isSuccess){
+                                    if (!recordSuccess) {
+                                        recordSuccess = YES;
+                                    }
+                                }else{
+                                    if (!recordError) {
+                                        recordError = YES;
+                                    }
+                                }
+                            }];
+                        }
+                    }
+                    
+                }];
+            }
+        }];
+    }];
+    
+    if (complete){
+        if (recordError && recordSuccess) {
+            refreshstate = Incomplete;
+        }else if(recordError && !recordSuccess){
+            refreshstate = Error;
+        }else if (recordSuccess && !recordError){
+            refreshstate = Complete;
+        }else;
+        complete(refreshstate);
+    }
 }
 //判断类的变量名是否变更,然后改变表字段结构.
 -(void)changeTableWhenClassIvarChange:(__unsafe_unretained Class)cla{
     NSString* tableName = [NSString stringWithFormat:@"%@",cla];
     NSMutableArray* newKeys = [NSMutableArray array];
-    __weak typeof(self) BGSelf = self;
     [self.queue inDatabase:^(FMDatabase *db){
-        __strong typeof(BGSelf) strongSelf = BGSelf;
-        NSArray* keys = [strongSelf getClassIvarList:cla];
-        for (NSString* key in keys) {
+        NSArray* keys = [BGTool getClassIvarList:cla onlyKey:NO];
+        for (NSString* keyAndtype in keys){
+            NSString* key = [[keyAndtype componentsSeparatedByString:@"*"] firstObject];
             if(![db columnExists:key inTableWithName:tableName]){
-                [newKeys addObject:key];
+                [newKeys addObject:keyAndtype];
             }
         }
     }];
@@ -467,60 +479,18 @@ static BGFMDB* BGFmdb;
     //写在外面是为了防止数据库队列发生死锁.
     for(NSString* key in newKeys){
         //添加新字段
-        [self addTable:tableName key:key complete:^(BOOL isSuccess){
-            if (isSuccess) {
-                NSLog(@"添加表字段成功 = %@",key);
-            }else{
-                NSLog(@"添加表字段失败! = %@",key);
-            }
-        }];
+        [self addTable:tableName key:key complete:^(BOOL isSuccess){}];
     }
 }
+
 /**
  处理插入的字典数据并返回
  */
--(void)insertDictWithObject:(id)object complete:(void (^_Nonnull)(BOOL isSuccess))complete{
-    
-    NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
-    unsigned int numIvars; //成员变量个数
-    Ivar *vars = class_copyIvarList([object class], &numIvars);
-    for(int i = 0; i < numIvars; i++) {
-        Ivar thisIvar = vars[i];
-        NSString *key = [NSString stringWithUTF8String:ivar_getName(thisIvar)];//获取成员变量的名字
-        if ([key containsString:@"_"]) {
-            key = [key substringFromIndex:1];
-        }
-        //NSLog(@"variable name :%@ = %@", key,[object valueForKey:key]);
-        //获取成员变量的数据类型
-        NSString* type = [NSString stringWithUTF8String:ivar_getTypeEncoding(thisIvar)];
-        if ([type containsString:@"@"]) {
-            type = [type substringWithRange:NSMakeRange(2,type.length-3)];
-        }
-        //NSLog(@"key = %@ , type : %@", key,type);
-        if([type isEqualToString:@"NSArray"]){
-            NSString* jsonStr = [NSString stringWithFormat:@"NSArray%@",[self dataToJson:[object valueForKey:key]]];
-            [dictM setValue:jsonStr forKey:key];
-        }else if([type isEqualToString:@"NSDictionary"]){
-            NSString* jsonStr = [NSString stringWithFormat:@"NSDictionary%@",[self dataToJson:[object valueForKey:key]]];
-            [dictM setValue:jsonStr forKey:key];
-        }else{
-            Class cla = NSClassFromString(type);
-            //NSLog(@"父类 = %@",NSStringFromClass([cla superclass]));
-            if ([@"BGManageObject" isEqualToString:NSStringFromClass([cla superclass])]){
-                NSString* jsonString = [self jsonWithObject:[object valueForKey:key]];
-                [dictM setValue:jsonString forKey:key];
-            }else{
-                //setObject:ForKey: object cannot be nil but setValue:ForKey: can;
-                [dictM setValue:([object valueForKey:key]==nil)?@"0":[object valueForKey:key] forKey:key];
-            }
-        }
-        
-    }
-    free(vars);//释放资源
-    
+-(void)insertDictWithObject:(id)object complete:(Complete_B)complete{
+    NSDictionary* dict = [BGTool dictionaryWithObject:object];
     NSString* tableName = [NSString stringWithFormat:@"%@",[object class]];
     __weak typeof(self) BGSelf = self;
-    [self insertIntoTableName:tableName Dict:dictM complete:^(BOOL isSuccess){
+    [self insertIntoTableName:tableName Dict:dict complete:^(BOOL isSuccess){
         __strong typeof(BGSelf) strongSelf = BGSelf;
         if (isSuccess) {
             if (complete) {
@@ -529,62 +499,22 @@ static BGFMDB* BGFmdb;
         }else{
             //检查表字段是否有改变
             [strongSelf changeTableWhenClassIvarChange:[object class]];
-            [strongSelf insertIntoTableName:tableName Dict:dictM complete:complete];
+            [strongSelf insertIntoTableName:tableName Dict:dict complete:complete];
         }
     }];
 
 }
-//转换变量数据(插入时)
--(NSString*)jsonWithObject:(id)object{
-    NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
-    unsigned int numIvars; //成员变量个数
-    Ivar *vars = class_copyIvarList([object class], &numIvars);
-    for(int i = 0; i < numIvars; i++) {
-        Ivar thisIvar = vars[i];
-        NSString *key = [NSString stringWithUTF8String:ivar_getName(thisIvar)];//获取成员变量的名字
-        if ([key containsString:@"_"]) {
-            key = [key substringFromIndex:1];
-        }
-        
-        //NSLog(@"variable name :%@ = %@", key,[object valueForKey:key]);
-        //获取成员变量的数据类型
-        NSString* type = [NSString stringWithUTF8String:ivar_getTypeEncoding(thisIvar)];
-        if ([type containsString:@"@"]) {
-            type = [type substringWithRange:NSMakeRange(2,type.length-3)];
-        }
-        //NSLog(@"variable type :%@", type);
-        if([type isEqualToString:@"NSArray"] || [type isEqualToString:@"NSDictionary"]){
-            NSString* jsonStr = [self dataToJson:[object valueForKey:key]];
-            [dictM setValue:[NSString stringWithFormat:@"BGJSON%@",jsonStr] forKey:key];
-        }else{
-            Class cla = NSClassFromString(type);
-            //NSLog(@"父类 = %@",NSStringFromClass([cla superclass]));
-            if ([@"BGManageObject" isEqualToString:NSStringFromClass([cla superclass])]){
-                NSString* jsonString = [self jsonWithObject:[object valueForKey:key]];
-                [dictM setValue:jsonString forKey:key];
-            }else{
-                //setValue:ForKey: object cannot be nil
-                [dictM setValue:([object valueForKey:key]==nil)?@"0":[object valueForKey:key] forKey:key];
-            }
-        }
-        
-    }
-    free(vars);//释放资源
-    NSString* result = [NSString stringWithFormat:@"BGManageObject%@%@",NSStringFromClass([object class]),[self dataToJson:dictM]];
-    //NSLog(@"结果 = %@",result);
-    return result;
-}
 /**
  存储一个对象.
  */
--(void)saveObject:(id _Nonnull)object complete:(void (^_Nonnull)(BOOL isSuccess))complete{
+-(void)saveObject:(id _Nonnull)object complete:(Complete_B)complete{
     //检查是否建立了跟对象相对应的数据表
     NSString* tableName = [NSString stringWithFormat:@"%@",[object class]];
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist) {
         __strong typeof(BGSelf) strongSelf = BGSelf;
         if (!isExist){//如果不存在就新建
-            [strongSelf createTableWithTableName:tableName keys:[strongSelf getClassIvarList:[object class]] primaryKey:nil complete:^(BOOL isSuccess) {
+            [strongSelf createTableWithTableName:tableName keys:[BGTool getClassIvarList:[object class] onlyKey:NO] primaryKey:nil complete:^(BOOL isSuccess) {
                 if (isSuccess){
                     NSLog(@"建表成功 第一次建立 %@ 对应的表",tableName);
                 }
@@ -596,66 +526,12 @@ static BGFMDB* BGFmdb;
     }];
 }
 
-//数组转换(读取数据时).
--(NSArray*)translateResult:(__unsafe_unretained Class)cla with:(NSArray*)array{
-    
-    NSArray* keys = [self getClassIvarList:cla];
-    NSMutableArray* arrM = [NSMutableArray array];
-    for(NSDictionary* dict in array){
-        id claObj = [[cla alloc] init];
-        for(NSString* key in keys){
-            if (!dict[key])continue;
-            
-            if([[NSString stringWithFormat:@"%@",dict[key]] containsString:@"NSArray"]){
-                NSArray* tempArrM = [self jsonWithString:[[NSString stringWithFormat:@"%@",dict[key]] stringByReplacingOccurrencesOfString:@"NSArray" withString:@""]];
-                [claObj setValue:tempArrM forKey:key];
-            }else if ([[NSString stringWithFormat:@"%@",dict[key]] containsString:@"NSDictionary"]){
-                NSDictionary* jsonDict = [self jsonWithString:[[NSString stringWithFormat:@"%@",dict[key]] stringByReplacingOccurrencesOfString:@"NSDictionary" withString:@""]];
-                [claObj setValue:jsonDict forKey:key];
-            }else if([[NSString stringWithFormat:@"%@",dict[key]] containsString:@"BGManageObject"]){
-                [claObj setValue:[self objectWithJsonString:dict[key]] forKey:key];
-            }else{
-             [claObj setValue:dict[key] forKey:key];
-            }
-        }
-        [arrM addObject:claObj];
-    }
-    
-    return arrM;
-}
+
 
 /**
- 转换变量对象数据(读取数据时)
+ 查询对象.
  */
-
--(id)objectWithJsonString:(NSString*)jsonString{
-    
-    NSString* str = [jsonString stringByReplacingOccurrencesOfString:@"BGManageObject" withString:@""];
-    NSString* claName = [str substringToIndex:[str rangeOfString:@"{"].location];
-    str = [jsonString stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"BGManageObject%@",claName] withString:@""];
-    NSDictionary* dict = [self jsonWithString:str];
-    Class cla = NSClassFromString(claName);
-    id claObject = [[cla alloc] init];
-    NSArray* keys = [self getClassIvarList:cla];
-    for(NSString* key in keys){
-        if (!dict[key])continue;
-        
-        NSString* value = [NSString stringWithFormat:@"%@",dict[key]];
-        if([value containsString:@"BGManageObject"]){
-            [claObject setValue:[self objectWithJsonString:value] forKey:key];
-        }else if([value containsString:@"BGJSON"]){
-            [claObject setValue:[self jsonWithString:[value stringByReplacingOccurrencesOfString:@"BGJSON" withString:@""]] forKey:key];
-        }else{
-            [claObject setValue:dict[key] forKey:key];
-        }
-    }
-    return claObject;
-}
-
-/**
- 查询全部对象.
- */
--(void)queryAllObject:(__unsafe_unretained _Nonnull Class)cla param:(NSString* _Nullable)param complete:(void (^_Nonnull)(NSArray* _Nullable array))complete{
+-(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla where:(NSArray* _Nullable)where param:(NSString* _Nullable)param complete:(Complete_A)complete{
     //检查是否建立了跟对象相对应的数据表
     NSString* tableName = [NSString stringWithFormat:@"%@",cla];
     __weak typeof(self) BGSelf = self;
@@ -666,20 +542,20 @@ static BGFMDB* BGFmdb;
                 complete(nil);
             }
         }else{
-            __weak typeof(BGSelf) secondSelf = strongSelf;
-            [strongSelf queryWithTableName:tableName param:param complete:^(NSArray *array) {
-                NSArray* arrM = [secondSelf translateResult:cla with:array];
+            [strongSelf queryWithTableName:tableName param:param where:where complete:^(NSArray *array) {
+                NSArray* arrM = [BGTool translateResult:cla with:array];
                 if (complete) {
                     complete(arrM);
                 }
             }];
         }
     }];
+
 }
 /**
- 根据条件查询某个对象.
+ 根据条件查询对象.
  */
--(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla keys:(NSArray* _Nullable)keys where:(NSArray* _Nullable)where complete:(void (^_Nullable)(NSArray* _Nullable array))complete{
+-(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla keys:(NSArray<NSString*>* _Nullable)keys where:(NSArray* _Nullable)where complete:(Complete_A)complete{
     //检查是否建立了跟对象相对应的数据表
     NSString* tableName = [NSString stringWithFormat:@"%@",cla];
     __weak typeof(self) BGSelf = self;
@@ -690,9 +566,8 @@ static BGFMDB* BGFmdb;
                 complete(nil);
             }
         }else{
-            __weak typeof(BGSelf) secondSelf = strongSelf;
             [strongSelf queryWithTableName:tableName keys:keys where:where complete:^(NSArray *array) {
-                NSArray* arrM = [secondSelf translateResult:cla with:array];
+                NSArray* arrM = [BGTool translateResult:cla with:array];
                 if (complete) {
                     complete(arrM);
                 }
@@ -700,10 +575,30 @@ static BGFMDB* BGFmdb;
         }
     }];
 }
+
 /**
- 根据条件改变对象的值.
+ 根据条件改变对象的所有变量值.
  */
--(void)updateWithClass:(__unsafe_unretained _Nonnull Class)cla valueDict:(NSDictionary* _Nonnull)valueDict where:(NSArray* _Nullable)where complete:(void (^_Nonnull)(BOOL isSuccess))complete{
+-(void)updateWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where complete:(Complete_B)complete{
+    NSString* tableName = NSStringFromClass([object class]);
+    NSDictionary* valueDict = [BGTool dictionaryWithObject:object];
+    __weak typeof(self) BGSelf = self;
+    [self isExistWithTableName:tableName complete:^(BOOL isExist){
+        __strong typeof(BGSelf) strongSelf = BGSelf;
+        if (!isExist){//如果不存在就返回NO
+            if (complete) {
+                complete(NO);
+            }
+        }else{
+            [strongSelf updateWithTableName:tableName valueDict:valueDict where:where complete:complete];
+        }
+    }];
+}
+
+/**
+ 根据条件改变对象的部分变量值.
+ */
+-(void)updateWithClass:(__unsafe_unretained _Nonnull Class)cla valueDict:(NSDictionary* _Nonnull)valueDict where:(NSArray* _Nullable)where complete:(Complete_B)complete{
     NSString* tableName = [NSString stringWithFormat:@"%@",cla];
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){
@@ -720,7 +615,7 @@ static BGFMDB* BGFmdb;
 /**
  根据条件删除对象表中的对象数据.
  */
--(void)deleteWithClass:(__unsafe_unretained _Nonnull Class)cla where:(NSArray* _Nonnull)where complete:(void (^_Nonnull)(BOOL isSuccess))complete{
+-(void)deleteWithClass:(__unsafe_unretained _Nonnull Class)cla where:(NSArray* _Nonnull)where complete:(Complete_B)complete{
     NSString* tableName = [NSString stringWithFormat:@"%@",cla];
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){
@@ -738,7 +633,7 @@ static BGFMDB* BGFmdb;
 /**
  根据类删除此类所有表数据.
  */
--(void)clearWithClass:(__unsafe_unretained _Nonnull Class)cla complete:(void (^_Nonnull)(BOOL isSuccess))complete{
+-(void)clearWithClass:(__unsafe_unretained _Nonnull Class)cla complete:(Complete_B)complete{
     NSString* tableName = [NSString stringWithFormat:@"%@",cla];
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist) {
@@ -755,7 +650,7 @@ static BGFMDB* BGFmdb;
 /**
  根据类,删除这个类的表.
  */
--(void)dropWithClass:(__unsafe_unretained _Nonnull Class)cla complete:(void (^_Nonnull)(BOOL isSuccess))complete{
+-(void)dropWithClass:(__unsafe_unretained _Nonnull Class)cla complete:(Complete_B)complete{
     NSString* tableName = [NSString stringWithFormat:@"%@",cla];
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){
@@ -769,4 +664,83 @@ static BGFMDB* BGFmdb;
         }
     }];
 }
+/**
+ 将某类表的数据拷贝给另一个类表
+ */
+-(void)copyClass:(__unsafe_unretained _Nonnull Class)srcCla to:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append complete:(Complete_I)complete{
+    NSAssert(srcCla,@"源类不能为空!");
+    NSAssert(destCla,@"目标类不能为空!");
+    NSString* srcTable = NSStringFromClass(srcCla);
+    NSString* destTable = NSStringFromClass(destCla);
+    NSArray* destKeys = keydict.allValues;
+    NSArray* srcKeys = keydict.allKeys;
+    //检测用户的key是否写对了,否则抛出异常
+    NSArray* srcOnlyKeys = [BGTool getClassIvarList:srcCla onlyKey:YES];
+    NSArray* destOnlyKeys = [BGTool getClassIvarList:destCla onlyKey:YES];
+    for(int i=0;i<srcKeys.count;i++){
+        if (![srcOnlyKeys containsObject:srcKeys[i]]) {
+            @throw [NSException exceptionWithName:@"源类变量名称写错" reason:@"请检查keydict中的srcKey是否书写正确!" userInfo:nil];
+        }else if(![destOnlyKeys containsObject:destKeys[i]]){
+            @throw [NSException exceptionWithName:@"目标类变量名称写错" reason:@"请检查keydict中的destKey字段是否书写正确!" userInfo:nil];
+        }else;
+    }
+    [self isExistWithTableName:srcTable complete:^(BOOL isExist) {
+        NSAssert(isExist,@"原类中还没有数据,不能复制");
+    }];
+    __weak typeof(self) BGSelf = self;
+    [self isExistWithTableName:destTable complete:^(BOOL isExist) {
+        if (!isExist){
+            NSMutableArray* destKeyAndTypes = [NSMutableArray array];
+            NSArray* destClassKeys = [BGTool getClassIvarList:destCla onlyKey:NO];
+            for(NSString* destKey in destKeys){
+                for(NSString* destClassKey in destClassKeys){
+                    if ([destClassKey containsString:destKey]) {
+                        [destKeyAndTypes addObject:destClassKey];
+                    }
+                }
+            }
+            [BGSelf createTableWithTableName:destTable keys:destKeyAndTypes primaryKey:nil complete:^(BOOL isSuccess) {
+                NSAssert(isSuccess,@"目标表创建失败,复制失败!");
+            }];
+        }else{
+            if (!append){//覆盖模式,即将原数据删掉,拷贝新的数据过来
+                [BGSelf clearTable:destTable complete:nil];
+            }
+        }
+    }];
+    __block dealState copystate = Error;
+    __block BOOL recordError = NO;
+    __block BOOL recordSuccess = NO;
+    [self queryWithTableName:srcTable keys:srcKeys where:nil complete:^(NSArray * _Nullable array) {
+        for(NSDictionary* srcDict in array){
+            NSMutableDictionary* destDict = [NSMutableDictionary dictionary];
+            for(int i=0;i<srcKeys.count;i++){
+                destDict[destKeys[i]] = srcDict[srcKeys[i]];
+            }
+            [BGSelf insertIntoTableName:destTable Dict:destDict complete:^(BOOL isSuccess) {
+                if (isSuccess){
+                    if (!recordSuccess) {
+                        recordSuccess = YES;
+                    }
+                }else{
+                    if (!recordError) {
+                        recordError = YES;
+                    }
+                }
+            }];
+        }
+    }];
+    
+    if (complete){
+        if (recordError && recordSuccess) {
+            copystate = Incomplete;
+        }else if(recordError && !recordSuccess){
+            copystate = Error;
+        }else if (recordSuccess && !recordError){
+            copystate = Complete;
+        }else;
+        complete(copystate);
+    }
+}
+
 @end
