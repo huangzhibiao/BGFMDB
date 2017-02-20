@@ -16,7 +16,7 @@
 #import <Foundation/Foundation.h>
 #import "BGTool.h"
 
-@interface BGManageObject<T> : NSObject
+@interface BGManageObject : NSObject
 
 //同步：线程阻塞；异步：线程非阻塞;
 /**
