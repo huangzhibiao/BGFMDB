@@ -125,7 +125,6 @@
 		D70663041CD1EF67009E4B4D = {
 			isa = PBXGroup;
 			children = (
-				D70663591CD20637009E4B4D /* libsqlite3.tbd */,
 				D706630F1CD1EF67009E4B4D /* BGFMDB */,
 				D70663291CD1EF67009E4B4D /* BGFMDBTests */,
 				D70663341CD1EF67009E4B4D /* BGFMDBUITests */,
@@ -165,6 +164,7 @@
 		D70663101CD1EF67009E4B4D /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D70663591CD20637009E4B4D /* libsqlite3.tbd */,
 				D70663111CD1EF67009E4B4D /* main.m */,
 			);
 			name = "Supporting Files";
