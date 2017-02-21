@@ -40,6 +40,23 @@
     }
 }
 /**
+ 覆盖掉原来的数据,只存储当前的数据.
+ @async YES:异步存储,NO:同步存储.
+ */
+-(void)coverAsync:(BOOL)async complete:(Complete_B)complete{
+    if (async) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+            [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess) {
+                [[BGFMDB shareManager] saveObject:self complete:complete];
+            }];
+        });
+    }else{
+        [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess) {
+            !isSuccess?:[[BGFMDB shareManager] saveObject:self complete:complete];
+        }];
+    }
+}
+/**
  同步查询所有结果.
  */
 +(NSArray<BGManageObject*>* _Nullable)findAll{

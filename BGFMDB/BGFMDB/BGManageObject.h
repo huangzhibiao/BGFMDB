@@ -33,6 +33,11 @@
  */
 -(void)saveAsync:(BOOL)async complete:(Complete_B)complete;
 /**
+ 覆盖掉原来的数据,只存储当前的数据.
+ @async YES:异步存储,NO:同步存储.
+ */
+-(void)coverAsync:(BOOL)async complete:(Complete_B)complete;
+/**
  同步查询所有结果.
  */
 +(NSArray* _Nullable)findAll;
