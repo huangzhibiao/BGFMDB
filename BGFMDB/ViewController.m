@@ -66,12 +66,12 @@
 //    }];
     //[People clear];//清除
     //[People drop];//删类表
-//    [People findAsync:NO where:nil complete:^(NSArray * _Nullable array) {
-//        for(People* p in array){
-//            NSLog(@"查询结果： name = %@，testAge = %d,testName = %@,num = %@,age = %d,students = %@,info = %@,eye = %@,user.name = %@,user.密码 = %@ , user.student.num = %@,user.student.names[0] = %@, user.student.humane.sex = %@,p.user.student.human.body = %@",p.name,p->testAge,p->testName,p.num,p.age,p.students,p.info,p.eye,p.user.name,p.user.attri[@"密码"],p.user.student.num,p.user.student.names[0],p.user.student.human.sex,p.user.student.human.body);
-//        }
-//
-//    }];
+    [People findAsync:NO where:nil complete:^(NSArray * _Nullable array) {
+        for(People* p in array){
+            NSLog(@"查询结果： name = %@，testAge = %d,testName = %@,num = %@,age = %d,students = %@,info = %@,eye = %@,user.name = %@,user.密码 = %@ , user.student.num = %@,user.student.names[0] = %@, user.student.humane.sex = %@,p.user.student.human.body = %@",p.name,p->testAge,p->testName,p.num,p.age,p.students,p.info,p.eye,p.user.name,p.user.attri[@"密码"],p.user.student.num,p.user.student.names[0],p.user.student.human.sex,p.user.student.human.body);
+        }
+
+    }];
 //    [Man findAllAsync:NO complete:^(NSArray * _Nullable array) {
 //        NSLog(@"结果 = %@",array);
 //    }];
