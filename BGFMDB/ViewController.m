@@ -31,7 +31,7 @@
     p.rect = CGRectMake(0,0,10,20);
     p.size = CGSizeMake(50,50);
     p.point = CGPointMake(2.55,3.14);
-    p.color = [UIColor colorWithRed:11.1 green:22.2 blue:33 alpha:0.5];
+    p.color = [UIColor redColor];
     p.image = [UIImage imageNamed:@"MarkMan"];
     p.data = UIImageJPEGRepresentation(p.image, 1);
 
@@ -102,8 +102,10 @@
 //    }];
     //[People deleteWhere:@[@"ID",@"=",@(3)]];
     NSArray* finfAlls = [People findAll];
+    People* firstObj = finfAlls.firstObject;
+    _showImage.image = [UIImage imageWithData:firstObj.data];
+    self.view.backgroundColor = firstObj.color;
     for(People* obj in finfAlls){
-        _showImage.image = [UIImage imageWithData:obj.data];
         for(id value in obj.nsset){
             NSLog(@"NSSet = %@",value);
         }
