@@ -1,18 +1,16 @@
-# BGFMDB
-# 重新封装抽取了FMDB,直接存储和读取对象,使用起来超级方便快捷.
-在自己开发中，每次用到数据库都会纠结是使用CoreData还是FMDB。 CoreData虽然Api简单，但是调用栈非常复杂，要初始化一个Context需要至少20行代码,显然，对于这种这么恶心的情况，我们的大Github必须有人会跳出来解决这种问题。于是就出现了MagicRecord,MMRecod,RestKit等CoreData的封装库。一开始遇到这些库的时候，好用到几乎让我想把所有项目的数据库都换成CoreData了。两句话解决CoreData调用栈的初始化，一句话完成数据库版本升级和自动数据合并更新（虽然我们很少用到.然而这并不能解决一个根本性的问题，CoreData中的每个Object都要和一个context进行绑定，导致我们很多业务需求需要创建自己的私context，然后再需要更新的时候保存到主context中。这又导致了我们在controller中或者在自己的业务类中维护多一个私有context属性。同时这些库都是外国人写的,很多中初级开发者其实看不太懂英文(或是懒得看),特别是那些特别庞大的库,而且有时候其实只想用其中一小部分的存储功能,所以，最后我选择了FMDB进行封装。   
-
-以上的话是JRDB的作者说的(最后那几句是我加的😊),也就是网上比较流行的面向对象封装的FMDB,但是JRDB也有缺点,使用也有点麻烦,要对类注册等等乱七八糟的,让初级开发者很懵逼,而且JRDB的对象级别Api没有条件查找,类与类数据之间的拷贝等,所以综合上述,我决定自己进行封装一个傻瓜级存储库,开发者不需要过多的了解,只要对象继承自我的BGManageObject基类就拥有存储功能了,一句API调用搞定,绝对傻瓜级别应用,当然这不是骂使用者傻瓜哈😊,是强调使用特别方便.   
-## 一看就懂,马马上手使用,废话不多说,看使用Api介绍.    
-
-/**     
-提示:所有新建的类要继承自该类.(才能使用该库直接存储数据)      
-1.集合类型目前只支持数组(NSArray及其子类)和字典(NSDictionary及其子类)，     
-2.数组,字典,类变量中的元素类型目前只支持系统自带的基本类型(int,long,NSString,NSNumber等),NSData暂不支持.     
-3.对于下面的条件参数where,目前不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持.     
-4.keypath查询有专门的接口: findAsync:forKeyPath:value:complete:     
+# BGFMDB  
+# 重新封装抽取了FMDB,直接存储和读取对象,使用起来超级方便快捷。   
+## 不管是从使用步骤还是支持的存储类型上,都比JRDB,LKDB简单好用和全面.   
+## 基本秒杀目前所有对FMDB的封装库,相当简单易用,几乎支持存储ios所有基本的自带数据类型.    
+## 一看就懂,马马上手使用,废话不多说,看使用Api介绍.      
+   
+/**    
+BGFMDB算法全新震撼升级   
+完美支持:  
+int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSNumber,NSArray,NSDictionary,NSMapTable,NSHashTable,NSData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象 等的存储.     
 */      
 //同步：线程阻塞；异步：线程非阻塞;   
+@property(nonatomic,strong)NSNumber*_Nullable ID;//本库自带的自动增长主键.  
 /**   
  设置调试模式   
  @debug YES:打印SQL语句, NO:不打印SQL语句.   
