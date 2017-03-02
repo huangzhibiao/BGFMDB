@@ -3,12 +3,12 @@
 ## 不管是从使用步骤还是支持的存储类型上,都比JRDB,LKDB简单好用和全面.   
 ## 基本秒杀目前所有对FMDB的封装库,相当简单易用,几乎支持存储ios所有基本的自带数据类型.    
 ## 一看就懂,马马上手使用,废话不多说,看使用Api介绍.      
-   
-/**    
-BGFMDB算法全新震撼升级   
-完美支持:  
-int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSNumber,NSArray,NSDictionary,NSMapTable,NSHashTable,NSData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象 等的存储.     
-*/      
+      
+### BGFMDB算法全新震撼升级     
+### 完美支持:    
+###   int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSNumber,NSArray,NSDictionary,NSMapTable,NSHashTable,NSData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象 等的存储.         
+
+
 //同步：线程阻塞；异步：线程非阻塞;   
 @property(nonatomic,strong)NSNumber*_Nullable ID;//本库自带的自动增长主键.  
 /**   
