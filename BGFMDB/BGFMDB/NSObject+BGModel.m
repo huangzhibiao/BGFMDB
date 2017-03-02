@@ -49,14 +49,10 @@ static const char IDKey;
 /**
  @async YES:异步存储,NO:同步存储.
  */
--(void)saveAsync:(BOOL)async complete:(Complete_B)complete{
-    if (async) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-            [[BGFMDB shareManager] saveObject:self complete:complete];
-        });
-    }else{
+-(void)saveAsync:(Complete_B)complete{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
         [[BGFMDB shareManager] saveObject:self complete:complete];
-    }
+    });
 }
 /**
  覆盖掉原来的数据,只存储当前的数据.
@@ -93,16 +89,12 @@ static const char IDKey;
     return results;
 }
 /**
- @async YES:异步查询所有结果,NO:同步查询所有结果.
+ 异步查询所有结果.
  */
-+(void)findAllAsync:(BOOL)async complete:(Complete_A)complete{
-    if (async) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-            [[BGFMDB shareManager] queryObjectWithClass:[self class] where:nil param:nil complete:complete];
-        });
-    }else{
++(void)findAllAsync:(Complete_A)complete{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
         [[BGFMDB shareManager] queryObjectWithClass:[self class] where:nil param:nil complete:complete];
-    }
+    });
 }
 /**
  @async YES:异步查询所有结果,NO:同步查询所有结果.

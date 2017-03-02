@@ -125,7 +125,7 @@
 //        }
 //
 //    }];
-//    [Man findAllAsync:NO complete:^(NSArray * _Nullable array) {
+//    [Man findAllAsync:^(NSArray * _Nullable array) {
 //        NSLog(@"结果 = %@",array);
 //    }];
     //[Man refreshAsync:NO complete:nil];
