@@ -18,17 +18,17 @@
  */   
 -(BOOL)save;   
 /**   
- @async YES:异步存储,NO:同步存储.   
+ 异步存储.   
  */   
--(void)saveAsync:(BOOL)async complete:(Complete_B)complete;   
+-(void)saveAsync:(Complete_B)complete;   
 /**   
  同步查询所有结果.   
  */   
 +(NSArray* _Nullable)findAll;   
 /**   
- @async YES:异步查询所有结果,NO:同步查询所有结果.   
+ 异步查询所有结果.   
  */   
-+(void)findAllAsync:(BOOL)async complete:(Complete_A)complete;   
++(void)findAllAsync:(Complete_A)complete;   
 /**   
  @async YES:异步查询所有结果,NO:同步查询所有结果.   
  @limit 每次查询限制的条数,0则无限制.   
