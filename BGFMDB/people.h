@@ -8,10 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "BGManageObject.h"
+//添加该头文件,本类就具有了存储功能.
+#import "NSObject+BGModel.h"
 
-//提示: 所有新建的模型要继承BGManageObject类,用于类中变量的嵌套解析等.
-@interface Human : BGManageObject
+@interface Human : NSObject
 
 @property(nonatomic,copy)NSString* sex;
 @property(nonatomic,copy)NSString* body;
@@ -19,7 +19,7 @@
 
 @end
 
-@interface Student : BGManageObject
+@interface Student : NSObject
 
 @property(nonatomic,copy)NSString* num;
 @property(nonatomic,strong)NSArray* names;
@@ -27,8 +27,7 @@
 
 @end
 
-
-@interface User : BGManageObject
+@interface User : NSObject
 
 @property(nonatomic,copy)NSString* name;
 @property(nonatomic,strong)NSDictionary* attri;
@@ -38,7 +37,7 @@
 
 @end
 
-@interface People : BGManageObject
+@interface People : NSObject
 {
     @public
     int testAge;
@@ -67,17 +66,34 @@
 @property(nonatomic,assign)CGFloat bCGFloat;
 @property(nonatomic,assign)NSInteger bNSInteger;
 @property(nonatomic,assign)long blong;
-
-@property(nonatomic,copy)NSString* addName;
-@property(nonatomic,assign)NSUInteger addAge;
 @property(nonatomic,assign)BOOL addBool;
 
+@property(nonatomic,assign)CGRect rect;
+@property(nonatomic,assign)CGPoint point;
+@property(nonatomic,assign)CGSize size;
+@property(nonatomic,assign)NSRange range;
+
+@property(nonatomic,strong)NSMutableArray* arrM;
+@property(nonatomic,strong)NSMutableDictionary* dictM;
+@property(nonatomic,strong)NSSet* nsset;
+@property(nonatomic,strong)NSMutableSet* setM;
+@property(nonatomic,strong)NSMapTable* mapTable;
+@property(nonatomic,strong)NSHashTable* hashTable;
+
+@property(nonatomic,strong)NSDate* date;
+@property(nonatomic,strong)NSData* data;
+@property(nonatomic,strong)NSMutableData* dataM;
+@property(nonatomic,strong)UIImage* image;
+@property(nonatomic,strong)UIColor* color;
+
+@property(nonatomic,strong)NSURL* Url;
 @end
 
-@interface Man : BGManageObject
+@interface Man : NSObject
 
 @property(nonatomic,copy)NSString* Man_name;
 @property(nonatomic,strong)NSNumber* Man_num;
 @property(nonatomic,assign)int Man_age;
+@property(nonatomic,strong)UIImage* image;
 
 @end

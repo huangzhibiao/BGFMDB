@@ -1,22 +1,21 @@
 //
-//  BGManageObject.h
+//  NSObject+BGModel.h
 //  BGFMDB
 //
-//  Created by huangzhibiao on 17/2/9.
+//  Created by huangzhibiao on 17/2/28.
 //  Copyright © 2017年 Biao. All rights reserved.
+//
 /**
- 提示:所有新建的类要继承自该类.(才能使用该库直接存储数据)
- 
- 1.集合类型目前只支持数组(NSArray及其子类)和字典(NSDictionary及其子类)，
- 2.数组,字典,类变量中的元素类型目前只支持系统自带的基本类型(int,long,NSString,NSNumber等),NSData暂不支持.
- 3.对于下面的条件参数where,目前不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持.
- 4.keypath查询有专门的接口: findAsync:forKeyPath:value:complete:
+BGFMDB全新升级->>
+完美支持:
+int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSNumber,NSArray,NSDictionary,NSMapTable,NSHashTable,NSData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象 等的存储.
  */
-
 #import <Foundation/Foundation.h>
 #import "BGTool.h"
 
-@interface BGManageObject : NSObject
+@interface NSObject (BGModel)
+
+@property(nonatomic,strong)NSNumber*_Nullable ID;//本库自带的自动增长主键.
 
 //同步：线程阻塞；异步：线程非阻塞;
 /**
@@ -24,6 +23,11 @@
  @debug YES:打印SQL语句, NO:不打印SQL语句.
  */
 +(void)setDebug:(BOOL)debug;
+/**
+ 自定义 “唯一约束” 函数,如果需要 “唯一约束”字段,则在自定类中自己实现该函数.
+ @return 返回值是 “唯一约束” 的字段名(即相对应的变量名).
+ */
+-(NSString* _Nonnull)uniqueKey;
 /**
  同步存储.
  */

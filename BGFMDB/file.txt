@@ -1,0 +1,53 @@
+2017-02-22 14:33:49.037120 BGFMDB[448:43650] key = testAge , type = i
+2017-02-22 14:33:49.037220 BGFMDB[448:43650] key = testName , type = @"NSString"
+2017-02-22 14:33:49.037261 BGFMDB[448:43650] key = addBool , type = B
+2017-02-22 14:33:49.037336 BGFMDB[448:43650] key = bshort , type = s
+2017-02-22 14:33:49.037379 BGFMDB[448:43650] key = age , type = i
+2017-02-22 14:33:49.037410 BGFMDB[448:43650] key = bint , type = i
+2017-02-22 14:33:49.037440 BGFMDB[448:43650] key = bsigned , type = i
+2017-02-22 14:33:49.037486 BGFMDB[448:43650] key = bunsigned , type = I
+2017-02-22 14:33:49.037684 BGFMDB[448:43650] key = bfloat , type = f
+2017-02-22 14:33:49.037740 BGFMDB[448:43650] key = name , type = @"NSString"
+2017-02-22 14:33:49.037943 BGFMDB[448:43650] key = num , type = @"NSNumber"
+2017-02-22 14:33:49.037986 BGFMDB[448:43650] key = eye , type = @"NSString"
+2017-02-22 14:33:49.038018 BGFMDB[448:43650] key = sex_old , type = @"NSString"
+2017-02-22 14:33:49.038124 BGFMDB[448:43650] key = students , type = @"NSArray"
+2017-02-22 14:33:49.038160 BGFMDB[448:43650] key = info , type = @"NSDictionary"
+2017-02-22 14:33:49.038191 BGFMDB[448:43650] key = user , type = @"User"
+2017-02-22 14:33:49.038221 BGFMDB[448:43650] key = user1 , type = @"User"
+2017-02-22 14:33:49.038330 BGFMDB[448:43650] key = blonglong , type = q
+2017-02-22 14:33:49.038370 BGFMDB[448:43650] key = bdouble , type = d
+2017-02-22 14:33:49.038401 BGFMDB[448:43650] key = bCGFloat , type = d
+2017-02-22 14:33:49.038433 BGFMDB[448:43650] key = bNSInteger , type = q
+2017-02-22 14:33:49.038511 BGFMDB[448:43650] key = blong , type = q
+2017-02-22 14:33:49.038695 BGFMDB[448:43650] key = rect , type = ^{CGRect={CGPoint=dd}{CGSize=dd}}
+2017-02-22 14:33:49.038778 BGFMDB[448:43650] key = point , type = ^{CGPoint=dd}
+2017-02-22 14:33:49.038880 BGFMDB[448:43650] key = size , type = ^{CGSize=dd}
+2017-02-22 14:33:49.038922 BGFMDB[448:43650] key = range , type = ^{_NSRange=QQ}
+2017-02-22 14:33:49.038954 BGFMDB[448:43650] key = arrM , type = @"NSMutableArray"
+2017-02-22 14:33:49.038988 BGFMDB[448:43650] key = dictM , type = @"NSMutableDictionary"
+2017-02-22 14:33:49.039097 BGFMDB[448:43650] key = nsset , type = @"NSSet"
+2017-02-22 14:33:49.039131 BGFMDB[448:43650] key = setM , type = @"NSMutableSet"
+2017-02-22 14:33:49.039163 BGFMDB[448:43650] key = mapTable , type = @"NSMapTable"
+2017-02-22 14:33:49.039246 BGFMDB[448:43650] key = hashTable , type = @"NSHashTable"
+2017-02-22 14:33:49.039323 BGFMDB[448:43650] key = date , type = @"NSDate"
+2017-02-22 14:33:49.039359 BGFMDB[448:43650] key = data , type = @"NSData"
+2017-02-22 14:33:49.039396 BGFMDB[448:43650] key = dataM , type = @"NSMutableData"
+2017-02-22 14:33:49.039428 BGFMDB[448:43650] key = image , type = @"UIImage"
+2017-02-22 14:33:49.039460 BGFMDB[448:43650] key = color , type = @"UIColor"
+2017-02-22 14:33:49.039491 BGFMDB[448:43650] key = url , type = @"NSURL"
+
+
+json1	__NSCFString *	@"[\n  \"1\",\n  2,\n  \"[\\n  \\\"arr1\\\",\\n  \\\"arr2\\\",\\n  3\\n]\",\n  \"{\\n  \\\"key1\\\" : \\\"value1\\\",\\n  \\\"key2\\\" : 2\\n}\",\n  \"{\\n  \\\"bint\\\" : 0,\\n  \\\"blonglong\\\" : 0,\\n  \\\"addBool\\\" : false,\\n  \\\"bdouble\\\" : 0,\\n  \\\"bNSInteger\\\" : 0,\\n  \\\"rect\\\" : \\\"{{0, 0}, {0, 0}}\\\",\\n  \\\"bsigned\\\" : 0,\\n  \\\"bCGFloat\\\" : 0,\\n  \\\"blong\\\" : 0,\\n  \\\"bfloat\\\" : 0,\\n  \\\"name\\\" : \\\"测试黄芝标\\\",\\n  \\\"size\\\" : \\\"{0, 0}\\\",\\n  \\\"eye\\\" : \\\"标哥的眼皮\\\",\\n  \\\"bunsigned\\\" : 0,\\n  \\\"point\\\" : \\\"{0, 0}\\\",\\n  \\\"num\\\" : \\\"119\\\",\\n  \\\"testAge\\\" : 0,\\n  \\\"range\\\" : \\\"{0, 0}\\\",\\n  \\\"age\\\" : 100,\\n  \\\"bshort\\\" : 0\\n}\"\n]"	0x0000000174027a00
+
+
+_sqlColumnValue	__NSCFString *	@"/9j/4AAQSkZJRgABAQAASABIAAD/4QBYRXhpZgAATU0AKgAAAAgAAgESAAMAAAAB\r\nAAEAAIdpAAQAAAABAAAAJgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAC0KAD\r\nAAQAAAABAAAFAAAAAAD/7QA4UGhvdG9zaG9wIDMuMAA4QklNBAQAAAAAAAA4QklN\r\nBCUAAAAAABDUHYzZjwCyBOmACZjs+EJ+/8AAEQgFAALQAwERAAIRAQMRAf/EAB8A\r\nAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAAB\r\nfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYn\r\nKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeI\r\niYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh\r\n4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYH\r\nCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRC\r\nkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZX\r\nWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKz\r\ntLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/bAEMA\r\nAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB\r\nAQEBAQEBAQEBAQEBAQEBAf/bAEMBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB\r\nAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBA"...	0x00000001740511f0
+
+
+User~{
+"userAge" : 1.024,
+"userNumer" : "3.14",
+"student" : "Student~{\n  \"num\" : \"测试学生数量...标哥\",\n  \"names\" : \"[\\n  \\\"小哥哥\\\",\\n  \\\"小红\\\",\\n  110,\\n  [\\n    \\\"数组元素1\\\",\\n    \\\"数组元素2\\\"\\n  ],\\n  {\\n    \\\"集合key\\\" : \\\"集合value\\\"\\n  }\\n]\",\n  \"human\" : \"Human~{\\n  \\\"sex\\\" : \\\"女生\\\",\\n  \\\"humanAge\\\" : 9999,\\n  \\\"body\\\" : \\\"小芳\\\"\\n}\"\n}",
+"name" : "测试用户名字...重复吗?",
+"attri" : "{\n  \"用户名\" : \"黄芝标\",\n  \"密码\" : 123456,\n  \"数组\" : [\n    \"数组1\",\n    \"数组2\"\n  ],\n  \"集合\" : {\n    \"集合1\" : \"集合2\"\n  }\n}"
+}

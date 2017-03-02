@@ -1,21 +1,39 @@
 //
-//  BGManageObject.m
+//  NSObject+BGModel.m
 //  BGFMDB
 //
-//  Created by huangzhibiao on 17/2/9.
+//  Created by huangzhibiao on 17/2/28.
 //  Copyright © 2017年 Biao. All rights reserved.
 //
 
-#import "BGManageObject.h"
+#import "NSObject+BGModel.h"
 #import "BGFMDB.h"
+#import <objc/message.h>
 
-@implementation BGManageObject
+static const char IDKey;
+
+@implementation NSObject (BGModel)
+
+-(NSNumber*)ID{
+    return objc_getAssociatedObject(self, &IDKey);
+}
+
+-(void)setID:(NSNumber*)ID{
+    objc_setAssociatedObject(self,&IDKey,ID,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
 
 /**
  设置调试模式
  */
 +(void)setDebug:(BOOL)debug{
     [BGFMDB shareManager].debug = debug;
+}
+/**
+ 自定义 “唯一约束” 函数,如果需要 “唯一约束”,则在自定类中自己实现该函数.
+ @return 返回值是 “唯一约束” 的字段名(即相对应的变量名).
+ */
+-(NSString *)uniqueKey{
+    return nil;
 }
 /**
  同步存储.
@@ -27,6 +45,7 @@
     }];
     return result;
 }
+
 /**
  @async YES:异步存储,NO:同步存储.
  */
@@ -46,20 +65,27 @@
 -(void)coverAsync:(BOOL)async complete:(Complete_B)complete{
     if (async) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-            [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess) {
+            [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess){
+                if(isSuccess)
                 [[BGFMDB shareManager] saveObject:self complete:complete];
+                else
+                !complete?:complete(isSuccess);
             }];
         });
     }else{
         [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess) {
-            !isSuccess?:[[BGFMDB shareManager] saveObject:self complete:complete];
+            if(isSuccess)
+            [[BGFMDB shareManager] saveObject:self complete:complete];
+            else
+            !complete?:complete(isSuccess);
         }];
     }
 }
+
 /**
  同步查询所有结果.
  */
-+(NSArray<BGManageObject*>* _Nullable)findAll{
++(NSArray* _Nullable)findAll{
     __block NSArray* results;
     [[BGFMDB shareManager] queryObjectWithClass:[self class] where:nil param:nil complete:^(NSArray * _Nullable array) {
         results = array;
@@ -85,7 +111,7 @@
  */
 +(void)findAllAsync:(BOOL)async limit:(NSInteger)limit orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc complete:(Complete_A)complete{
     NSMutableString* param = [NSMutableString string];
-    !(orderBy&&desc)?:[param appendFormat:@"order by %@ desc",orderBy];
+    !(orderBy&&desc)?:[param appendFormat:@"order by %@%@ desc",BG,orderBy];
     !param.length?:[param appendString:@" "];
     !limit?:[param appendFormat:@"limit %ld",limit];
     param = param.length?param:nil;
@@ -104,7 +130,7 @@
  */
 +(void)findAllAsync:(BOOL)async range:(NSRange)range orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc complete:(Complete_A)complete{
     NSMutableString* param = [NSMutableString string];
-    !(orderBy&&desc)?:[param appendFormat:@"order by %@ desc ",orderBy];
+    !(orderBy&&desc)?:[param appendFormat:@"order by %@%@ desc ",BG,orderBy];
     NSAssert((range.location>=0)&&(range.length>0),@"range参数错误,location应该大于或等于零,length应该大于零");
     [param appendFormat:@"limit %ld,%ld",range.location,range.length];
     if (async) {
@@ -117,9 +143,8 @@
 }
 /**
  @async YES:异步查询所有结果,NO:同步查询所有结果.
- @where 条件数组，形式@[@"name",@"=",@"标哥",@"age",@"=>",@(25)].
- 可以为nil,为nil时查询所有数据;
- 目前不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持.
+ @where 条件数组，形式@[@"name",@"=",@"标哥",@"age",@"=>",@(25)],可以为nil,为nil时查询所有数据;
+ 目前不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持,keypath有专门的查询接口.
  */
 +(void)findAsync:(BOOL)async where:(NSArray* _Nullable)where complete:(Complete_A)complete{
     if (async) {
@@ -140,10 +165,10 @@
 +(void)findAsync:(BOOL)async forKeyPath:(NSString* _Nonnull)keyPath value:(id _Nonnull)value complete:(Complete_A)complete{
     if (async) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-            [[BGFMDB shareManager] queryWithTableName:NSStringFromClass([self class]) forKeyPath:keyPath value:value complete:complete];
+            [[BGFMDB shareManager] queryObjectWithClass:[self class] forKeyPath:keyPath value:value complete:complete];
         });
     }else{
-        [[BGFMDB shareManager] queryWithTableName:NSStringFromClass([self class]) forKeyPath:keyPath value:value complete:complete];
+        [[BGFMDB shareManager] queryObjectWithClass:[self class] forKeyPath:keyPath value:value complete:complete];
     }
 }
 /**
@@ -171,7 +196,7 @@
             [[BGFMDB shareManager] updateWithObject:self where:where complete:complete];
         });
     }else{
-            [[BGFMDB shareManager] updateWithObject:self where:where complete:complete];
+        [[BGFMDB shareManager] updateWithObject:self where:where complete:complete];
     }
 }
 /**
@@ -284,4 +309,5 @@
         [[BGFMDB shareManager] copyClass:[self class] to:destCla keyDict:keydict append:append complete:complete];
     }
 }
+
 @end

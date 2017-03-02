@@ -11,7 +11,7 @@
  2.存储对象时,对象中的 数组或字典变量 中的元素目前只支持系统自带的类型.
  */
 #import <Foundation/Foundation.h>
-#import "BGManageObject.h"
+#import "BGTool.h"
 
 @interface BGFMDB : NSObject
 @property(nonatomic,assign)BOOL debug;
@@ -44,6 +44,14 @@
  @complete 回调的block.
  */
 -(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla keys:(NSArray<NSString*>* _Nullable)keys where:(NSArray* _Nullable)where complete:(Complete_A)complete;
+/**
+ 根据keyPath查询对象
+ @cla 代表对应的类.
+ @keyPath 查询路径,形式 @"user.student.name"
+ @value 值,@"小芳"
+ 说明: 即查询 user.student.name=小芳 的对象数据.
+ */
+-(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla forKeyPath:(NSString* _Nonnull)keyPath value:(id _Nonnull)value complete:(Complete_A)complete;
 /**
  根据条件改变对象的所有变量值.
  @object 要更新的对象.
@@ -105,7 +113,7 @@
  @primaryKey 主键字段,可以为nil.
  @complete 回调的block
  */
--(void)createTableWithTableName:(NSString* _Nonnull)name keys:(NSArray<NSString*>* _Nonnull)keys primaryKey:(NSString* _Nullable)primarykey complete:(Complete_B)complete;
+-(void)createTableWithTableName:(NSString* _Nonnull)name keys:(NSArray<NSString*>* _Nonnull)keys uniqueKey:(NSString* _Nullable)uniqueKey complete:(Complete_B)complete;
 /**
  插入数据.
  @name 表名称.

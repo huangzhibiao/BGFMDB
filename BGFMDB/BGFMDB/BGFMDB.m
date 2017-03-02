@@ -72,7 +72,7 @@ static BGFMDB* BGFmdb;
 /**
  创建表(如果存在则不创建).
  */
--(void)createTableWithTableName:(NSString* _Nonnull)name keys:(NSArray<NSString*>* _Nonnull)keys primaryKey:(NSString* _Nullable)primarykey complete:(Complete_B)complete{
+-(void)createTableWithTableName:(NSString* _Nonnull)name keys:(NSArray<NSString*>* _Nonnull)keys uniqueKey:(NSString* _Nullable)uniqueKey complete:(Complete_B)complete{
     NSAssert(name,@"表名不能为空!");
     NSAssert(keys,@"字段数组不能为空!");
     //创表
@@ -81,16 +81,24 @@ static BGFMDB* BGFmdb;
         NSString* header = [NSString stringWithFormat:@"create table if not exists %@ (",name];
         NSMutableString* sql = [[NSMutableString alloc] init];
         [sql appendString:header];
+        BOOL uniqueKeyFlag = NO;
         for(int i=0;i<keys.count;i++){
             
-            if(primarykey){
-                if([BGTool isPrimary:primarykey with:keys[i]]){
-                    [sql appendFormat:@"%@ primary key",[BGTool keyAndType:keys[i]]];
+            if(uniqueKey){
+                if([BGTool isUniqueKey:uniqueKey with:keys[i]]){
+                    uniqueKeyFlag = YES;
+                    [sql appendFormat:@"%@ unique",[BGTool keyAndType:keys[i]]];
+                }else if ([[keys[i] componentsSeparatedByString:@"*"][0] isEqualToString:@"ID"]){
+                    [sql appendFormat:@"%@ primary key autoincrement",[BGTool keyAndType:keys[i]]];
                 }else{
                     [sql appendString:[BGTool keyAndType:keys[i]]];
                 }
             }else{
-                [sql appendString:[BGTool keyAndType:keys[i]]];
+                if ([[keys[i] componentsSeparatedByString:@"*"][0] isEqualToString:@"ID"]){
+                    [sql appendFormat:@"%@ primary key autoincrement",[BGTool keyAndType:keys[i]]];
+                }else{
+                    [sql appendString:[BGTool keyAndType:keys[i]]];
+                }
             }
             
             if (i == (keys.count-1)) {
@@ -98,6 +106,10 @@ static BGFMDB* BGFmdb;
             }else{
                 [sql appendString:@","];
             }
+        }
+        
+        if(uniqueKey){
+            NSAssert(uniqueKeyFlag,@"没有找到设置的主键,请检查primarykey返回值是否正确!");
         }
         debug(sql);
         result = [db executeUpdate:sql];
@@ -156,7 +168,7 @@ static BGFMDB* BGFmdb;
         if ((keys!=nil)&&(keys.count>0)) {
             [SQL appendString:@" "];
             for(int i=0;i<keys.count;i++){
-                [SQL appendFormat:@"%@",keys[i]];
+                [SQL appendFormat:@"%@%@",BG,keys[i]];
                 if (i != (keys.count-1)) {
                     [SQL appendString:@","];
                 }
@@ -245,7 +257,7 @@ static BGFMDB* BGFmdb;
     [keyPathParam appendString:@"%"];
     __block NSMutableArray* arrM = [[NSMutableArray alloc] init];
     [self.queue inDatabase:^(FMDatabase *db) {
-        NSString* SQL = [NSString stringWithFormat:@"select * from People where %@ like '%@'",keypaths[0],keyPathParam];
+        NSString* SQL = [NSString stringWithFormat:@"select * from People where %@%@ like '%@'",BG,keypaths[0],keyPathParam];
         debug(SQL);
         // 1.查询数据
         FMResultSet *rs = [db executeQuery:SQL];
@@ -383,9 +395,9 @@ static BGFMDB* BGFmdb;
     !where?:[strM appendString:@" where "];
     for(int i=0;i<where.count;i+=3){
         if ([where[i+2] isKindOfClass:[NSString class]]) {
-            [strM appendFormat:@"%@%@'%@'",where[i],where[i+1],where[i+2]];
+            [strM appendFormat:@"%@%@%@'%@'",BG,where[i],where[i+1],where[i+2]];
         }else{
-            [strM appendFormat:@"%@%@%@",where[i],where[i+1],where[i+2]];
+            [strM appendFormat:@"%@%@%@%@",BG,where[i],where[i+1],where[i+2]];
         }
         
         if (i != (where.count-3)) {
@@ -419,15 +431,19 @@ static BGFMDB* BGFmdb;
         //接着删掉旧表
         [BGSelf dropTable:name complete:^(BOOL isSuccess){
             __strong typeof(BGSelf) secondSelf = strongSelf;
-            if (isSuccess) {
+            if (isSuccess){
+                //获取"唯一约束"字段名
+                NSString* uniqueKey = [self getUnique:[NSClassFromString(name) new]];
                 //创建新表
-                [strongSelf createTableWithTableName:name keys:keys primaryKey:nil complete:^(BOOL isSuccess){
+                [strongSelf createTableWithTableName:name keys:keys uniqueKey:uniqueKey complete:^(BOOL isSuccess){
                     if(isSuccess){
                         for(NSDictionary* oldDict in array){
                             NSMutableDictionary* newDict = [NSMutableDictionary dictionary];
                             for(NSString* keyAndType in keys){
                                 NSString* key = [keyAndType componentsSeparatedByString:@"*"][0];
-                                if (oldDict[key]) {
+                                //字段名前加上 @"BG_"
+                                key = [NSString stringWithFormat:@"%@%@",BG,key];
+                                if (oldDict[key]){
                                     newDict[key] = oldDict[key];
                                 }
                             }
@@ -462,14 +478,27 @@ static BGFMDB* BGFmdb;
         complete(refreshstate);
     }
 }
+
+/**
+ 获取"唯一约束"
+ */
+-(NSString*)getUnique:(id)object{
+    NSString* uniqueKey = nil;
+    if([object respondsToSelector:NSSelectorFromString(@"uniqueKey")]){
+        SEL uniqueKeySeltor = NSSelectorFromString(@"uniqueKey");
+        uniqueKey = [object performSelector:uniqueKeySeltor];
+    }
+    return uniqueKey;
+}
 //判断类的变量名是否变更,然后改变表字段结构.
 -(void)changeTableWhenClassIvarChange:(__unsafe_unretained Class)cla{
-    NSString* tableName = [NSString stringWithFormat:@"%@",cla];
+    NSString* tableName = NSStringFromClass(cla);
     NSMutableArray* newKeys = [NSMutableArray array];
     [self.queue inDatabase:^(FMDatabase *db){
         NSArray* keys = [BGTool getClassIvarList:cla onlyKey:NO];
         for (NSString* keyAndtype in keys){
             NSString* key = [[keyAndtype componentsSeparatedByString:@"*"] firstObject];
+            key = [NSString stringWithFormat:@"%@%@",BG,key];
             if(![db columnExists:key inTableWithName:tableName]){
                 [newKeys addObject:keyAndtype];
             }
@@ -487,7 +516,11 @@ static BGFMDB* BGFmdb;
  处理插入的字典数据并返回
  */
 -(void)insertDictWithObject:(id)object complete:(Complete_B)complete{
-    NSDictionary* dict = [BGTool dictionaryWithObject:object];
+    NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:object];
+    NSMutableDictionary* dict = [NSMutableDictionary dictionary];
+    for(BGModelInfo* info in infos){
+        dict[info.sqlColumnName] = info.sqlColumnValue;
+    }
     NSString* tableName = [NSString stringWithFormat:@"%@",[object class]];
     __weak typeof(self) BGSelf = self;
     [self insertIntoTableName:tableName Dict:dict complete:^(BOOL isSuccess){
@@ -509,12 +542,14 @@ static BGFMDB* BGFmdb;
  */
 -(void)saveObject:(id _Nonnull)object complete:(Complete_B)complete{
     //检查是否建立了跟对象相对应的数据表
-    NSString* tableName = [NSString stringWithFormat:@"%@",[object class]];
+    NSString* tableName = NSStringFromClass([object class]);
+    //获取"唯一约束"字段名
+    NSString* uniqueKey = [self getUnique:object];
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist) {
         __strong typeof(BGSelf) strongSelf = BGSelf;
         if (!isExist){//如果不存在就新建
-            [strongSelf createTableWithTableName:tableName keys:[BGTool getClassIvarList:[object class] onlyKey:NO] primaryKey:nil complete:^(BOOL isSuccess) {
+            [strongSelf createTableWithTableName:tableName keys:[BGTool getClassIvarList:[object class] onlyKey:NO] uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
                 if (isSuccess){
                     NSLog(@"建表成功 第一次建立 %@ 对应的表",tableName);
                 }
@@ -533,7 +568,7 @@ static BGFMDB* BGFmdb;
  */
 -(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla where:(NSArray* _Nullable)where param:(NSString* _Nullable)param complete:(Complete_A)complete{
     //检查是否建立了跟对象相对应的数据表
-    NSString* tableName = [NSString stringWithFormat:@"%@",cla];
+    NSString* tableName = NSStringFromClass(cla);
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist) {
         __strong typeof(BGSelf) strongSelf = BGSelf;
@@ -542,10 +577,10 @@ static BGFMDB* BGFmdb;
                 complete(nil);
             }
         }else{
-            [strongSelf queryWithTableName:tableName param:param where:where complete:^(NSArray *array) {
-                NSArray* arrM = [BGTool translateResult:cla with:array];
+            [strongSelf queryWithTableName:tableName param:param where:where complete:^(NSArray * _Nullable array) {
+                NSArray* resultArray = [BGTool tansformDataFromSqlDataWithTableName:tableName array:array];
                 if (complete) {
-                    complete(arrM);
+                    complete(resultArray);
                 }
             }];
         }
@@ -557,7 +592,7 @@ static BGFMDB* BGFmdb;
  */
 -(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla keys:(NSArray<NSString*>* _Nullable)keys where:(NSArray* _Nullable)where complete:(Complete_A)complete{
     //检查是否建立了跟对象相对应的数据表
-    NSString* tableName = [NSString stringWithFormat:@"%@",cla];
+    NSString* tableName = NSStringFromClass(cla);
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){
         __strong typeof(BGSelf) strongSelf = BGSelf;
@@ -566,22 +601,48 @@ static BGFMDB* BGFmdb;
                 complete(nil);
             }
         }else{
-            [strongSelf queryWithTableName:tableName keys:keys where:where complete:^(NSArray *array) {
-                NSArray* arrM = [BGTool translateResult:cla with:array];
+            [strongSelf queryWithTableName:tableName keys:keys where:where complete:^(NSArray * _Nullable array) {
+                NSArray* resultArray = [BGTool tansformDataFromSqlDataWithTableName:tableName array:array];
                 if (complete) {
-                    complete(arrM);
+                    complete(resultArray);
                 }
             }];
         }
     }];
 }
 
+//根据keyPath查询对象
+-(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla forKeyPath:(NSString* _Nonnull)keyPath value:(id _Nonnull)value complete:(Complete_A)complete{
+    //检查是否建立了跟对象相对应的数据表
+    NSString* tableName = NSStringFromClass(cla);
+    __weak typeof(self) BGSelf = self;
+    [self isExistWithTableName:tableName complete:^(BOOL isExist){
+        __strong typeof(BGSelf) strongSelf = BGSelf;
+        if (!isExist){//如果不存在就返回空
+            if (complete) {
+                complete(nil);
+            }
+        }else{
+            [strongSelf queryWithTableName:NSStringFromClass([self class]) forKeyPath:keyPath value:value complete:^(NSArray * _Nullable array) {
+                NSArray* resultArray = [BGTool tansformDataFromSqlDataWithTableName:tableName array:array];
+                if (complete) {
+                    complete(resultArray);
+                }
+            }];
+        }
+    }];
+
+}
 /**
  根据条件改变对象的所有变量值.
  */
 -(void)updateWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where complete:(Complete_B)complete{
+    NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:object];
+    NSMutableDictionary* valueDict = [NSMutableDictionary dictionary];
+    for(BGModelInfo* info in infos){
+        valueDict[info.sqlColumnName] = info.sqlColumnValue;
+    }
     NSString* tableName = NSStringFromClass([object class]);
-    NSDictionary* valueDict = [BGTool dictionaryWithObject:object];
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){
         __strong typeof(BGSelf) strongSelf = BGSelf;
@@ -599,7 +660,7 @@ static BGFMDB* BGFmdb;
  根据条件改变对象的部分变量值.
  */
 -(void)updateWithClass:(__unsafe_unretained _Nonnull Class)cla valueDict:(NSDictionary* _Nonnull)valueDict where:(NSArray* _Nullable)where complete:(Complete_B)complete{
-    NSString* tableName = [NSString stringWithFormat:@"%@",cla];
+    NSString* tableName = NSStringFromClass(cla);
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){
         __strong typeof(BGSelf) strongSelf = BGSelf;
@@ -616,7 +677,7 @@ static BGFMDB* BGFmdb;
  根据条件删除对象表中的对象数据.
  */
 -(void)deleteWithClass:(__unsafe_unretained _Nonnull Class)cla where:(NSArray* _Nonnull)where complete:(Complete_B)complete{
-    NSString* tableName = [NSString stringWithFormat:@"%@",cla];
+    NSString* tableName = NSStringFromClass(cla);
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){
         __strong typeof(BGSelf) strongSelf = BGSelf;
@@ -634,7 +695,7 @@ static BGFMDB* BGFmdb;
  根据类删除此类所有表数据.
  */
 -(void)clearWithClass:(__unsafe_unretained _Nonnull Class)cla complete:(Complete_B)complete{
-    NSString* tableName = [NSString stringWithFormat:@"%@",cla];
+    NSString* tableName = NSStringFromClass(cla);
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist) {
         __strong typeof(BGSelf) strongSelf = BGSelf;
@@ -651,7 +712,7 @@ static BGFMDB* BGFmdb;
  根据类,删除这个类的表.
  */
 -(void)dropWithClass:(__unsafe_unretained _Nonnull Class)cla complete:(Complete_B)complete{
-    NSString* tableName = [NSString stringWithFormat:@"%@",cla];
+    NSString* tableName = NSStringFromClass(cla);
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){
         __strong typeof(BGSelf) strongSelf = BGSelf;
@@ -699,7 +760,9 @@ static BGFMDB* BGFmdb;
                     }
                 }
             }
-            [BGSelf createTableWithTableName:destTable keys:destKeyAndTypes primaryKey:nil complete:^(BOOL isSuccess) {
+            //获取"唯一约束"字段名
+            NSString* uniqueKey = [self getUnique:[destCla new]];
+            [BGSelf createTableWithTableName:destTable keys:destKeyAndTypes uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
                 NSAssert(isSuccess,@"目标表创建失败,复制失败!");
             }];
         }else{
@@ -715,7 +778,10 @@ static BGFMDB* BGFmdb;
         for(NSDictionary* srcDict in array){
             NSMutableDictionary* destDict = [NSMutableDictionary dictionary];
             for(int i=0;i<srcKeys.count;i++){
-                destDict[destKeys[i]] = srcDict[srcKeys[i]];
+                //字段名前加上 @"BG_"
+                NSString* destSqlKey = [NSString stringWithFormat:@"%@%@",BG,destKeys[i]];
+                NSString* srcSqlKey = [NSString stringWithFormat:@"%@%@",BG,srcKeys[i]];
+                destDict[destSqlKey] = srcDict[srcSqlKey];
             }
             [BGSelf insertIntoTableName:destTable Dict:destDict complete:^(BOOL isSuccess) {
                 if (isSuccess){
