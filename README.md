@@ -21,7 +21,12 @@ LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo
  设置调试模式   
  @debug YES:打印SQL语句, NO:不打印SQL语句.   
  */   
-+(void)setDebug:(BOOL)debug;   
++(void)setDebug:(BOOL)debug;      
+/**   
+ 事务操作.   
+ @return 返回YES提交事务, 返回NO回滚事务.   
+ */
++(void)inTransaction:(BOOL (^_Nonnull)())block;    
 /**   
  同步存储.   
  */   
