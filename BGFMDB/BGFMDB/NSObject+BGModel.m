@@ -9,10 +9,21 @@
 #import "NSObject+BGModel.h"
 #import "BGFMDB.h"
 #import <objc/message.h>
+#import <UIKit/UIKit.h>
 
 static const char IDKey;
 
 @implementation NSObject (BGModel)
+
+-(void)isUniqueKeyChange{
+    NSString* currentUniqueKey = [BGTool getUnique:self];
+    NSString* oldUniqueKey = [BGTool getStringWithKey:uniquekey];
+    if(![currentUniqueKey isEqualToString:oldUniqueKey]){
+        [[self class] refreshAsync:NO complete:nil];
+        [BGTool setStringWithKey:currentUniqueKey value:uniquekey];
+    }
+}
+
 
 -(NSNumber*)ID{
     return objc_getAssociatedObject(self, &IDKey);
@@ -45,7 +56,6 @@ static const char IDKey;
     }];
     return result;
 }
-
 /**
  @async YES:异步存储,NO:同步存储.
  */
@@ -177,19 +187,15 @@ static const char IDKey;
     return result;
 }
 /**
- @async YES:异步更新,NO:同步更新.
+ 异步更新.
  @where 条件数组，形式@[@"name",@"=",@"标哥",@"age",@"=>",@(25)],即更新name=标哥,age=>25的数据;
  可以为nil,nil时更新所有数据;
  目前不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持.
  */
--(void)updateAsync:(BOOL)async where:(NSArray* _Nullable)where complete:(Complete_B)complete{
-    if(async) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-            [[BGFMDB shareManager] updateWithObject:self where:where complete:complete];
-        });
-    }else{
+-(void)updateAsync:(NSArray* _Nullable)where complete:(Complete_B)complete{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
         [[BGFMDB shareManager] updateWithObject:self where:where complete:complete];
-    }
+    });
 }
 /**
  同步删除数据.
@@ -205,19 +211,15 @@ static const char IDKey;
     return result;
 }
 /**
- @async YES:异步删除,NO:同步删除.
+ 异步删除.
  @where 条件数组，形式@[@"name",@"=",@"标哥",@"age",@"=>",@(25)],即删除name=标哥,age=>25的数据.
  不可以为nil;
  目前不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"] 暂不支持
  */
-+(void)deleteAsync:(BOOL)async where:(NSArray* _Nonnull)where complete:(Complete_B)complete{
-    if(async) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-            [[BGFMDB shareManager] deleteWithClass:[self class] where:where complete:complete];
-        });
-    }else{
++(void)deleteAsync:(NSArray* _Nonnull)where complete:(Complete_B)complete{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
         [[BGFMDB shareManager] deleteWithClass:[self class] where:where complete:complete];
-    }
+    });
 }
 /**
  同步清除所有数据
@@ -230,16 +232,12 @@ static const char IDKey;
     return result;
 }
 /**
- @async YES:异步清除所有数据,NO:同步清除所有数据.
+ 异步清除所有数据.
  */
-+(void)clearAsync:(BOOL)async complete:(Complete_B)complete{
-    if (async) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-            [[BGFMDB shareManager] clearWithClass:[self class] complete:complete];
-        });
-    }else{
++(void)clearAsync:(Complete_B)complete{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
         [[BGFMDB shareManager] clearWithClass:[self class] complete:complete];
-    }
+    });
 }
 /**
  同步删除这个类的数据表
@@ -252,16 +250,12 @@ static const char IDKey;
     return result;
 }
 /**
- @async YES:异步删除这个类的数据表,NO:同步删除这个类的数据表.
+ 异步删除这个类的数据表.
  */
-+(void)dropAsync:(BOOL)async complete:(Complete_B)complete{
-    if (async) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-            [[BGFMDB shareManager] dropWithClass:[self class] complete:complete];
-        });
-    }else{
++(void)dropAsync:(Complete_B)complete{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
         [[BGFMDB shareManager] dropWithClass:[self class] complete:complete];
-    }
+    });
 }
 /**
  查询该表中有多少条数据
@@ -272,9 +266,11 @@ static const char IDKey;
     return [[BGFMDB shareManager] countForTable:NSStringFromClass([self class]) where:where];
 }
 /**
- 刷新,当类变量名称改变时,调用此接口刷新一下.
- @async YES:异步刷新,NO:同步刷新.
+ 获取本类数据表当前版本号.
  */
++(NSInteger)version{
+    return [BGTool getIntegerWithKey:NSStringFromClass([self class])];
+}
 +(void)refreshAsync:(BOOL)async complete:(Complete_I)complete{
     NSString* tableName = NSStringFromClass([self class]);
     if (async) {
@@ -286,10 +282,51 @@ static const char IDKey;
     }
 }
 /**
+ 刷新,当类变量名称或"唯一约束"改变时,调用此接口刷新一下.
+ @async YES:异步刷新,NO:同步刷新.
+ @version 版本号,从1开始,依次往后递增.
+ 说明: 本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
+ */
++(void)updateVersionAsync:(BOOL)async version:(NSInteger)version complete:(Complete_I)complete{
+    NSString* tableName = NSStringFromClass([self class]);
+    NSInteger oldVersion = [BGTool getIntegerWithKey:tableName];
+    if(version > oldVersion){
+        [BGTool setIntegerWithKey:tableName value:version];
+        [self refreshAsync:async complete:complete];
+    }else{
+        if (complete) {
+            complete(Error);
+        }
+    }
+}
+/**
+ 刷新,当类变量名称或"唯一约束"改变时,调用此接口刷新一下.
+ @async YES:异步刷新,NO:同步刷新.
+ @version 版本号,从1开始,依次往后递增.
+ @keyDict 拷贝的对应key集合,形式@{@"新Key1":@"旧Key1",@"新Key2":@"旧Key2"},即将本类以前的变量 “旧Key1” 的数据拷贝给现在本类的变量“新Key1”，其他依此推类. 
+ (特别提示: 这里只要写那些改变了的变量名就可以了,没有改变的不要写)，比如A以前有3个变量,分别为a,b,c；现在变成了a,b,d；那只要写@{@"d":@"c"}就可以了，即只写变化了的变量名映射集合.
+ 说明: 本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
+ */
++(void)updateVersionAsync:(BOOL)async version:(NSInteger)version keyDict:(NSDictionary* const _Nonnull)keydict complete:(Complete_I)complete{
+    NSString* tableName = NSStringFromClass([self class]);
+    NSInteger oldVersion = [BGTool getIntegerWithKey:tableName];
+    if(version > oldVersion){
+        [BGTool setIntegerWithKey:tableName value:version];
+        if (async) {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+                [[BGFMDB shareManager] refreshTable:tableName keyDict:keydict complete:complete];
+            });
+        }else{
+            [[BGFMDB shareManager] refreshTable:tableName keyDict:keydict complete:complete];
+        }
+    }
+}
+
+/**
  将某表的数据拷贝给另一个表
  @async YES:异步复制,NO:同步复制.
  @destCla 目标类.
- @keyDict 拷贝的对应key集合,形式@{@"srcKey1":@"destKey1",@"srcKey2":@"destKey2"},即将源类srcCla中的变量值拷贝给目标类destCla中的变量destKey1，srcKey2和destKey2同理对应,以此推类.
+ @keyDict 拷贝的对应key集合,形式@{@"srcKey1":@"destKey1",@"srcKey2":@"destKey2"},即将源类srcCla中的变量值拷贝给目标类destCla中的变量destKey1，srcKey2和destKey2同理对应,依此推类.
  @append YES: 不会覆盖destCla的原数据,在其末尾继续添加；NO: 覆盖掉destCla原数据,即将原数据删掉,然后将新数据拷贝过来.
  */
 +(void)copyAsync:(BOOL)async toClass:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append complete:(Complete_I)complete{
@@ -301,5 +338,11 @@ static const char IDKey;
         [[BGFMDB shareManager] copyClass:[self class] to:destCla keyDict:keydict append:append complete:complete];
     }
 }
-
+/**
+ 事务操作.
+ @return 返回YES提交事务, 返回NO回滚事务.
+ */
++(void)inTransaction:(BOOL (^_Nonnull)())block{
+    [[BGFMDB shareManager] inTransaction:block];
+}
 @end

@@ -8,10 +8,13 @@
 
 #import <Foundation/Foundation.h>
 #import "BGModelInfo.h"
+#import "FMDB.h"
 
 #define SQLITE_NAME @"BGFMDB.sqlite"
 
 #define BG @"BG_"
+#define primaryKey @"ID"
+#define uniquekey @"uniquekey"
 
 #define Complete_B void(^_Nullable)(BOOL isSuccess)
 #define Complete_I void(^_Nullable)(dealState result)
@@ -67,4 +70,17 @@ typedef NS_ENUM(NSInteger,dealState){//处理状态
  @array 传入要转换的数组数据.
  */
 +(NSArray*)tansformDataFromSqlDataWithTableName:(NSString*)tableName array:(NSArray*)array;
+/**
+ 获取"唯一约束"
+ */
++(NSString*)getUnique:(id)object;
+/**
+ NSUserDefaults封装使用函数.
+ */
++(BOOL)getBoolWithKey:(NSString*)key;
++(void)setBoolWithKey:(NSString*)key value:(BOOL)value;
++(NSString*)getStringWithKey:(NSString*)key;
++(void)setStringWithKey:(NSString*)key value:(NSString*)value;
++(NSInteger)getIntegerWithKey:(NSString*)key;
++(void)setIntegerWithKey:(NSString*)key value:(NSInteger)value;
 @end

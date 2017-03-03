@@ -33,7 +33,7 @@
     p.point = CGPointMake(2.55,3.14);
     p.color = [UIColor redColor];
     p.image = [UIImage imageNamed:@"MarkMan"];
-    p.data = UIImageJPEGRepresentation(p.image, 1);
+    p.data2 = UIImageJPEGRepresentation(p.image, 1);
 
     [p setValue:@(110) forKey:@"testAge"];
     p->testName = @"测试名字";
@@ -80,12 +80,26 @@
 //        p.age = i;
 //        [p save];//存储
 //    }
-    //[People refreshAsync:NO complete:nil];
+//    //获取该类的数据库版本号;
+//    NSInteger version = [People version];
+//    //如果类'变量名'或'唯一约束'发生改变,则调用此API刷新该类数据库,不需要新旧映射的情况下使用此API.
+//    [People updateVersionAsync:NO version:version+1 complete:^(dealState result) {
+//        NSLog(@"更新结果 = %ld",result);
+//    }];
+    //如果类'变量名'或'唯一约束'发生改变,则调用此API刷新该类数据库.data2是新变量名,data是旧变量名,即将旧的值映射到新的变量名,其他不变的变量名会自动复制,只管写出变化的对应映射即可.
+//    [People updateVersionAsync:NO version:version+1 keyDict:@{@"data2":@"data"} complete:^(dealState result) {
+//        NSLog(@"更新结果 = %ld",result);
+//    }];
+    //事务操作,返回YES提交事务,返回NO则会滚事务
+//    [NSObject inTransaction:^BOOL{
+//        [p save];//存储
+//        return YES;
+//    }];
     BOOL saveState = [p save];//存储
     //NSArray* array = [People findAll];
 //    p.name = @"标哥更新...13_2";
 //    [p updateWhere:@[@"name",@"=",@"标哥",@"num",@"=",@(220.88)]];
-//    [p updateAsync:YES where:@[@"age",@"=",@"14",@"num",@"=",@(220.88)] complete:^(BOOL isSuccess) {
+//    [p updateAsync:@[@"age",@"=",@"14",@"num",@"=",@(220.88)] complete:^(BOOL isSuccess) {
 //        !isSuccess?:NSLog(@"更新成功!");
 //    }];
     //[People clear];//清除
@@ -102,9 +116,9 @@
 //    }];
     //[People deleteWhere:@[@"ID",@"=",@(3)]];
     NSArray* finfAlls = [People findAll];
-    People* firstObj = finfAlls.firstObject;
-    _showImage.image = [UIImage imageWithData:firstObj.data];
-    self.view.backgroundColor = firstObj.color;
+    People* firstObj = finfAlls.lastObject;
+    _showImage.image = [UIImage imageWithData:firstObj.data2];
+    self.view.backgroundColor = firstObj.color?firstObj.color:[UIColor whiteColor];
     for(People* obj in finfAlls){
         for(id value in obj.nsset){
             NSLog(@"NSSet = %@",value);
@@ -128,7 +142,12 @@
 //    [Man findAllAsync:^(NSArray * _Nullable array) {
 //        NSLog(@"结果 = %@",array);
 //    }];
-    //[Man refreshAsync:NO complete:nil];
+    //获取该类的数据库版本号;
+    //NSInteger versionMan = [Man version];
+    //如果类名发生改变,则调用此API刷新该类数据库.
+//    [Man updateVersionAsync:NO version:1 complete:^(dealState result) {
+//        NSLog(@"更新结果 = %ld",result);
+//    }];
     //将People的name拷贝给Man的Man_name，其他同理.
 //    [People copyAsync:NO toClass:[Man class] keyDict:@{@"name":@"Man_name",
 //                                                       @"num":@"Man_num",
@@ -137,17 +156,14 @@
 //               append:NO complete:^(dealState result) {
 //                 NSLog(@"拷贝状态 = %ld",result);
 //             }];
-//    [Man findAllAsync:NO complete:^(NSArray * _Nullable array) {
+//    [Man findAllAsync:^(NSArray * _Nullable array) {
 //        for(Man* man in array){
 //            NSLog(@"Man_name = %@  , Man_num = %@ , Man_age = %d",man.Man_name,man.Man_num,man.Man_age);
 //        }
 //        Man* mm = [array lastObject];
 //        _showImage.image = mm.image;
 //    }];
-    //当类里面的变量名时,调用此API刷新一下这个类的数据.
-//    [People refreshAsync:NO complete:^(dealState result) {
-//        NSLog(@"刷新状态 = %ld",result);
-//    }];
+
 //    [People findAllAsync:YES limit:0 orderBy:@"age" desc:YES complete:^(NSArray * _Nullable array) {
 //        for(People* p in array){
 //            NSLog(@"查询结果： name = %@，testAge = %d,testName = %@,num = %@,age = %d,students = %@,info = %@,eye = %@,user.name = %@,user.密码 = %@ , user.student.num = %@,user.student.names[0] = %@, user.student.humane.sex = %@,p.user.student.human.body = %@",p.name,p->testAge,p->testName,p.num,p.age,p.students,p.info,p.eye,p.user.name,p.user.attri[@"密码"],p.user.student.num,p.user.student.names[0],p.user.student.human.sex,p.user.student.human.body);

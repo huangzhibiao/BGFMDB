@@ -29,7 +29,7 @@
         NSString* sqlType = [BGTool getSqlType:propertyType];
         [info setValue:sqlType forKey:@"sqlColumnType"];
         //读取属性值
-        if(![propertyName isEqualToString:@"ID"]){
+        if(![propertyName isEqualToString:primaryKey]){
             
             id propertyValue = [object valueForKey:propertyName];
             id sqlValue;

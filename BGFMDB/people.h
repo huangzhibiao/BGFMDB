@@ -81,8 +81,8 @@
 @property(nonatomic,strong)NSHashTable* hashTable;
 
 @property(nonatomic,strong)NSDate* date;
-@property(nonatomic,strong)NSData* data;
-@property(nonatomic,strong)NSMutableData* dataM;
+@property(nonatomic,strong)NSData* data2;
+//@property(nonatomic,strong)NSMutableData* dataM;
 @property(nonatomic,strong)UIImage* image;
 @property(nonatomic,strong)UIColor* color;
 

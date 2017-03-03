@@ -19,7 +19,12 @@
  获取单例函数.
  */
 +(_Nonnull instancetype)shareManager;
-
+//事务操作
+-(void)inTransaction:(BOOL (^_Nonnull)())block;
+/**
+ 为了对象层的事物操作而封装的函数.
+ */
+-(void)executeDB:(void (^_Nonnull)(FMDatabase *_Nonnull db))block;
 #pragma mark --> 以下是直接存储一个对象的API
 
 /**
@@ -189,5 +194,6 @@
  @name 表名称.
  @keys 新表的数组字段.
  */
--(void)refreshTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* _Nonnull)keys complete:(Complete_I)complete;
+-(void)refreshTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* const _Nonnull)keys complete:(Complete_I)complete;
+-(void)refreshTable:(NSString* _Nonnull)name keyDict:(NSDictionary* const _Nonnull)keyDict complete:(Complete_I)complete;
 @end

@@ -8,7 +8,6 @@
 
 #import "BGTool.h"
 #import <objc/runtime.h>
-#import <objc/message.h>
 #import <UIKit/UIKit.h>
 
 #define SqlText @"text" //数据库的字符类型
@@ -59,7 +58,7 @@
     unsigned int numIvars; //成员变量个数
     Ivar *vars = class_copyIvarList(cla, &numIvars);
     NSMutableArray* keys = [NSMutableArray array];
-    [keys addObject:@"ID*q"];//手动添加库自带的自动增长主键ID和类型q
+    [keys addObject:[NSString stringWithFormat:@"%@*q",primaryKey]];//手动添加库自带的自动增长主键ID和类型q
     for(int i = 0; i < numIvars; i++) {
         Ivar thisIvar = vars[i];
         NSString* key = [NSString stringWithUTF8String:ivar_getName(thisIvar)];//获取成员变量的名
@@ -156,7 +155,7 @@
         NSArray* arr = [keyAndType componentsSeparatedByString:@"*"];
         NSString* propertyName = arr[0];
         NSString* propertyType = arr[1];
-        if(![propertyName isEqualToString:@"ID"]){
+        if(![propertyName isEqualToString:primaryKey]){
             id propertyValue = [object valueForKey:propertyName];
             if (propertyValue){
                 id Value = [self getSqlValue:propertyValue type:propertyType encode:YES];
@@ -368,7 +367,7 @@
     }else{
         if(encode){
             NSString* jsonString = [self jsonStringWithObject:value];
-            return jsonString;//[NSString stringWithFormat:@"%@~~%@",[value class],jsonString];
+            return jsonString;
         }else{
             NSDictionary* dict = [self jsonWithString:value];
             type = [type substringWithRange:NSMakeRange(2,type.length-3)];
@@ -387,10 +386,11 @@
         for(NSString* valueKey in valueDictKeys){
             if ([valueKey isEqualToString:arrKT.firstObject]){
                 id ivarValue = [self getSqlValue:valueDict[valueKey] type:arrKT.lastObject encode:NO];
-                if(![arrKT.firstObject isEqualToString:@"ID"]){
+                if(![arrKT.firstObject isEqualToString:primaryKey]){
                     [object setValue:ivarValue forKey:arrKT.firstObject];
                 }else{
-                    [object performSelector:sel_registerName("setID:") withObject:ivarValue];
+                    SEL primaryKeySel = NSSelectorFromString([NSString stringWithFormat:@"set%@:",primaryKey]);
+                    [object performSelector:primaryKeySel withObject:ivarValue];
                 }
             }
         }
@@ -522,4 +522,43 @@
     }
     return arrM;
 }
+/**
+ 获取"唯一约束"
+ */
++(NSString*)getUnique:(id)object{
+    NSString* uniqueKey = nil;
+    if([object respondsToSelector:NSSelectorFromString(@"uniqueKey")]){
+        SEL uniqueKeySeltor = NSSelectorFromString(@"uniqueKey");
+        uniqueKey = [object performSelector:uniqueKeySeltor];
+    }
+    return uniqueKey;
+}
++(BOOL)getBoolWithKey:(NSString*)key{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    return [defaults boolForKey:key];
+}
++(void)setBoolWithKey:(NSString*)key value:(BOOL)value{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setBool:value forKey:key];
+    [defaults synchronize];
+}
++(NSString*)getStringWithKey:(NSString*)key{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    return [defaults stringForKey:key];
+}
++(void)setStringWithKey:(NSString*)key value:(NSString*)value{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setObject:value forKey:key];
+    [defaults synchronize];
+}
++(NSInteger)getIntegerWithKey:(NSString*)key{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    return [defaults integerForKey:key];
+}
++(void)setIntegerWithKey:(NSString*)key value:(NSInteger)value{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setInteger:value forKey:key];
+    [defaults synchronize];
+}
+
 @end

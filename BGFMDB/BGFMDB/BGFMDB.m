@@ -8,13 +8,15 @@
 
 
 #import "BGFMDB.h"
-#import "FMDB.h"
 
 #define debug(sql) if(self.debug){NSLog(@"SQL语句: %@",sql);}
 
 @interface BGFMDB()
 
 @property (nonatomic, strong) FMDatabaseQueue *queue;
+@property (nonatomic, strong)FMDatabase* db;
+
+@property (nonatomic, strong) NSRecursiveLock *threadLock;
 
 @end
 
@@ -36,7 +38,7 @@ static BGFMDB* BGFmdb;
         NSString *filename = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:SQLITE_NAME];
         // 1.创建数据库队列
         self.queue = [FMDatabaseQueue databaseQueueWithPath:filename];
-        //NSLog(@"数据库初始化-----");
+        self.threadLock = [[NSRecursiveLock alloc] init];
     }
     return self;
 }
@@ -53,6 +55,42 @@ static BGFMDB* BGFmdb;
     }
     return BGFmdb;
 }
+//事务操作
+-(void)inTransaction:(BOOL (^_Nonnull)())block{
+    NSAssert(block, @"block is nil!");
+    [self executeDB:^(FMDatabase * _Nonnull db) {
+        BOOL inTransacttion = db.inTransaction;
+        if (!inTransacttion) {
+            [db beginTransaction];
+        }
+        BOOL isCommit = NO;
+        isCommit = block();
+        if (!inTransacttion) {
+            if (isCommit) {
+                [db commit];
+            }
+            else {
+                [db rollback];
+            }
+        }
+    }];
+}
+/**
+ 为了对象层的事物操作而封装的函数.
+ */
+-(void)executeDB:(void (^_Nonnull)(FMDatabase *_Nonnull db))block{
+    NSAssert(block, @"block is nil!");
+    if (_db){//为了事务操作防止死锁而设置.
+        block(_db);
+        return;
+    }
+    __weak typeof(self) BGSelf = self;
+    [self.queue inDatabase:^(FMDatabase *db) {
+        BGSelf.db = db;
+        block(db);
+        BGSelf.db = nil;
+    }];
+}
 
 /**
  数据库中是否存在表.
@@ -60,7 +98,7 @@ static BGFMDB* BGFmdb;
 -(void)isExistWithTableName:(NSString* _Nonnull)name complete:(Complete_B)complete{
     NSAssert(name,@"表名不能为空!");
     __block BOOL result;
-    [self.queue inDatabase:^(FMDatabase *db){
+    [self executeDB:^(FMDatabase * _Nonnull db) {
         result = [db tableExists:name];
     }];
     if (complete) {
@@ -77,7 +115,7 @@ static BGFMDB* BGFmdb;
     NSAssert(keys,@"字段数组不能为空!");
     //创表
     __block BOOL result;
-    [self.queue inDatabase:^(FMDatabase *db){
+    [self executeDB:^(FMDatabase * _Nonnull db) {
         NSString* header = [NSString stringWithFormat:@"create table if not exists %@ (",name];
         NSMutableString* sql = [[NSMutableString alloc] init];
         [sql appendString:header];
@@ -88,13 +126,13 @@ static BGFMDB* BGFmdb;
                 if([BGTool isUniqueKey:uniqueKey with:keys[i]]){
                     uniqueKeyFlag = YES;
                     [sql appendFormat:@"%@ unique",[BGTool keyAndType:keys[i]]];
-                }else if ([[keys[i] componentsSeparatedByString:@"*"][0] isEqualToString:@"ID"]){
+                }else if ([[keys[i] componentsSeparatedByString:@"*"][0] isEqualToString:primaryKey]){
                     [sql appendFormat:@"%@ primary key autoincrement",[BGTool keyAndType:keys[i]]];
                 }else{
                     [sql appendString:[BGTool keyAndType:keys[i]]];
                 }
             }else{
-                if ([[keys[i] componentsSeparatedByString:@"*"][0] isEqualToString:@"ID"]){
+                if ([[keys[i] componentsSeparatedByString:@"*"][0] isEqualToString:primaryKey]){
                     [sql appendFormat:@"%@ primary key autoincrement",[BGTool keyAndType:keys[i]]];
                 }else{
                     [sql appendString:[BGTool keyAndType:keys[i]]];
@@ -114,6 +152,7 @@ static BGFMDB* BGFmdb;
         debug(sql);
         result = [db executeUpdate:sql];
     }];
+    
     if (complete){
         complete(result);
     }
@@ -125,7 +164,7 @@ static BGFMDB* BGFmdb;
     NSAssert(name,@"表名不能为空!");
     NSAssert(dict,@"插入值字典不能为空!");
     __block BOOL result;
-    [self.queue inDatabase:^(FMDatabase *db) {
+    [self executeDB:^(FMDatabase * _Nonnull db) {
         NSArray* keys = dict.allKeys;
         NSArray* values = dict.allValues;
         NSMutableString* SQL = [[NSMutableString alloc] init];
@@ -162,7 +201,7 @@ static BGFMDB* BGFmdb;
     NSAssert(name,@"表名不能为空!");
     __block NSMutableArray* arrM = [[NSMutableArray alloc] init];
     __block NSArray* arguments;
-    [self.queue inDatabase:^(FMDatabase *db) {
+    [self executeDB:^(FMDatabase * _Nonnull db) {
         NSMutableString* SQL = [[NSMutableString alloc] init];
         [SQL appendString:@"select"];
         if ((keys!=nil)&&(keys.count>0)) {
@@ -187,7 +226,9 @@ static BGFMDB* BGFmdb;
         debug(SQL);
         // 1.查询数据
         FMResultSet *rs = [db executeQuery:SQL withArgumentsInArray:arguments];
-        NSAssert(rs,@"查询错误,可能是 类变量名 发生了改变或 字段 不存在!,请存储后再读取,或检查条件数组 字段名称 是否正确");
+        if (rs == nil) {
+            debug(@"查询错误,可能是'类变量名'发生了改变或'字段','表格'不存在!,请存储后再读取,或检查条件数组'字段名称'是否正确");
+        }
         // 2.遍历结果集
         while (rs.next) {
             NSMutableDictionary* dictM = [[NSMutableDictionary alloc] init];
@@ -211,7 +252,7 @@ static BGFMDB* BGFmdb;
     NSAssert(name,@"表名不能为空!");
     __block NSMutableArray* arrM = [[NSMutableArray alloc] init];
     __block NSArray* arguments;
-    [self.queue inDatabase:^(FMDatabase *db) {
+    [self executeDB:^(FMDatabase * _Nonnull db) {
         NSMutableString* SQL = [NSMutableString string];
         [SQL appendFormat:@"select * from %@",name];
         
@@ -227,6 +268,9 @@ static BGFMDB* BGFmdb;
         debug(SQL);
         // 1.查询数据
         FMResultSet *rs = [db executeQuery:SQL withArgumentsInArray:arguments];
+        if (rs == nil) {
+            debug(@"查询错误,'表格'不存在!,请存储后再读取!");
+        }
         // 2.遍历结果集
         while (rs.next) {
             NSMutableDictionary* dictM = [[NSMutableDictionary alloc] init];
@@ -256,7 +300,7 @@ static BGFMDB* BGFmdb;
     [keyPathParam appendFormat:@"%@",value];
     [keyPathParam appendString:@"%"];
     __block NSMutableArray* arrM = [[NSMutableArray alloc] init];
-    [self.queue inDatabase:^(FMDatabase *db) {
+    [self executeDB:^(FMDatabase * _Nonnull db) {
         NSString* SQL = [NSString stringWithFormat:@"select * from People where %@%@ like '%@'",BG,keypaths[0],keyPathParam];
         debug(SQL);
         // 1.查询数据
@@ -284,7 +328,7 @@ static BGFMDB* BGFmdb;
     
     __block BOOL result;
     __block NSMutableArray* arguments = [NSMutableArray array];
-    [self.queue inDatabase:^(FMDatabase *db) {
+    [self executeDB:^(FMDatabase * _Nonnull db) {
         NSMutableString* SQL = [[NSMutableString alloc] init];
         [SQL appendFormat:@"update %@ set ",name];
         for(int i=0;i<valueDict.allKeys.count;i++){
@@ -319,7 +363,7 @@ static BGFMDB* BGFmdb;
     NSAssert(where,@"条件数组错误! 不能为空");
     __block BOOL result;
     __block NSMutableArray* arguments = [NSMutableArray array];
-    [self.queue inDatabase:^(FMDatabase *db) {
+    [self executeDB:^(FMDatabase * _Nonnull db) {
         NSMutableString* SQL = [[NSMutableString alloc] init];
         [SQL appendFormat:@"delete from %@",name];
         
@@ -344,7 +388,7 @@ static BGFMDB* BGFmdb;
 -(void)clearTable:(NSString* _Nonnull)name complete:(Complete_B)complete{
     NSAssert(name,@"表名不能为空!");
     __block BOOL result;
-    [self.queue inDatabase:^(FMDatabase *db) {
+    [self executeDB:^(FMDatabase * _Nonnull db) {
         NSString* SQL = [NSString stringWithFormat:@"delete from %@",name];
         debug(SQL);
         result = [db executeUpdate:SQL];
@@ -360,7 +404,7 @@ static BGFMDB* BGFmdb;
 -(void)dropTable:(NSString* _Nonnull)name complete:(Complete_B)complete{
     NSAssert(name,@"表名不能为空!");
     __block BOOL result;
-    [self.queue inDatabase:^(FMDatabase *db) {
+    [self executeDB:^(FMDatabase * _Nonnull db) {
         NSString* SQL = [NSString stringWithFormat:@"drop table %@",name];
         debug(SQL);
         result = [db executeUpdate:SQL];
@@ -375,7 +419,7 @@ static BGFMDB* BGFmdb;
 -(void)addTable:(NSString* _Nonnull)name key:(NSString* _Nonnull)key complete:(Complete_B)complete{
     NSAssert(name,@"表名不能为空!");
     __block BOOL result;
-    [self.queue inDatabase:^(FMDatabase *db){
+    [self executeDB:^(FMDatabase * _Nonnull db) {
         NSString* SQL = [NSString stringWithFormat:@"alter table %@ add %@",name,[BGTool keyAndType:key]];
         debug(SQL);
         result = [db executeUpdate:SQL];
@@ -405,7 +449,7 @@ static BGFMDB* BGFmdb;
         }
     }
     __block NSUInteger count=0;
-    [self.queue inDatabase:^(FMDatabase *db){
+    [self executeDB:^(FMDatabase * _Nonnull db) {
         NSString* SQL = [NSString stringWithFormat:@"select count (*) from %@%@",name,strM];
         debug(SQL);
         [db executeStatements:SQL withResultBlock:^int(NSDictionary *resultsDictionary) {
@@ -418,7 +462,7 @@ static BGFMDB* BGFmdb;
 /**
  刷新数据库，即将旧数据库的数据复制到新建的数据库,这是为了去掉没用的字段.
  */
--(void)refreshTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* _Nonnull)keys complete:(Complete_I)complete{
+-(void)refreshTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* const _Nonnull)keys complete:(Complete_I)complete{
     NSAssert(name,@"表名不能为空!");
     NSAssert(keys,@"字段数组不能为空!");
     __block dealState refreshstate = Error;
@@ -433,7 +477,7 @@ static BGFMDB* BGFmdb;
             __strong typeof(BGSelf) secondSelf = strongSelf;
             if (isSuccess){
                 //获取"唯一约束"字段名
-                NSString* uniqueKey = [self getUnique:[NSClassFromString(name) new]];
+                NSString* uniqueKey = [BGTool getUnique:[NSClassFromString(name) new]];
                 //创建新表
                 [strongSelf createTableWithTableName:name keys:keys uniqueKey:uniqueKey complete:^(BOOL isSuccess){
                     if(isSuccess){
@@ -479,22 +523,103 @@ static BGFMDB* BGFmdb;
     }
 }
 
-/**
- 获取"唯一约束"
- */
--(NSString*)getUnique:(id)object{
-    NSString* uniqueKey = nil;
-    if([object respondsToSelector:NSSelectorFromString(@"uniqueKey")]){
-        SEL uniqueKeySeltor = NSSelectorFromString(@"uniqueKey");
-        uniqueKey = [object performSelector:uniqueKeySeltor];
+-(void)refreshTable:(NSString* _Nonnull)name keyDict:(NSDictionary* const _Nonnull)keyDict complete:(Complete_I)complete{
+    NSAssert(name,@"表名不能为空!");
+    NSAssert(keyDict,@"变量名影射集合不能为空!");
+    __block NSArray* keys = [BGTool getClassIvarList:NSClassFromString(name) onlyKey:YES];
+    NSArray* newKeys = keyDict.allKeys;
+    NSArray* oldKeys = keyDict.allValues;
+    for(int i=0;i<newKeys.count;i++){
+        if (![keys containsObject:newKeys[i]]){
+            NSString* result = [NSString stringWithFormat:@"新变量出错名称 = %@",newKeys[i]];
+            debug(result);
+            @throw [NSException exceptionWithName:@"类新变量名称写错" reason:@"请检查keydict中的 新Key 是否书写正确!" userInfo:nil];
+        }
     }
-    return uniqueKey;
+    __block dealState refreshstate = Error;
+    __block BOOL recordError = NO;
+    __block BOOL recordSuccess = NO;
+    __weak typeof(self) BGSelf = self;
+    //先查询出旧表数据
+    [self queryWithTableName:name keys:nil where:nil complete:^(NSArray<NSDictionary*> * _Nullable array){
+        NSArray* tableKeys = array.firstObject.allKeys;
+        NSString* tableKey;
+        for(int i=0;i<oldKeys.count;i++){
+           tableKey = [NSString stringWithFormat:@"%@%@",BG,oldKeys[i]];
+            if (![tableKeys containsObject:tableKey]){
+                NSString* result = [NSString stringWithFormat:@"旧变量出错名称 = %@",oldKeys[i]];
+                debug(result);
+                @throw [NSException exceptionWithName:@"类旧变量名称写错" reason:@"请检查keydict中的 旧Key 是否书写正确!" userInfo:nil];
+            }
+        }
+        //重新获取类变量名和类型的数组
+        keys = [BGTool getClassIvarList:NSClassFromString(name) onlyKey:NO];
+        __strong typeof(BGSelf) strongSelf = BGSelf;
+        //接着删掉旧表
+        [BGSelf dropTable:name complete:^(BOOL isSuccess){
+            __strong typeof(BGSelf) secondSelf = strongSelf;
+            if (isSuccess){
+                //获取"唯一约束"字段名
+                NSString* uniqueKey = [BGTool getUnique:[NSClassFromString(name) new]];
+                //创建新表
+                [strongSelf createTableWithTableName:name keys:keys uniqueKey:uniqueKey complete:^(BOOL isSuccess){
+                    if(isSuccess){
+                        for(NSDictionary* oldDict in array){
+                            NSMutableDictionary* newDict = [NSMutableDictionary dictionary];
+                            for(NSString* keyAndType in keys){
+                                NSString* key = [keyAndType componentsSeparatedByString:@"*"][0];
+                                //字段名前加上 @"BG_"
+                                key = [NSString stringWithFormat:@"%@%@",BG,key];
+                                if (oldDict[key]){
+                                    newDict[key] = oldDict[key];
+                                }
+                            }
+                            for(int i=0;i<oldKeys.count;i++){
+                                //字段名前加上 @"BG_"
+                                NSString* oldkey = [NSString stringWithFormat:@"%@%@",BG,oldKeys[i]];
+                                NSString* newkey = [NSString stringWithFormat:@"%@%@",BG,newKeys[i]];
+                                if (oldDict[oldkey]){
+                                    newDict[newkey] = oldDict[oldkey];
+                                }
+                            }
+                            //将旧表的数据插入到新表
+                            [secondSelf insertIntoTableName:name Dict:newDict complete:^(BOOL isSuccess){
+                                if (isSuccess){
+                                    if (!recordSuccess) {
+                                        recordSuccess = YES;
+                                    }
+                                }else{
+                                    if (!recordError) {
+                                        recordError = YES;
+                                    }
+                                }
+                            }];
+                        }
+                    }
+                    
+                }];
+            }
+        }];
+    }];
+    
+    if (complete){
+        if (recordError && recordSuccess) {
+            refreshstate = Incomplete;
+        }else if(recordError && !recordSuccess){
+            refreshstate = Error;
+        }else if (recordSuccess && !recordError){
+            refreshstate = Complete;
+        }else;
+        complete(refreshstate);
+    }
+
 }
+
 //判断类的变量名是否变更,然后改变表字段结构.
 -(void)changeTableWhenClassIvarChange:(__unsafe_unretained Class)cla{
     NSString* tableName = NSStringFromClass(cla);
     NSMutableArray* newKeys = [NSMutableArray array];
-    [self.queue inDatabase:^(FMDatabase *db){
+    [self executeDB:^(FMDatabase * _Nonnull db){
         NSArray* keys = [BGTool getClassIvarList:cla onlyKey:NO];
         for (NSString* keyAndtype in keys){
             NSString* key = [[keyAndtype componentsSeparatedByString:@"*"] firstObject];
@@ -544,7 +669,7 @@ static BGFMDB* BGFmdb;
     //检查是否建立了跟对象相对应的数据表
     NSString* tableName = NSStringFromClass([object class]);
     //获取"唯一约束"字段名
-    NSString* uniqueKey = [self getUnique:object];
+    NSString* uniqueKey = [BGTool getUnique:object];
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist) {
         __strong typeof(BGSelf) strongSelf = BGSelf;
@@ -733,15 +858,20 @@ static BGFMDB* BGFmdb;
     NSAssert(destCla,@"目标类不能为空!");
     NSString* srcTable = NSStringFromClass(srcCla);
     NSString* destTable = NSStringFromClass(destCla);
+    NSAssert(![srcTable isEqualToString:destTable],@"不能将本类数据拷贝给自己!");
     NSArray* destKeys = keydict.allValues;
     NSArray* srcKeys = keydict.allKeys;
     //检测用户的key是否写对了,否则抛出异常
     NSArray* srcOnlyKeys = [BGTool getClassIvarList:srcCla onlyKey:YES];
     NSArray* destOnlyKeys = [BGTool getClassIvarList:destCla onlyKey:YES];
     for(int i=0;i<srcKeys.count;i++){
-        if (![srcOnlyKeys containsObject:srcKeys[i]]) {
+        if (![srcOnlyKeys containsObject:srcKeys[i]]){
+            NSString* result = [NSString stringWithFormat:@"源类变量名称写错 = %@",srcKeys[i]];
+            debug(result);
             @throw [NSException exceptionWithName:@"源类变量名称写错" reason:@"请检查keydict中的srcKey是否书写正确!" userInfo:nil];
         }else if(![destOnlyKeys containsObject:destKeys[i]]){
+            NSString* result = [NSString stringWithFormat:@"目标类变量名称写错 = %@",destKeys[i]];
+            debug(result);
             @throw [NSException exceptionWithName:@"目标类变量名称写错" reason:@"请检查keydict中的destKey字段是否书写正确!" userInfo:nil];
         }else;
     }
@@ -761,7 +891,7 @@ static BGFMDB* BGFmdb;
                 }
             }
             //获取"唯一约束"字段名
-            NSString* uniqueKey = [self getUnique:[destCla new]];
+            NSString* uniqueKey = [BGTool getUnique:[destCla new]];
             [BGSelf createTableWithTableName:destTable keys:destKeyAndTypes uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
                 NSAssert(isSuccess,@"目标表创建失败,复制失败!");
             }];
