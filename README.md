@@ -20,7 +20,7 @@ stockModel* shenStock = [stockModel stockWithName:@"深市" stockData:_shenData]
 [shenStock updateWhere:@[@"name",@"=",@"深市"]];//一句代码搞定更新.   
 NSArray* array = [stockModel findAll];//一句代码搞定查询.   
 [stockModel deleteWhere:@[@"name",@"=",@"深市"]];//一句代码搞定删.  
-//数据数据变化监听.  
+//注册数据变化监听.  
 [stockModel registerChangeWithName:@"stockModel" block:^(changeState result){  
         switch (result) {  
             case Insert:  
