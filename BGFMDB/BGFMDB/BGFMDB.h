@@ -25,6 +25,19 @@
  为了对象层的事物操作而封装的函数.
  */
 -(void)executeDB:(void (^_Nonnull)(FMDatabase *_Nonnull db))block;
+/**
+ 注册数据变化监听.
+ @name 注册名称,此字符串唯一,不可重复,移除监听的时候使用此字符串移除.
+ @return YES: 注册监听成功; NO: 注册监听失败.
+ */
+-(BOOL)registerChangeWithName:(NSString* const _Nonnull)name block:(ChangeBlock)block;
+/**
+ 移除数据变化监听.
+ @name 注册监听的时候使用的名称.
+ @return YES: 移除监听成功; NO: 移除监听失败.
+ */
+-(BOOL)removeChangeWithName:(NSString* const _Nonnull)name;
+
 #pragma mark --> 以下是直接存储一个对象的API
 
 /**
@@ -52,25 +65,28 @@
 /**
  根据keyPath查询对象
  @cla 代表对应的类.
- @keyPath 查询路径,形式 @"user.student.name"
- @value 值,@"小芳"
- 说明: 即查询 user.student.name=小芳 的对象数据.
+ @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
+ 即查询user.student.name等于@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
--(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla forKeyPath:(NSString* _Nonnull)keyPath value:(id _Nonnull)value complete:(Complete_A)complete;
+-(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_A)complete;
 /**
- 根据条件改变对象的所有变量值.
+ 根据条件改变对象数据.
  @object 要更新的对象.
  @where 数组的形式 @[@"key",@"=",@"value",@"key",@">=",@"value"],为nil时设置全部.
- 目前不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持
  @complete 回调的block
  */
 -(void)updateWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where complete:(Complete_B)complete;
+/**
+ 根据keyPath改变对象数据.
+ @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
+ 即更新user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
+ */
+-(void)updateWithObject:(id _Nonnull)object forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete;
 /**
  根据条件改变对象的部分变量值.
  @cla 代表对应的类.
  @valueDict 存放的是key和value 即@{key:value,key:value}..
  @where 数组的形式 @[@"key",@"=",@"value",@"key",@">=",@"value"],为nil时设置全部.
- 目前不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持
  @complete 回调的block
  */
 -(void)updateWithClass:(__unsafe_unretained _Nonnull Class)cla valueDict:(NSDictionary* _Nonnull)valueDict where:(NSArray* _Nullable)where complete:(Complete_B)complete;
@@ -144,11 +160,10 @@
 /**
  keyPath查询.
  @name 表名称.
- @keyPath 查询路径,形式 @"user.student.name"
- @value 值,@"小芳"
- 说明: 即查询 user.student.name=小芳 的对象数据.
+ @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
+ 即查询user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
--(void)queryWithTableName:(NSString* _Nonnull)name forKeyPath:(NSString* _Nonnull)keyPath value:(id _Nonnull)value complete:(Complete_A)complete;
+-(void)queryWithTableName:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_A)complete;
 /**
  更新数据.
  @name 表名称.
@@ -158,12 +173,26 @@
  */
 -(void)updateWithTableName:(NSString* _Nonnull)name valueDict:(NSDictionary* _Nonnull)valueDict where:(NSArray* _Nullable)where complete:(Complete_B)complete;
 /**
+ 根据keypath更新数据.
+ @name 表名称.
+ @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
+ 即更新user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
+ */
+-(void)updateWithTableName:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues valueDict:(NSDictionary* _Nonnull)valueDict complete:(Complete_B)complete;
+/**
  根据表名和条件删除表内容.
  @name 表名称.
- @where 条件数组,形式 @[@"key",@"=",@"value",@"key",@">=",@"value"],where要非空,条件key属性只能是系统自带的属性,暂不支持自定义类.
+ @where 条件数组,形式 @[@"key",@"=",@"value",@"key",@">=",@"value"],where要非空.
  @complete 回调的block.
  */
 -(void)deleteWithTableName:(NSString* _Nonnull)name where:(NSArray* _Nonnull)where complete:(Complete_B)complete;
+/**
+ 根据keypath删除表内容.
+ @name 表名称.
+ @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
+ 即删除user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
+ */
+-(void)deleteWithTableName:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete;
 /**
  根据表名删除表格全部内容.
  @name 表名称.
@@ -189,6 +218,7 @@
  @where 条件数组,形式 @[@"key",@"=",@"value",@"key",@">=",@"value"],为nil时返回全部数据的条数.
  */
 -(NSInteger)countForTable:(NSString* _Nonnull)name where:(NSArray* _Nullable)where;
+-(NSInteger)countForTable:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues;
 /**
  刷新数据库，即将旧数据库的数据复制到新建的数据库,这是为了去掉没用的字段.
  @name 表名称.

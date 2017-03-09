@@ -27,6 +27,9 @@
 		D76ADF551E5D678C00774585 /* file.txt in Resources */ = {isa = PBXBuildFile; fileRef = D76ADF541E5D678C00774585 /* file.txt */; };
 		D77587731E654CF3005295FC /* NSObject+BGModel.m in Sources */ = {isa = PBXBuildFile; fileRef = D77587721E654CF3005295FC /* NSObject+BGModel.m */; };
 		D781DEBC1D9A5506007B6FB4 /* people.m in Sources */ = {isa = PBXBuildFile; fileRef = D781DEBB1D9A5506007B6FB4 /* people.m */; };
+		D78A0D7C1E70F92400511A6D /* stockController.m in Sources */ = {isa = PBXBuildFile; fileRef = D78A0D7A1E70F92400511A6D /* stockController.m */; };
+		D78A0D7D1E70F92400511A6D /* stockController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D78A0D7B1E70F92400511A6D /* stockController.xib */; };
+		D78A0D801E70F95700511A6D /* stockModel.m in Sources */ = {isa = PBXBuildFile; fileRef = D78A0D7F1E70F95700511A6D /* stockModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +102,11 @@
 		D77587721E654CF3005295FC /* NSObject+BGModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+BGModel.m"; sourceTree = "<group>"; };
 		D781DEBA1D9A5506007B6FB4 /* people.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = people.h; sourceTree = "<group>"; };
 		D781DEBB1D9A5506007B6FB4 /* people.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = people.m; sourceTree = "<group>"; };
+		D78A0D791E70F92400511A6D /* stockController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stockController.h; sourceTree = "<group>"; };
+		D78A0D7A1E70F92400511A6D /* stockController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = stockController.m; sourceTree = "<group>"; };
+		D78A0D7B1E70F92400511A6D /* stockController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = stockController.xib; sourceTree = "<group>"; };
+		D78A0D7E1E70F95700511A6D /* stockModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stockModel.h; sourceTree = "<group>"; };
+		D78A0D7F1E70F95700511A6D /* stockModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = stockModel.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,6 +170,7 @@
 				D70663101CD1EF67009E4B4D /* Supporting Files */,
 				D781DEBA1D9A5506007B6FB4 /* people.h */,
 				D781DEBB1D9A5506007B6FB4 /* people.m */,
+				D78A0D781E70F92400511A6D /* stockController */,
 			);
 			path = BGFMDB;
 			sourceTree = "<group>";
@@ -234,6 +243,18 @@
 				D70663501CD1F10D009E4B4D /* FMResultSet.m */,
 			);
 			path = FMDB;
+			sourceTree = "<group>";
+		};
+		D78A0D781E70F92400511A6D /* stockController */ = {
+			isa = PBXGroup;
+			children = (
+				D78A0D791E70F92400511A6D /* stockController.h */,
+				D78A0D7A1E70F92400511A6D /* stockController.m */,
+				D78A0D7B1E70F92400511A6D /* stockController.xib */,
+				D78A0D7E1E70F95700511A6D /* stockModel.h */,
+				D78A0D7F1E70F95700511A6D /* stockModel.m */,
+			);
+			path = stockController;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -344,6 +365,7 @@
 				D70663201CD1EF67009E4B4D /* LaunchScreen.storyboard in Resources */,
 				D706631D1CD1EF67009E4B4D /* Assets.xcassets in Resources */,
 				D76ADF551E5D678C00774585 /* file.txt in Resources */,
+				D78A0D7D1E70F92400511A6D /* stockController.xib in Resources */,
 				D706631B1CD1EF67009E4B4D /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -375,12 +397,14 @@
 				D769F1A21E559F3700EDE420 /* BGTool.m in Sources */,
 				D70663151CD1EF67009E4B4D /* AppDelegate.m in Sources */,
 				D70663541CD1F10D009E4B4D /* FMDatabaseQueue.m in Sources */,
+				D78A0D7C1E70F92400511A6D /* stockController.m in Sources */,
 				D70663581CD1F144009E4B4D /* BGFMDB.m in Sources */,
 				D70663121CD1EF67009E4B4D /* main.m in Sources */,
 				D76ADF531E5D362300774585 /* BGModelInfo.m in Sources */,
 				D781DEBC1D9A5506007B6FB4 /* people.m in Sources */,
 				D70663511CD1F10D009E4B4D /* FMDatabase.m in Sources */,
 				D70663551CD1F10D009E4B4D /* FMResultSet.m in Sources */,
+				D78A0D801E70F95700511A6D /* stockModel.m in Sources */,
 				D70663521CD1F10D009E4B4D /* FMDatabaseAdditions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

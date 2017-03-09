@@ -23,6 +23,8 @@
 #define BGMapTable @"BGMapTable"
 #define BGHashTable @"BGHashTable"
 
+Relation const Equal = @"Relation_Equal";
+Relation const Contains = @"Relation_Contains";
 @implementation BGTool
 
 /**
@@ -102,6 +104,46 @@
     [results addObject:SQL];
     [results addObject:wheres];
     return results;
+}
+/**
+ 封装like语句获取函数
+ */
++(NSString*)getLikeWithKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
+    NSAssert(keyPathValues,@"集合不能为空!");
+    NSAssert(!(keyPathValues.count%3),@"集合格式错误!");
+    NSMutableArray* keys = [NSMutableArray array];
+    NSMutableArray* values = [NSMutableArray array];
+    NSMutableArray* relations = [NSMutableArray array];
+    for(int i=0;i<keyPathValues.count;i+=3){
+        [keys addObject:keyPathValues[i]];
+        [relations addObject:keyPathValues[i+1]];
+        [values addObject:keyPathValues[i+2]];
+    }
+    NSMutableString* likeM = [NSMutableString string];
+    [likeM appendString:@" where "];
+    for(int i=0;i<keys.count;i++){
+        NSString* keyPath = keys[i];
+        id value = values[i];
+        NSAssert([keyPath containsString:@"."], @"keyPath错误,正确形式如: user.stident.name");
+        NSArray* keypaths = [keyPath componentsSeparatedByString:@"."];
+        NSMutableString* keyPathParam = [NSMutableString string];
+        for(int i=1;i<keypaths.count;i++){
+            i!=1?:[keyPathParam appendString:@"%"];
+            [keyPathParam appendFormat:@"%@",keypaths[i]];
+            [keyPathParam appendString:@"%"];
+        }
+        [keyPathParam appendFormat:@"%@",value];
+        if ([relations[i] isEqualToString:Contains]){//包含关系
+            [keyPathParam appendString:@"%"];
+        }else{
+            keypaths.count<=2?[keyPathParam appendString:@"\"%"]:[keyPathParam appendString:@"\\%"];
+        }
+        [likeM appendFormat:@"%@%@ like '%@'",BG,keypaths[0],keyPathParam];
+        if(i != (keys.count-1)){
+            [likeM appendString:@" and "];
+        }
+    }
+    return likeM;
 }
 
 /**
@@ -256,7 +298,6 @@
     formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
     return [formatter stringFromDate:date];
 }
-
 //跟value和数据类型type 和编解码标志 返回编码插入数据库的值,或解码数据库的值.
 +(id)getSqlValue:(id)value type:(NSString*)type encode:(BOOL)encode{
     if(!value || [value isKindOfClass:[NSNull class]])return nil;
@@ -289,7 +330,10 @@
         }
     }else if([type containsString:@"NSData"]||[type containsString:@"NSMutableData"]){
         if(encode){
-            return [value base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+            NSData* data = value;
+            NSInteger maxLength = 8ll*1024ll*1024ll*1024ll*2ll;
+            NSAssert(data.length<maxLength,@"最大存储容量为2G");
+            return [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
         }else{
             return [[NSData alloc] initWithBase64EncodedString:value options:NSDataBase64DecodingIgnoreUnknownCharacters];
         }
@@ -319,7 +363,10 @@
         }
     }else if ([type containsString:@"UIImage"]){
         if(encode){
-            return [UIImageJPEGRepresentation(value, 1) base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+            NSData* data = UIImageJPEGRepresentation(value, 1);
+            NSInteger maxLength = 8ll*1024ll*1024ll*1024ll*2ll;
+            NSAssert(data.length<maxLength,@"最大存储容量为2G");
+            return [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
         }else{
             return [UIImage imageWithData:[[NSData alloc] initWithBase64EncodedString:value options:NSDataBase64DecodingIgnoreUnknownCharacters]];
         }

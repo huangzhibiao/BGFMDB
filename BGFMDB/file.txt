@@ -51,3 +51,17 @@ User~{
 "name" : "测试用户名字...重复吗?",
 "attri" : "{\n  \"用户名\" : \"黄芝标\",\n  \"密码\" : 123456,\n  \"数组\" : [\n    \"数组1\",\n    \"数组2\"\n  ],\n  \"集合\" : {\n    \"集合1\" : \"集合2\"\n  }\n}"
 }
+
+
+"student" : "{\n  \"num\" : \"测试学生数量...标哥\",\n  \"names\" : \"[\\n  \\\"小哥哥\\\",\\n  \\\"小红\\\",\\n  110,\\n  [\\n    \\\"数组元素1\\\",\\n    \\\"数组元素2\\\"\\n  ],\\n  {\\n    \\\"集合key\\\" : \\\"集合value\\\"\\n  }\\n]\",\n  \"human\" : \"{\\n  \\\"sex\\\" : \\\"男\\\",\\n  \\\"humanAge\\\" : 9999,\\n  \\\"body\\\" : \\\"小芳\\\"\\n}\"\n}",
+"name" : "测试用户名字...重复吗?",
+"attri" : "{\n  \"用户名\" : \"黄芝标\",\n  \"密码\" : 123456,\n  \"数组\" : [\n    \"数组1\",\n    \"数组2\"\n  ],\n  \"集合\" : {\n    \"集合1\" : \"集合2\"\n  }\n}"
+}  :
+{
+"userAge" : 0,
+"name" : "小芳花花"
+}
+
+filePath	NSPathStore2 *	@"/var/mobile/Containers/Data/Application/7D969596-CA8A-45D4-912D-96F11BA0BE61/Documents/DBData/data447233128.BGDataSuffix"	0x00000001741fed00
+
+temp	__NSCFString *	@"/var/mobile/Containers/Data/Application/7D969596-CA8A-45D4-912D-96F11BA0BE61/Documents/DBData/data447233128.BGDataSuffix"	0x0000000174105a00
