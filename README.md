@@ -1,8 +1,8 @@
 # BGFMDB算法全新震撼升级.  
 作者联系方式:
-QQ: 450426721
-QQ邮箱: 450426721@qq.com
-如果在使用过程中发现什么问题或有什么疑问,请加我QQ反馈.
+QQ: 450426721   
+QQ邮箱: 450426721@qq.com   
+如果在使用过程中发现什么问题或有什么疑问,请加我QQ反馈.   
 ## 完美支持:    
 int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSMutableString,NSNumber,NSArray,NSMutableArray,NSDictionary,NSMutableDictionary,NSMapTable,NSHashTable,NSData,NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象 等的存储.   
 ## 写本库的动机: 在对coredata和realm做了探究总结后,发现了很多有缺陷的地方,最明显的就是下面的原因:   
@@ -62,7 +62,7 @@ NSArray* array = [stockModel findAll];//一句代码搞定查询.
  [stockModel removeChangeWithName:@"stockModel"];  
 //更多功能请下载demo使用.  
 ```   
-### keyPath(类嵌套的时候使用)
+### keyPath(类嵌套的时候使用)   
 ```Object-C
 @interface Human : NSObject
 @property(nonatomic,copy)NSString* sex;
@@ -101,7 +101,7 @@ NSArray* array = [stockModel findAll];//一句代码搞定查询.
     return @"name";
 }
 ```
-### 更多功能请下载demo运行了解使用.
+### 更多功能请下载demo运行了解使用.   
 ## 以下是API介绍,一看就懂,马马上手使用.
 //同步：线程阻塞；异步：线程非阻塞;   
 /**   
