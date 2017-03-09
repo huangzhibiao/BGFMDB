@@ -1,7 +1,8 @@
 # BGFMDB算法全新震撼升级.  
-作者联系方式:   
+作者联系方式:       
 QQ: 450426721   
 QQ邮箱: 450426721@qq.com   
+使用交流QQ群: 572359447    
 如果在使用过程中发现什么问题或有什么疑问,请加我QQ反馈.    
 ## 完美支持:    
 int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSMutableString,NSNumber,NSArray,NSMutableArray,NSDictionary,NSMutableDictionary,NSMapTable,NSHashTable,NSData,NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象 等的存储.   
