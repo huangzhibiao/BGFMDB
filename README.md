@@ -19,7 +19,7 @@ LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo
 ## 本库几乎支持存储ios所有基本的自带数据类型.     
 ## 使用介绍(喜欢的话别忘了给本库一个Star😊). 
 ### 导入头文件
-```Object-C
+```Objective-C
 /**
 只要在自己的类中导入了NSObject+BGModel.h这个头文件,本类就具有了存储功能.
 */
@@ -63,7 +63,7 @@ NSArray* array = [stockModel findAll];//一句代码搞定查询.
 //更多功能请下载demo使用.  
 ```   
 ### keyPath(类嵌套的时候使用)   
-```Object-C
+```Objective-C
 @interface Human : NSObject
 @property(nonatomic,copy)NSString* sex;
 @end
@@ -84,18 +84,18 @@ NSArray* array = [stockModel findAll];//一句代码搞定查询.
 //查询People类中user2.student.human.sex中等于@“女”的数据
 [People findForKeyPathAndValues:@[@"user2.student.human.sex",Equal,@"女"]];
 
- //将People类中user1.name包含@“小明”字符串 和 user2.student.human.sex中等于@“女”的数据 更新为当前对象的数据.
- [p updateForKeyPathAndValues:@[@"user1.name",Contains,@"小明",@"user2.student.human.sex",Equal,@"女"]];
+//将People类中user1.name包含@“小明”字符串 和 user2.student.human.sex中等于@“女”的数据 更新为当前对象的数据.
+[p updateForKeyPathAndValues:@[@"user1.name",Contains,@"小明",@"user2.student.human.sex",Equal,@"女"]];
  
- //删除People类中user1.name包含@“小明”字符串的数据.
- [People deleteForKeyPathAndValues:@[@"user1.name",Contains,@"小明"]];
+//删除People类中user1.name包含@“小明”字符串的数据.
+[People deleteForKeyPathAndValues:@[@"user1.name",Contains,@"小明"]];
 ```
 ### 主键
-```Object-C
+```Objective-C
 @property(nonatomic,strong)NSNumber*_Nullable ID;//本库自带的自动增长主键.
 ```
 ### 唯一约束
-```Object-C
+```Objective-C
 //如果需要指定“唯一约束”字段,就复写该函数,这里指定 name 为“唯一约束”.
 -(NSString *)uniqueKey{
     return @"name";
