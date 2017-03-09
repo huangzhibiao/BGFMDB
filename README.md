@@ -1,4 +1,8 @@
-# BGFMDB算法全新震撼升级.            
+# BGFMDB算法全新震撼升级.  
+作者联系方式:
+QQ: 450426721
+QQ邮箱: 450426721@qq.com
+如果在使用过程中发现什么问题或有什么疑问,请加我QQ反馈.
 ## 完美支持:    
 int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSMutableString,NSNumber,NSArray,NSMutableArray,NSDictionary,NSMutableDictionary,NSMapTable,NSHashTable,NSData,NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象 等的存储.   
 ## 写本库的动机: 在对coredata和realm做了探究总结后,发现了很多有缺陷的地方,最明显的就是下面的原因:   
@@ -58,7 +62,7 @@ NSArray* array = [stockModel findAll];//一句代码搞定查询.
  [stockModel removeChangeWithName:@"stockModel"];  
 //更多功能请下载demo使用.  
 ```   
-### keyPath查询(用于类嵌套查询使用)
+### keyPath(类嵌套的时候使用)
 ```Object-C
 @interface Human : NSObject
 @property(nonatomic,copy)NSString* sex;
@@ -77,10 +81,14 @@ NSArray* array = [stockModel findAll];//一句代码搞定查询.
 @property(nonatomic,strong)User* user2;
 @end
 
-/**
-  将People类中user1.name包含@“小明”字符串 和 user2.student.human.sex中等于@“女”的数据 更新为当前对象的数据.
-*/
-  [p updateForKeyPathAndValues:@[@"user1.name",Contains,@"小明",@"user2.student.human.sex",Equal,@"女"]];
+//查询People类中user2.student.human.sex中等于@“女”的数据
+[People findForKeyPathAndValues:@[@"user2.student.human.sex",Equal,@"女"]];
+
+ //将People类中user1.name包含@“小明”字符串 和 user2.student.human.sex中等于@“女”的数据 更新为当前对象的数据.
+ [p updateForKeyPathAndValues:@[@"user1.name",Contains,@"小明",@"user2.student.human.sex",Equal,@"女"]];
+ 
+ //删除People类中user1.name包含@“小明”字符串的数据.
+ [People deleteForKeyPathAndValues:@[@"user1.name",Contains,@"小明"]];
 ```
 ### 主键
 ```Object-C
@@ -93,7 +101,8 @@ NSArray* array = [stockModel findAll];//一句代码搞定查询.
     return @"name";
 }
 ```
-## 一看就懂,马马上手使用,废话不多说,看使用Api介绍.
+### 更多功能请下载demo运行了解使用.
+## 以下是API介绍,一看就懂,马马上手使用.
 //同步：线程阻塞；异步：线程非阻塞;   
 /**   
  设置调试模式   
