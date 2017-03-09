@@ -13,7 +13,22 @@ JRDB存储数组需要传入对象的泛型,同时还要复写一些函数和映
 LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo有点乱,还有就是不支持NSMaptable,NSHashTable的存储.    
 ## 综合上述原因后,我决定写一款适合国内初中级开发者使用的存储封装库(BGFMDB),不管是从使用步骤还是支持的存储类型上,都比JRDB,LKDB简单好用和全面.    
 ## 本库几乎支持存储ios所有基本的自带数据类型.     
-## 使用介绍(喜欢的话别忘了给本库一个Star😊).       
+## 使用介绍(喜欢的话别忘了给本库一个Star😊). 
+### 导入头文件
+```Object-C
+/**
+只要在自己的类中导入了NSObject+BGModel.h这个头文件,本类就具有了存储功能.
+*/
+#import <Foundation/Foundation.h>
+#import "NSObject+BGModel.h"
+@interface stockModel : NSObject
+@property(nonatomic,copy)NSString* name;
+@property(nonatomic,strong)NSNumber* stockData;
++(instancetype)stockWithName:(NSString*)name stockData:(NSNumber*)stockData;
+@end
+
+```
+### 基本的使用
 ```Objective-C
 stockModel* shenStock = [stockModel stockWithName:@"深市" stockData:_shenData];   
 [shenStock save];//一句代码搞定存储.   
@@ -43,6 +58,17 @@ NSArray* array = [stockModel findAll];//一句代码搞定查询.
  [stockModel removeChangeWithName:@"stockModel"];  
 //更多功能请下载demo使用.  
 ```   
+### 主键
+```Object-C
+@property(nonatomic,strong)NSNumber*_Nullable ID;//本库自带的自动增长主键.
+```
+### 唯一约束
+```Object-C
+//如果需要指定“唯一约束”字段,就复写该函数,这里指定 name 为“唯一约束”.
+-(NSString *)uniqueKey{
+    return @"name";
+}
+```
 ## 一看就懂,马马上手使用,废话不多说,看使用Api介绍.
 //同步：线程阻塞；异步：线程非阻塞;   
 /**   
