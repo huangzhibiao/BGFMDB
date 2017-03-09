@@ -58,6 +58,30 @@ NSArray* array = [stockModel findAll];//一句代码搞定查询.
  [stockModel removeChangeWithName:@"stockModel"];  
 //更多功能请下载demo使用.  
 ```   
+### keyPath查询(用于类嵌套查询使用)
+```Object-C
+@interface Human : NSObject
+@property(nonatomic,copy)NSString* sex;
+@end
+
+@interface Student : NSObject
+@property(nonatomic,strong)Human* human;
+@end
+
+@interface User : NSObject
+@property(nonatomic,strong)Student* student;
+@end
+
+@interface People : NSObject
+@property(nonatomic,strong)User* user1;
+@property(nonatomic,strong)User* user2;
+@end
+
+/**
+  将People类中user1.name包含@“小明”字符串 和 user2.student.human.sex中等于@“女”的数据 更新为当前对象的数据.
+*/
+  [p updateForKeyPathAndValues:@[@"user1.name",Contains,@"小明",@"user2.student.human.sex",Equal,@"女"]];
+```
 ### 主键
 ```Object-C
 @property(nonatomic,strong)NSNumber*_Nullable ID;//本库自带的自动增长主键.
