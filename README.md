@@ -1,30 +1,47 @@
 # BGFMDB算法全新震撼升级.            
-# 完美支持:    
+## 完美支持:    
 int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSMutableString,NSNumber,NSArray,NSMutableArray,NSDictionary,NSMutableDictionary,NSMapTable,NSHashTable,NSData,NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象 等的存储.   
----
 ## 写本库的动机: 在对coredata和realm做了探究总结后,发现了很多有缺陷的地方,最明显的就是下面的原因:   
 ### realm缺陷: 
 Realm不支持集合类型,这一点也是比较蛋疼。   
-Realm支持以下的属性类型：BOOL、bool、int、NSInteger、long、long long、float、double、NSString、NSDate、NSData以及 被特殊类型标记的NSNumber。CGFloat属性的支持被取消了，因为它不具备平台独立性。   
-这里就是不支持集合，比如说NSArray，NSMutableArray，NSDictionary，NSMutableDictionary，NSSet，NSMutableSet。如果服务器传来的一个字典，key是一个字符串，对应的value就是一个数组，这时候就想存储这个数组就比较困难了。 
----
-### coredata缺陷:
-coredata虽然通过Transformable可以存取集合类型,但需要开发者去进行转换处理,使用起来不方便直观,虽然coredata有很多好用的封装库,像ResKit,MMRecord等,但这些库比较庞大,而且都是英文介绍,不利于国内初中级开发的快速开发使用.   
-## 虽然国内也已经有了对FMDB面相对象层的封装,比如像JRDB,LKDBHelper等,但是在使用总结后还是发现不少的问题,问题如下: 
-JRDB存储数组需要传入对象的泛型,同时还要复写一些函数和映射，这对于初中级开发者是很不利的,看的很萌逼.   
-LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo有点乱,还有就是不支持NSMaptable,NSHashTable的存储.   
----
-## 综合上述原因后,我决定写一款适合国内初中级开发这使用的封装库(BGFMDB),不管是从使用步骤还是支持的存储类型上,都比JRDB,LKDB简单好用和全面.   
-## 本库几乎支持存储ios所有基本的自带数据类型.   
----
-## 使用介绍(喜欢的话别忘了给本库一个Star😊).      
+Realm支持以下的属性类型：BOOL、bool、int、NSInteger、long、long long、float、double、NSString、NSDate、NSData以及 被特殊类型标记的NSNumber。CGFloat属性的支持被取消了，因为它不具备平台独立性。    
+这里就是不支持集合，比如说NSArray，NSMutableArray，NSDictionary，NSMutableDictionary，NSSet，NSMutableSet。如果服务器传来的一个字典，key是一个字符串，对应的value就是一个数组，这时候就想存储这个数组就比较困难了。   
+### coredata缺陷:   
+coredata虽然通过Transformable可以存取集合类型,但需要开发者去进行转换处理,使用起来不方便直观,虽然coredata有很多好用的封装库,像ResKit,MMRecord等,但这些库比较庞大,而且都是英文介绍,不利于国内初中级开发的快速开发使用.    
+## 虽然国内也已经有了对FMDB面相对象层的封装,比如像JRDB,LKDBHelper等,但是在使用总结后还是发现不少的问题,问题如下:    
+JRDB存储数组需要传入对象的泛型,同时还要复写一些函数和映射，这对于初中级开发者是很不利的,看的很萌逼.    
+LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo有点乱,还有就是不支持NSMaptable,NSHashTable的存储.    
+## 综合上述原因后,我决定写一款适合国内初中级开发这使用的封装库(BGFMDB),不管是从使用步骤还是支持的存储类型上,都比JRDB,LKDB简单好用和全面.    
+## 本库几乎支持存储ios所有基本的自带数据类型.     
+## 使用介绍(喜欢的话别忘了给本库一个Star😊).       
 ```Objective-C
-stockModel* shenStock = [stockModel stockWithName:@"深市" stockData:_shenData];
-[shenStock save];//一句代码搞定存储.
-[shenStock updateWhere:@[@"name",@"=",@"深市"]];//一句代码搞定更新.
-NSArray* array = [stockModel findAll];//一句代码搞定查询.
-[stockModel deleteWhere:@[@"name",@"=",@"深市"]];//一句代码搞定删.
-//更多功能请下载demo使用.
+stockModel* shenStock = [stockModel stockWithName:@"深市" stockData:_shenData];   
+[shenStock save];//一句代码搞定存储.   
+[shenStock updateWhere:@[@"name",@"=",@"深市"]];//一句代码搞定更新.   
+NSArray* array = [stockModel findAll];//一句代码搞定查询.   
+[stockModel deleteWhere:@[@"name",@"=",@"深市"]];//一句代码搞定删.  
+//数据数据变化监听.  
+[stockModel registerChangeWithName:@"stockModel" block:^(changeState result){  
+        switch (result) {  
+            case Insert:  
+                NSLog(@"有数据插入");  
+                break;  
+            case Update:  
+                NSLog(@"有数据更新");  
+                break;  
+            case Delete:  
+                NSLog(@"有数据删删除");  
+                break;  
+            case Drop:  
+                NSLog(@"有表删除");  
+                break;  
+            default:  
+                break;  
+        }  
+    }];  
+  //移除数据变化监听.  
+ [stockModel removeChangeWithName:@"stockModel"];  
+//更多功能请下载demo使用.  
 ```   
 ## 一看就懂,马马上手使用,废话不多说,看使用Api介绍.
 //同步：线程阻塞；异步：线程非阻塞;   
