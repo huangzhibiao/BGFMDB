@@ -28,6 +28,25 @@ Relation const Contains = @"Relation_Contains";
 @implementation BGTool
 
 /**
+ 封装处理传入数据库的key和value.
+ */
+NSString* sqlKey(NSString* key){
+    return [NSString stringWithFormat:@"%@%@",BG,key];
+}
+NSString* sqlValue(id value){
+    if ([value isKindOfClass:[NSString class]]) {
+        return [NSString stringWithFormat:@"'%@'",value];
+    }else{
+        return value;
+    }
+}
+/**
+ 根据keyPath和Value的数组, 封装成数据库语句，来操作库.
+ */
+NSString* keyPathValues(NSArray* keyPathValues){
+    return [BGTool getLikeWithKeyPathAndValues:keyPathValues where:NO];
+}
+/**
  json字符转json格式数据 .
  */
 +(id)jsonWithString:(NSString*)jsonString {
@@ -108,7 +127,7 @@ Relation const Contains = @"Relation_Contains";
 /**
  封装like语句获取函数
  */
-+(NSString*)getLikeWithKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
++(NSString*)getLikeWithKeyPathAndValues:(NSArray* _Nonnull)keyPathValues where:(BOOL)where{
     NSAssert(keyPathValues,@"集合不能为空!");
     NSAssert(!(keyPathValues.count%3),@"集合格式错误!");
     NSMutableArray* keys = [NSMutableArray array];
@@ -120,7 +139,7 @@ Relation const Contains = @"Relation_Contains";
         [values addObject:keyPathValues[i+2]];
     }
     NSMutableString* likeM = [NSMutableString string];
-    [likeM appendString:@" where "];
+    !where?:[likeM appendString:@" where "];
     for(int i=0;i<keys.count;i++){
         NSString* keyPath = keys[i];
         id value = values[i];

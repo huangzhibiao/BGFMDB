@@ -38,6 +38,16 @@ typedef NSString* _Nonnull Relation;
 extern Relation const Equal;
 extern Relation const Contains;
 @interface BGTool : NSObject
+
+/**
+ 封装处理传入数据库的key和value.
+ */
+extern NSString* _Nonnull sqlKey(NSString* _Nonnull key);
+extern NSString* _Nonnull sqlValue(id _Nonnull value);
+/**
+ 根据keyPath和Value的数组, 封装成数据库语句，来操作库.
+ */
+extern NSString* _Nonnull keyPathValues(NSArray* _Nonnull keyPathValues);
 /**
  json字符转json格式数据 .
  */
@@ -59,7 +69,7 @@ extern Relation const Contains;
 /**
  封装like语句获取函数
  */
-+(NSString* _Nonnull)getLikeWithKeyPathAndValues:(NSArray* _Nonnull)keyPathValues;
++(NSString* _Nonnull)getLikeWithKeyPathAndValues:(NSArray* _Nonnull)keyPathValues where:(BOOL)where;
 /**
  判断是不是主键.
  */

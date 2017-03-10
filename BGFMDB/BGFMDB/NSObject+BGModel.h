@@ -8,7 +8,9 @@
 /**
 BGFMDB全新升级->>
 完美支持:
-int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSNumber,NSArray,NSDictionary,NSMapTable,NSHashTable,NSData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象 等的存储.
+int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSMutableString,NSNumber,
+NSArray,NSMutableArray,NSDictionary,NSMutableDictionary,NSMapTable,NSHashTable,NSData,
+NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象 等的存储.
  */
 #import <Foundation/Foundation.h>
 #import "BGTool.h"
@@ -97,6 +99,18 @@ int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSNumber,NSArray,NS
  */
 +(void)findAsyncWhere:(NSArray* _Nullable)where complete:(Complete_A)complete;
 /**
+ @format 传入sql条件参数,语句来进行查询,方便开发者自由扩展.
+ 使用规则请看demo或如下事例:
+ 支持keyPath.
+ 1.查询name等于爸爸和age等于45,或者name等于马哥的数据.  此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
+ NSArray* arrayConds1 = [People findFormatSqlConditions:@"where %@=%@ and %@=%@ or %@=%@",sqlKey(@"age"),sqlValue(@(45)),sqlKey(@"name"),sqlValue(@"爸爸"),sqlKey(@"name"),sqlValue(@"马哥")];
+ 2.查询user.student.human.body等于小芳 和 user1.name中包含fuck这个字符串的数据.
+ [People findFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳",@"user1.name",Contains,@"fuck"])];
+ 3.查询user.student.human.body等于小芳,user1.name中包含fuck这个字符串 和 name等于爸爸的数据.
+ NSArray* arrayConds3 = [People findFormatSqlConditions:@"where %@ and %@=%@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳",@"user1.name",Contains,@"fuck"]),sqlKey(@"name"),sqlValue(@"爸爸")];
+ */
++(NSArray* _Nullable)findFormatSqlConditions:(NSString* _Nonnull)format,... NS_FORMAT_FUNCTION(1,2);
+/**
  keyPath查询
  同步查询所有keyPath条件结果.
  @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
@@ -125,6 +139,24 @@ int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSNumber,NSArray,NS
  */
 -(void)updateAsync:(NSArray* _Nullable)where complete:(Complete_B)complete;
 /**
+ @format 传入sql条件参数,语句来进行更新,方便开发者自由扩展.
+ 此接口不支持keyPath.
+ 使用规则请看demo或如下事例:
+ 1.将People类中name等于"马云爸爸"的数据的name更新为"马化腾"
+ [People updateFormatSqlConditions:@"set %@=%@ where %@=%@",sqlKey(@"name"),sqlValue(@"马化腾"),sqlKey(@"name"),sqlValue(@"马云爸爸")];
+ */
++(BOOL)updateFormatSqlConditions:(NSString* _Nonnull)format,... NS_FORMAT_FUNCTION(1,2);
+/**
+ @format 传入sql条件参数,语句来进行更新,方便开发者自由扩展.
+ 支持keyPath.
+ 使用规则请看demo或如下事例:
+ 1.将People类数据中user.student.human.body等于"小芳"的数据更新为当前对象的数据.
+ [p updateFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+ 2.将People类中name等于"马云爸爸"的数据更新为当前对象的数据.
+ [p updateFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"马云爸爸")];
+ */
+-(BOOL)updateFormatSqlConditions:(NSString* _Nonnull)format,... NS_FORMAT_FUNCTION(1,2);
+/**
  根据keypath更新数据.
  同步更新.
  @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
@@ -152,6 +184,18 @@ int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSNumber,NSArray,NS
  不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持
  */
 +(void)deleteAsync:(NSArray* _Nonnull)where complete:(Complete_B)complete;
+/**
+ @format 传入sql条件参数,语句来进行更新,方便开发者自由扩展.
+ 支持keyPath.
+ 使用规则请看demo或如下事例:
+ 1.删除People类中name等于"美国队长"的数据
+ [People deleteFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"美国队长")];
+ 2.删除People类中user.student.human.body等于"小芳"的数据
+ [People deleteFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+ 3.删除People类中name等于"美国队长" 和 user.student.human.body等于"小芳"的数据
+ [People deleteFormatSqlConditions:@"where %@=%@ and %@",sqlKey(@"name"),sqlValue(@"美国队长"),keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+ */
++(BOOL)deleteFormatSqlConditions:(NSString* _Nonnull)format,... NS_FORMAT_FUNCTION(1,2);
 /**
  根据keypath删除数据.
  同步删除.
@@ -188,6 +232,18 @@ int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSNumber,NSArray,NS
  不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持(有专门的keyPath查询条数接口).
  */
 +(NSInteger)countWhere:(NSArray* _Nullable)where;
+/**
+ @format 传入sql条件参数,语句来查询数据条数,方便开发者自由扩展.
+ 支持keyPath.
+ 使用规则请看demo或如下事例:
+ 1.查询People类中name等于"美国队长"的数据条数.
+ [People countFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"美国队长")];
+ 2.查询People类中user.student.human.body等于"小芳"的数据条数.
+ [People countFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+ 3.查询People类中name等于"美国队长" 和 user.student.human.body等于"小芳"的数据条数.
+ [People countFormatSqlConditions:@"where %@=%@ and %@",sqlKey(@"name"),sqlValue(@"美国队长"),keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+ */
++(NSInteger)countFormatSqlConditions:(NSString* _Nonnull)format,... NS_FORMAT_FUNCTION(1,2);
 /**
  keyPath查询该表中有多少条数据
  @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
@@ -229,7 +285,7 @@ int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSNumber,NSArray,NS
  (特别提示: 这里只要写那些改变了的变量名就可以了,没有改变的不要写)，比如A以前有3个变量,分别为a,b,c；现在变成了a,b,d；那只要写@{@"d":@"c"}就可以了，即只写变化了的变量名映射集合.
  说明: 本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
  */
-+(void)updateVersion:(NSInteger)version keyDict:(NSDictionary* const _Nonnull)keydict complete:(Complete_I)complete;
++(void)updateVersionAsync:(NSInteger)version keyDict:(NSDictionary* const _Nonnull)keydict complete:(Complete_I)complete;
 /**
  将某表的数据拷贝给另一个表
  同步复制.

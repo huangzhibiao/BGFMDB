@@ -242,6 +242,35 @@ static BGFMDB* BGFmdb;
     }
 }
 /**
+ 直接传入条件sql语句查询
+ */
+-(void)queryWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(Complete_A)complete{
+    NSAssert(name,@"表名不能为空!");
+    NSAssert(conditions||conditions.length,@"查询条件不能为空!");
+    NSMutableArray* arrM = [[NSMutableArray alloc] init];
+    [self executeDB:^(FMDatabase * _Nonnull db){
+        NSString* SQL = [NSString stringWithFormat:@"select * from %@ %@",name,conditions];
+        debug(SQL);
+        // 1.查询数据
+        FMResultSet *rs = [db executeQuery:SQL];
+        if (rs == nil) {
+            debug(@"查询错误,可能是'类变量名'发生了改变或'字段','表格'不存在!,请存储后再读取!");
+        }
+        // 2.遍历结果集
+        while (rs.next) {
+            NSMutableDictionary* dictM = [[NSMutableDictionary alloc] init];
+            for (int i=0;i<[[[rs columnNameToIndexMap] allKeys] count];i++) {
+                dictM[[rs columnNameForIndex:i]] = [rs objectForColumnIndex:i];
+            }
+            [arrM addObject:dictM];
+        }
+    }];
+    
+    if (complete) {
+        complete(arrM);
+    }
+}
+/**
  根据条件查询字段.
  */
 -(void)queryWithTableName:(NSString* _Nonnull)name keys:(NSArray<NSString*>* _Nullable)keys where:(NSArray* _Nullable)where complete:(Complete_A)complete{
@@ -289,7 +318,6 @@ static BGFMDB* BGFmdb;
     if (complete) {
         complete(arrM);
     }
-    //NSLog(@"查询 -- %@",arrM);
 }
 
 /**
@@ -337,7 +365,7 @@ static BGFMDB* BGFmdb;
 
 -(void)queryWithTableName:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_A)complete{
     NSMutableArray* arrM = [NSMutableArray array];
-    NSString* like = [BGTool getLikeWithKeyPathAndValues:keyPathValues];
+    NSString* like = [BGTool getLikeWithKeyPathAndValues:keyPathValues where:YES];
     [self executeDB:^(FMDatabase * _Nonnull db) {
         NSString* SQL = [NSString stringWithFormat:@"select * from %@%@",name,like];
         debug(SQL);
@@ -363,6 +391,7 @@ static BGFMDB* BGFmdb;
  */
 -(void)updateWithTableName:(NSString* _Nonnull)name valueDict:(NSDictionary* _Nonnull)valueDict where:(NSArray* _Nullable)where complete:(Complete_B)complete{
     NSAssert(name,@"表名不能为空!");
+    NSAssert(valueDict,@"更新数据集合不能为空!");
     __block BOOL result;
     NSMutableArray* arguments = [NSMutableArray array];
     [self executeDB:^(FMDatabase * _Nonnull db) {
@@ -393,10 +422,49 @@ static BGFMDB* BGFmdb;
     }
 }
 /**
+ 直接传入条件sql语句更新.
+ */
+-(void)updateWithTableName:(NSString* _Nonnull)name valueDict:(NSDictionary* _Nullable)valueDict conditions:(NSString* _Nonnull)conditions complete:(Complete_B)complete{
+    NSAssert(name,@"表名不能为空!");
+    NSAssert(conditions||conditions.length,@"查询条件不能为空!");
+    __block BOOL result;
+    [self executeDB:^(FMDatabase * _Nonnull db){
+        NSString* SQL;
+        if ((valueDict==nil) || !valueDict.allKeys.count) {
+            SQL = [NSString stringWithFormat:@"update %@ %@",name,conditions];
+        }else{
+            NSMutableString* param = [NSMutableString stringWithFormat:@"update %@ set ",name];
+            for(int i=0;i<valueDict.allKeys.count;i++){
+                NSString* key = valueDict.allKeys[i];
+                id value = valueDict[key];
+                if ([value isKindOfClass:[NSString class]]) {
+                    [param appendFormat:@"%@='%@'",key,value];
+                }else{
+                     [param appendFormat:@"%@=%@",key,value];
+                }
+                if(i != (valueDict.allKeys.count-1)) {
+                    [param appendString:@","];
+                }
+            }
+            [param appendFormat:@" %@",conditions];
+            SQL = param;
+        }
+        debug(SQL);
+        result = [db executeUpdate:SQL];
+    }];
+    
+    //数据监听执行函数
+    [self doChange:result state:Update];
+    if (complete) {
+        complete(result);
+    }
+
+}
+/**
  根据keypath更新数据
  */
 -(void)updateWithTableName:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues valueDict:(NSDictionary* _Nonnull)valueDict complete:(Complete_B)complete{
-    NSString* like = [BGTool getLikeWithKeyPathAndValues:keyPathValues];
+    NSString* like = [BGTool getLikeWithKeyPathAndValues:keyPathValues where:YES];
     NSMutableArray* arguments = [NSMutableArray array];
     __block BOOL result;
     [self executeDB:^(FMDatabase * _Nonnull db){
@@ -449,10 +517,29 @@ static BGFMDB* BGFmdb;
         complete(result);
     }
 }
+/**
+ 直接传入条件sql语句删除.
+ */
+-(void)deleteWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(Complete_B)complete{
+    NSAssert(name,@"表名不能为空!");
+    NSAssert(conditions||conditions.length,@"查询条件不能为空!");
+    __block BOOL result;
+    [self executeDB:^(FMDatabase * _Nonnull db) {
+        NSString* SQL = [NSString stringWithFormat:@"delete from %@ %@",name,conditions];
+        debug(SQL);
+        result = [db executeUpdate:SQL];
+    }];
+    
+    //数据监听执行函数
+    [self doChange:result state:Delete];
+    if (complete){
+        complete(result);
+    }
+}
 //根据keypath删除表内容.
 -(void)deleteWithTableName:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
     NSAssert(name,@"表名不能为空!");
-    NSString* like = [BGTool getLikeWithKeyPathAndValues:keyPathValues];
+    NSString* like = [BGTool getLikeWithKeyPathAndValues:keyPathValues where:YES];
     __block BOOL result;
     [self executeDB:^(FMDatabase * _Nonnull db) {
         NSMutableString* SQL = [[NSMutableString alloc] init];
@@ -542,24 +629,44 @@ static BGFMDB* BGFmdb;
     }
     __block NSUInteger count=0;
     [self executeDB:^(FMDatabase * _Nonnull db) {
-        NSString* SQL = [NSString stringWithFormat:@"select count (*) from %@%@",name,strM];
+        NSString* SQL = [NSString stringWithFormat:@"select count(*) from %@%@",name,strM];
         debug(SQL);
         [db executeStatements:SQL withResultBlock:^int(NSDictionary *resultsDictionary) {
             count = [[resultsDictionary.allValues lastObject] integerValue];
-            return 1;
+            return 0;
         }];
     }];
     return count;
 }
--(NSInteger)countForTable:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
-    NSString* like = [BGTool getLikeWithKeyPathAndValues:keyPathValues];
+/**
+ 直接传入条件sql语句查询数据条数.
+ */
+-(NSInteger)countForTable:(NSString* _Nonnull)name conditions:(NSString* _Nullable)conditions{
+    NSAssert(name,@"表名不能为空!");
+    NSAssert(conditions||conditions.length,@"查询条件不能为空!");
     __block NSUInteger count=0;
     [self executeDB:^(FMDatabase * _Nonnull db) {
-        NSString* SQL = [NSString stringWithFormat:@"select count (*) from %@%@",name,like];
+        NSString* SQL = [NSString stringWithFormat:@"select count(*) from %@ %@",name,conditions];
         debug(SQL);
         [db executeStatements:SQL withResultBlock:^int(NSDictionary *resultsDictionary) {
             count = [[resultsDictionary.allValues lastObject] integerValue];
-            return 1;
+            return 0;
+        }];
+    }];
+    return count;
+}
+/**
+ keyPath查询数据条数.
+ */
+-(NSInteger)countForTable:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
+    NSString* like = [BGTool getLikeWithKeyPathAndValues:keyPathValues where:YES];
+    __block NSUInteger count=0;
+    [self executeDB:^(FMDatabase * _Nonnull db) {
+        NSString* SQL = [NSString stringWithFormat:@"select count(*) from %@%@",name,like];
+        debug(SQL);
+        [db executeStatements:SQL withResultBlock:^int(NSDictionary *resultsDictionary) {
+            count = [[resultsDictionary.allValues lastObject] integerValue];
+            return 0;
         }];
     }];
     return count;
@@ -654,7 +761,7 @@ static BGFMDB* BGFmdb;
             if (![tableKeys containsObject:tableKey]){
                 NSString* result = [NSString stringWithFormat:@"旧变量出错名称 = %@",oldKeys[i]];
                 debug(result);
-                @throw [NSException exceptionWithName:@"类旧变量名称写错" reason:@"请检查keydict中的 旧Key 是否书写正确!" userInfo:nil];
+//                @throw [NSException exceptionWithName:@"类旧变量名称写错" reason:@"请检查keydict中的 旧Key 是否书写正确!" userInfo:nil];
             }
         }
         //重新获取类变量名和类型的数组

@@ -30,11 +30,12 @@
     [super viewDidLoad];
     
     People* p = [self people];
+    
     /**
      存储
      */
-    BOOL saveState = [p save];
-    
+    [p save];
+   
     /**
      获取该类的数据库版本号;
      */
@@ -83,10 +84,58 @@
      将People类中user1.name包含@“小明”字符串 和 user.student.human.sex中等于@“女”的数据 更新为当前对象的数据.
      */
     //BOOL updateResult = [p updateForKeyPathAndValues:@[@"user1.name",Contains,@"小明",@"user.student.human.sex",Equal,@"女"]];
+    
     /**
      删除People类数据中主键ID=3的数据.
      */
     //[People deleteWhere:@[@"ID",@"=",@(3)]];
+    
+    /**
+     将People类中name等于"马云爸爸"的数据的name设为"马化腾"
+     */
+    //[People updateFormatSqlConditions:@"set %@=%@ where %@=%@",sqlKey(@"name"),sqlValue(@"马化腾"),sqlKey(@"name"),sqlValue(@"马云爸爸")];
+    
+    /**
+     将People类数据中name等于"马化腾"的数据更新为当前对象的数据.
+     */
+    //[p updateFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"爸爸")];
+    
+    /**
+     将People类数据中user.student.human.body等于"小芳"的数据更新为当前对象的数据.
+     */
+    //[p updateFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+    
+    /**
+     删除People类中name等于"美国队长"的数据
+     */
+    //[People deleteFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"美国队长")];
+    
+    /**
+     删除People类中user.student.human.body等于"小芳"的数据
+     */
+    //[People deleteFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+    
+    /**
+     删除People类中name等于"美国队长" 和 user.student.human.body等于"小芳"的数据
+     */
+    //[People deleteFormatSqlConditions:@"where %@=%@ and %@",sqlKey(@"name"),sqlValue(@"美国队长"),keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+    
+    /**
+     查询People类中name等于"美国队长"的数据条数.
+     */
+    //NSInteger count = [People countFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"美国队长")];
+    
+    /**
+     查询People类中user.student.human.body等于"小芳"的数据条数.
+     */
+    //NSInteger count = [People countFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+    
+    /**
+     查询People类中name等于"美国队长" 和 user.student.human.body等于"小芳"的数据条数.
+     */
+    //NSInteger count = [People countFormatSqlConditions:@"where %@=%@ and %@",sqlKey(@"name"),sqlValue(@"美国队长"),keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+    
+    //NSLog(@"数量 = %ld",count);
     
     /**
      同步查询People类所有数据.
@@ -109,8 +158,23 @@
         NSLog(@"主键ID = %@",obj.ID);
         NSLog(@"查询结果： name = %@，testAge = %d,testName = %@,num = %@,age = %d,students = %@,info = %@,eye = %@,user.name = %@,user.密码 = %@ , user.student.num = %@,user.student.names[0] = %@, user.student.humane.sex = %@,p.user.student.human.body = %@",obj.name,obj->testAge,obj->testName,obj.num,obj.age,obj.students,obj.info,obj.eye,obj.user.name,obj.user.attri[@"密码"],obj.user.student.num,obj.user.student.names[0],obj.user.student.human.sex,obj.user.student.human.body);
     }
-
-
+    
+    /**
+     查询name等于爸爸和age等于45,或者name等于马哥的数据.  此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
+     */
+//    NSArray* arrayConds1 = [People findFormatSqlConditions:@"where %@=%@ and %@=%@ or %@=%@",sqlKey(@"age"),sqlValue(@(45)),sqlKey(@"name"),sqlValue(@"爸爸"),sqlKey(@"name"),sqlValue(@"马哥")];
+//
+    
+    /**
+     查询user.student.human.body等于小芳 和 user1.name中包含fuck这个字符串的数据.
+     */
+//    NSArray* arrayConds2 = [People findFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳",@"user1.name",Contains,@"fuck"])];
+    
+    /**
+    查询user.student.human.body等于小芳,user1.name中包含fuck这个字符串 和 name等于爸爸的数据.
+    */
+//    NSArray* arrayConds3 = [People findFormatSqlConditions:@"where %@ and %@=%@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳",@"user1.name",Contains,@"fuck"]),sqlKey(@"name"),sqlValue(@"爸爸")];
+    
     /**
      将People的name拷贝给Man的Man_name，其他同理.
      */
@@ -161,10 +225,10 @@
     //存储对象使用示例
     [NSObject setDebug:YES];//打开调试模式,输出SQL语句.
     People* p = [People new];
-    p.name = @"马哥";
+    p.name = @"美国队长";
     p.num = @(220.88);
-    p.age = 28;
-    p.eye = @"双眼皮";
+    p.age = 50;
+    p.eye = @"末世眼皮";
     p.Url = [NSURL URLWithString:@"http://www.gmjk.com"];
     p.range = NSMakeRange(0,10);
     p.rect = CGRectMake(0,0,10,20);

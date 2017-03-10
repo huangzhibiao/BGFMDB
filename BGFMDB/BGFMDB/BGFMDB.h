@@ -142,6 +142,13 @@
  @complete 回调的block
  */
 -(void)insertIntoTableName:(NSString* _Nonnull)name Dict:(NSDictionary* _Nonnull)dict complete:(Complete_B)complete;
+/**
+ 直接传入条件sql语句查询.
+ @name 表名称.
+ @conditions 条件语句.例如:@"where name = '标哥' or name = '小马哥' and age = 26 order by age desc limit 6" 即查询name等于标哥或小马哥和age等于26的数据通过age降序输出,只查询前面6条. 
+ 更多条件语法,请查询sql的基本使用语句.
+ */
+-(void)queryWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(Complete_A)complete;
 /** 
  根据条件查询字段.
  @name 表名称.
@@ -173,6 +180,10 @@
  */
 -(void)updateWithTableName:(NSString* _Nonnull)name valueDict:(NSDictionary* _Nonnull)valueDict where:(NSArray* _Nullable)where complete:(Complete_B)complete;
 /**
+ 直接传入条件sql语句更新.
+ */
+-(void)updateWithTableName:(NSString* _Nonnull)name valueDict:(NSDictionary* _Nullable)valueDict conditions:(NSString* _Nonnull)conditions complete:(Complete_B)complete;
+/**
  根据keypath更新数据.
  @name 表名称.
  @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
@@ -186,6 +197,10 @@
  @complete 回调的block.
  */
 -(void)deleteWithTableName:(NSString* _Nonnull)name where:(NSArray* _Nonnull)where complete:(Complete_B)complete;
+/**
+ 直接传入条件sql语句删除.
+ */
+-(void)deleteWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(Complete_B)complete;
 /**
  根据keypath删除表内容.
  @name 表名称.
@@ -218,6 +233,13 @@
  @where 条件数组,形式 @[@"key",@"=",@"value",@"key",@">=",@"value"],为nil时返回全部数据的条数.
  */
 -(NSInteger)countForTable:(NSString* _Nonnull)name where:(NSArray* _Nullable)where;
+/**
+ 直接传入条件sql语句查询数据条数.
+ */
+-(NSInteger)countForTable:(NSString* _Nonnull)name conditions:(NSString* _Nullable)conditions;
+/**
+ keyPath查询数据条数.
+ */
 -(NSInteger)countForTable:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues;
 /**
  刷新数据库，即将旧数据库的数据复制到新建的数据库,这是为了去掉没用的字段.

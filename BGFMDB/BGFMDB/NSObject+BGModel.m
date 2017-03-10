@@ -28,7 +28,9 @@ static const char IDKey;
  设置调试模式
  */
 +(void)setDebug:(BOOL)debug{
-    [BGFMDB shareManager].debug = debug;
+    if ([BGFMDB shareManager].debug != debug){//防止重复设置.
+        [BGFMDB shareManager].debug = debug;
+    }
 }
 /**
  自定义 “唯一约束” 函数,如果需要 “唯一约束”,则在自定类中自己实现该函数.
@@ -200,6 +202,29 @@ static const char IDKey;
     });
 }
 /**
+ @format 传入sql条件参数,语句来进行查询,方便开发者自由扩展.
+ 支持keyPath.
+ 使用规则请看demo或如下事例:
+ 1.查询name等于爸爸和age等于45,或者name等于马哥的数据.  此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
+    NSArray* arrayConds1 = [People findFormatSqlConditions:@"where %@=%@ and %@=%@ or %@=%@",sqlKey(@"age"),sqlValue(@(45)),sqlKey(@"name"),sqlValue(@"爸爸"),sqlKey(@"name"),sqlValue(@"马哥")];
+ 2.查询user.student.human.body等于小芳 和 user1.name中包含fuck这个字符串的数据.
+    [People findFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳",@"user1.name",Contains,@"fuck"])];
+ 3.查询user.student.human.body等于小芳,user1.name中包含fuck这个字符串 和 name等于爸爸的数据.
+    NSArray* arrayConds3 = [People findFormatSqlConditions:@"where %@ and %@=%@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳",@"user1.name",Contains,@"fuck"]),sqlKey(@"name"),sqlValue(@"爸爸")];
+ */
++(NSArray* _Nullable)findFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
+    va_list ap;
+    va_start (ap, format);
+    NSString *conditions = [[NSString alloc] initWithFormat:format arguments:ap];
+    va_end (ap);
+    NSString* tableName = NSStringFromClass([self class]);
+    __block NSArray* results;
+    [[BGFMDB shareManager] queryWithTableName:tableName conditions:conditions complete:^(NSArray * _Nullable array) {
+        results = [BGTool tansformDataFromSqlDataWithTableName:tableName array:array];
+    }];
+    return results;
+}
+/**
  keyPath查询
  同步查询所有keyPath条件结果.
  @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
@@ -248,6 +273,53 @@ static const char IDKey;
     });
 }
 /**
+ @format 传入sql条件参数,语句来进行更新,方便开发者自由扩展.
+ 此接口不支持keyPath.
+ 使用规则请看demo或如下事例:
+ 1.将People类中name等于"马云爸爸"的数据的name更新为"马化腾"
+ [People updateFormatSqlConditions:@"set %@=%@ where %@=%@",sqlKey(@"name"),sqlValue(@"马化腾"),sqlKey(@"name"),sqlValue(@"马云爸爸")];
+ */
++(BOOL)updateFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
+    va_list ap;
+    va_start (ap, format);
+    NSString *conditions = [[NSString alloc] initWithFormat:format arguments:ap];
+    va_end (ap);
+    NSString* tableName = NSStringFromClass([self class]);
+    __block BOOL result;
+    [[BGFMDB shareManager] updateWithTableName:tableName valueDict:nil conditions:conditions complete:^(BOOL isSuccess) {
+        result = isSuccess;
+    }];
+    
+    return result;
+}
+/**
+ @format 传入sql条件参数,语句来进行更新,方便开发者自由扩展.
+ 支持keyPath.
+ 使用规则请看demo或如下事例:
+ 1.将People类数据中user.student.human.body等于"小芳"的数据更新为当前对象的数据.
+ [p updateFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+ 2.将People类中name等于"马云爸爸"的数据更新为当前对象的数据.
+ [p updateFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"马云爸爸")];
+ */
+-(BOOL)updateFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
+    va_list ap;
+    va_start (ap, format);
+    NSString *conditions = [[NSString alloc] initWithFormat:format arguments:ap];
+    va_end (ap);
+    NSString* tableName = NSStringFromClass([self class]);
+    NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:self];
+    NSMutableDictionary* valueDict = [NSMutableDictionary dictionary];
+    for(BGModelInfo* info in infos){
+        valueDict[info.sqlColumnName] = info.sqlColumnValue;
+    }
+    __block BOOL result;
+    [[BGFMDB shareManager] updateWithTableName:tableName valueDict:valueDict conditions:conditions complete:^(BOOL isSuccess) {
+        result = isSuccess;
+    }];
+    
+    return result;
+}
+/**
  根据keypath更新数据.
  同步更新.
  @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
@@ -294,6 +366,29 @@ static const char IDKey;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
         [[BGFMDB shareManager] deleteWithClass:[self class] where:where complete:complete];
     });
+}
+/**
+ @format 传入sql条件参数,语句来进行更新,方便开发者自由扩展.
+ 支持keyPath.
+ 使用规则请看demo或如下事例:
+ 1.删除People类中name等于"美国队长"的数据
+ [People deleteFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"美国队长")];
+ 2.删除People类中user.student.human.body等于"小芳"的数据
+ [People deleteFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+ 3.删除People类中name等于"美国队长" 和 user.student.human.body等于"小芳"的数据
+ [People deleteFormatSqlConditions:@"where %@=%@ and %@",sqlKey(@"name"),sqlValue(@"美国队长"),keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+ */
++(BOOL)deleteFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
+    va_list ap;
+    va_start (ap, format);
+    NSString *conditions = [[NSString alloc] initWithFormat:format arguments:ap];
+    va_end (ap);
+    NSString* tableName = NSStringFromClass([self class]);
+    __block BOOL result;
+    [[BGFMDB shareManager] deleteWithTableName:tableName conditions:conditions complete:^(BOOL isSuccess) {
+        result = isSuccess;
+    }];
+    return result;
 }
 /**
  根据keypath删除数据.
@@ -363,6 +458,26 @@ static const char IDKey;
 +(NSInteger)countWhere:(NSArray* _Nullable)where{
     return [[BGFMDB shareManager] countForTable:NSStringFromClass([self class]) where:where];
 }
+/**
+ @format 传入sql条件参数,语句来查询数据条数,方便开发者自由扩展.
+ 支持keyPath.
+ 使用规则请看demo或如下事例:
+ 1.查询People类中name等于"美国队长"的数据条数.
+ [People countFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"美国队长")];
+ 2.查询People类中user.student.human.body等于"小芳"的数据条数.
+ [People countFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+ 3.查询People类中name等于"美国队长" 和 user.student.human.body等于"小芳"的数据条数.
+ [People countFormatSqlConditions:@"where %@=%@ and %@",sqlKey(@"name"),sqlValue(@"美国队长"),keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+ */
++(NSInteger)countFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
+    va_list ap;
+    va_start (ap, format);
+    NSString *conditions = [[NSString alloc] initWithFormat:format arguments:ap];
+    va_end (ap);
+    
+    return [[BGFMDB shareManager] countForTable:NSStringFromClass([self class]) conditions:conditions];
+}
+
 /**
  keyPath查询该表中有多少条数据
  @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
@@ -454,7 +569,7 @@ static const char IDKey;
  (特别提示: 这里只要写那些改变了的变量名就可以了,没有改变的不要写)，比如A以前有3个变量,分别为a,b,c；现在变成了a,b,d；那只要写@{@"d":@"c"}就可以了，即只写变化了的变量名映射集合.
  说明: 本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
  */
-+(void)updateVersion:(NSInteger)version keyDict:(NSDictionary* const _Nonnull)keydict complete:(Complete_I)complete{
++(void)updateVersionAsync:(NSInteger)version keyDict:(NSDictionary* const _Nonnull)keydict complete:(Complete_I)complete{
     NSString* tableName = NSStringFromClass([self class]);
     NSInteger oldVersion = [BGTool getIntegerWithKey:tableName];
     if(version > oldVersion){
