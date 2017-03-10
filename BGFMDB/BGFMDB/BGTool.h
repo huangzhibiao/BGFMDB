@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "BGModelInfo.h"
-#import "FMDB.h"
+#import "./libs/FMDB/FMDB.h"
 
 #define SQLITE_NAME @"BGFMDB.sqlite"
 

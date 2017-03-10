@@ -65,6 +65,7 @@
      */
     //[p updateWhere:@[@"name",@"=",@"标哥",@"num",@"=",@(220.88)]];
 
+    
     /**
      清除People表的所有数据
      */
@@ -91,7 +92,7 @@
     //[People deleteWhere:@[@"ID",@"=",@(3)]];
     
     /**
-     将People类中name等于"马云爸爸"的数据的name设为"马化腾"
+     将People类中name等于"马云爸爸"的数据的name设为"马化腾",此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
      */
     //[People updateFormatSqlConditions:@"set %@=%@ where %@=%@",sqlKey(@"name"),sqlValue(@"马化腾"),sqlKey(@"name"),sqlValue(@"马云爸爸")];
     
@@ -106,7 +107,7 @@
     //[p updateFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
     
     /**
-     删除People类中name等于"美国队长"的数据
+     删除People类中name等于"美国队长"的数据,此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
      */
     //[People deleteFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"美国队长")];
     
@@ -121,7 +122,7 @@
     //[People deleteFormatSqlConditions:@"where %@=%@ and %@",sqlKey(@"name"),sqlValue(@"美国队长"),keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
     
     /**
-     查询People类中name等于"美国队长"的数据条数.
+     查询People类中name等于"美国队长"的数据条数,此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
      */
     //NSInteger count = [People countFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"美国队长")];
     
