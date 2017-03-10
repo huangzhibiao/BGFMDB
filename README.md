@@ -15,11 +15,13 @@ Realm支持以下的属性类型：BOOL、bool、int、NSInteger、long、long l
 coredata虽然通过Transformable可以存取集合类型,但需要开发者去进行转换处理,使用起来不方便直观,虽然coredata有很多好用的封装库,像ResKit,MMRecord等,但这些库比较庞大,而且都是英文介绍,不利于国内初中级开发的快速开发使用.    
 ## 虽然国内也已经有了对FMDB面相对象层的封装,比如像JRDB,LKDBHelper等,但是在使用总结后还是发现不少的问题,问题如下:    
 JRDB存储数组需要传入对象的泛型,同时还要复写一些函数和映射，这对于初中级开发者是很不利的,看的很萌逼.    
-LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo有点乱,还有就是不支持NSMaptable,NSHashTable的存储.    
+LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo有点乱,还有就是不支持NSMaptable,NSHashTable的存储,LKDBHelper还有一个致命的弱点就是当类变量名称跟sqlite的关键字一样时,会发生冲突错误！       
 ## 综合上述原因后,我决定写一款适合国内初中级开发者使用的存储封装库(BGFMDB),不管是从使用步骤还是支持的存储类型上,都比JRDB,LKDB简单好用和全面.    
 ## 本库几乎支持存储ios所有基本的自带数据类型.     
 ## 使用介绍(喜欢的话别忘了给本库一个Star😊). 
-### 导入头文件
+### 添加所需依赖库   
+libsqlite3   
+### 导入头文件   
 ```Objective-C
 /**
 只要在自己的类中导入了NSObject+BGModel.h这个头文件,本类就具有了存储功能.
