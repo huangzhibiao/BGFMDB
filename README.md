@@ -33,38 +33,80 @@ libsqlite3
 @property(nonatomic,strong)NSNumber* stockData;
 +(instancetype)stockWithName:(NSString*)name stockData:(NSNumber*)stockData;
 @end
-
 ```
-### 基本的使用
+### 初始化对象
 ```Objective-C
-stockModel* shenStock = [stockModel stockWithName:@"深市" stockData:_shenData];   
-[shenStock save];//一句代码搞定存储.   
-[shenStock updateWhere:@[@"name",@"=",@"深市"]];//一句代码搞定更新.   
-NSArray* array = [stockModel findAll];//一句代码搞定查询.   
-[stockModel deleteWhere:@[@"name",@"=",@"深市"]];//一句代码搞定删.  
-//注册数据变化监听.  
-[stockModel registerChangeWithName:@"stockModel" block:^(changeState result){  
-        switch (result) {  
-            case Insert:  
-                NSLog(@"有数据插入");  
-                break;  
-            case Update:  
-                NSLog(@"有数据更新");  
-                break;  
-            case Delete:  
-                NSLog(@"有数据删删除");  
-                break;  
-            case Drop:  
-                NSLog(@"有表删除");  
-                break;  
-            default:  
-                break;  
-        }  
-    }];  
-  //移除数据变化监听.  
- [stockModel removeChangeWithName:@"stockModel"];  
-//更多功能请下载demo使用.  
-```   
+People* p = [self people];
+```
+### 存储
+```Objective-C
+//同步存储.
+[p save];
+//异步存储.
+[p saveAsync:^(BOOL isSuccess) {
+       //you code
+   }];
+//覆盖掉原来People类的所有数据,只存储当前对象的数据.
+[p cover];
+```
+### 查询
+```Objective-C
+//同步查询所有People的数据.
+NSArray* finfAlls = [People findAll];
+//异步查询所有People的数据.
+[People findAllAsync:^(NSArray * _Nullable array) {
+        // you code
+    }];
+//异步查询People类的数据,查询限制3条,通过age降序排列.
+[People findAllAsyncWithLimit:3 orderBy:@"age" desc:YES complete:^(NSArray * _Nullable array) {
+    for(People* p in array){
+      // you code
+    }
+}];
+//异步查询People类的数据,查询范围从第10处开始的后面5条,不排序.
+[People findAllAsyncWithRange:NSMakeRange(10,5) orderBy:nil desc:NO complete:^(NSArray * _Nullable array) {
+     for(People* p in array){
+        // you code
+     }
+}];
+
+//查询name等于爸爸和age等于45,或者name等于马哥的数据.  此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
+NSArray* arrayConds1 = [People findFormatSqlConditions:@"where %@=%@ and %@=%@ or %@=%@",sqlKey(@"age"),sqlValue(@(45)),sqlKey(@"name"),sqlValue(@"爸爸"),sqlKey(@"name"),sqlValue(@"马哥")];
+//查询user.student.human.body等于小芳 和 user1.name中包含fuck这个字符串的数据.
+NSArray* arrayConds2 = [People findFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳",@"user1.name",Contains,@"fuck"])];
+//查询user.student.human.body等于小芳,user1.name中包含fuck这个字符串 和 name等于爸爸的数据.
+NSArray* arrayConds3 = [People findFormatSqlConditions:@"where %@ and %@=%@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳",@"user1.name",Contains,@"fuck"]),sqlKey(@"name"),sqlValue(@"爸爸")];
+```
+### 更新
+```Objective-C
+//将People类数据中name=@"标哥"，num=220.88的数据更新为当前对象的数据.
+[p updateWhere:@[@"name",@"=",@"标哥",@"num",@"=",@(220.88)]];
+
+//将People类中name等于"马云爸爸"的数据的name设为"马化腾",此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
+[People updateFormatSqlConditions:@"set %@=%@ where %@=%@",sqlKey(@"name"),sqlValue(@"马化腾"),sqlKey(@"name"),sqlValue(@"马云爸爸")];
+// 将People类数据中name等于"马化腾"的数据更新为当前对象的数据.
+[p updateFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"爸爸")];
+```
+### 删除
+```Objective-C
+//同步删除People类数据中name=@"标哥"，num=220.88的数据.
+[People deleteWhere:@[@"name",@"=",@"标哥",@"num",@"=",@(220.88)]];
+//异步删除People类数据中name=@"标哥"，num=220.88的数据.
+[People deleteAsync:@[@"name",@"=",@"标哥",@"num",@"=",@(220.88)] complete:^(BOOL isSuccess) {
+      // you code  
+}];
+//清除People表的所有数据.
+[People clear];
+//删除People的数据库表.
+[People drop];
+
+//删除People类中name等于"美国队长"的数据,此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
+[People deleteFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"美国队长")];
+//删除People类中user.student.human.body等于"小芳"的数据
+[People deleteFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+//删除People类中name等于"美国队长" 和 user.student.human.body等于"小芳"的数据
+//[People deleteFormatSqlConditions:@"where %@=%@ and %@",sqlKey(@"name"),sqlValue(@"美国队长"),keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+```
 ### keyPath(类嵌套的时候使用)   
 ```Objective-C
 @interface Human : NSObject
@@ -93,6 +135,37 @@ NSArray* array = [stockModel findAll];//一句代码搞定查询.
 //删除People类中user1.name包含@“小明”字符串的数据.
 [People deleteForKeyPathAndValues:@[@"user1.name",Contains,@"小明"]];
 ```
+### 基本的使用
+```Objective-C
+stockModel* shenStock = [stockModel stockWithName:@"深市" stockData:_shenData];   
+[shenStock save];//一句代码搞定存储.   
+[shenStock updateWhere:@[@"name",@"=",@"深市"]];//一句代码搞定更新.   
+NSArray* array = [stockModel findAll];//一句代码搞定查询.   
+[stockModel deleteWhere:@[@"name",@"=",@"深市"]];//一句代码搞定删.  
+//注册数据变化监听.  
+[stockModel registerChangeWithName:@"stockModel" block:^(changeState result){  
+        switch (result) {  
+            case Insert:  
+                NSLog(@"有数据插入");  
+                break;  
+            case Update:  
+                NSLog(@"有数据更新");  
+                break;  
+            case Delete:  
+                NSLog(@"有数据删删除");  
+                break;  
+            case Drop:  
+                NSLog(@"有表删除");  
+                break;  
+            default:  
+                break;  
+        }  
+    }];  
+  //移除数据变化监听.  
+ [stockModel removeChangeWithName:@"stockModel"]; 
+ 
+ //更多功能请下载demo使用了解.
+```   
 ### 主键
 ```Objective-C
 @property(nonatomic,strong)NSNumber*_Nullable ID;//本库自带的自动增长主键.
