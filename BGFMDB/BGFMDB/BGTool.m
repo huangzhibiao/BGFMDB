@@ -89,7 +89,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
         if (!onlyKey) {
             //获取成员变量的数据类型
             NSString* type = [NSString stringWithUTF8String:ivar_getTypeEncoding(thisIvar)];
-            NSLog(@"key = %@ , type = %@",key,type);
+            //NSLog(@"key = %@ , type = %@",key,type);
             key = [NSString stringWithFormat:@"%@*%@",key,type];
         }
         [keys addObject:key];//存储对象的变量名
