@@ -89,7 +89,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
         if (!onlyKey) {
             //获取成员变量的数据类型
             NSString* type = [NSString stringWithUTF8String:ivar_getTypeEncoding(thisIvar)];
-            //NSLog(@"key = %@ , type = %@",key,type);
+            NSLog(@"key = %@ , type = %@",key,type);
             key = [NSString stringWithFormat:@"%@*%@",key,type];
         }
         [keys addObject:key];//存储对象的变量名
@@ -199,7 +199,9 @@ NSString* keyPathValues(NSArray* keyPathValues){
     if([type isEqualToString:@"i"]||[type isEqualToString:@"I"]||
              [type isEqualToString:@"s"]||[type isEqualToString:@"S"]||
              [type isEqualToString:@"q"]||[type isEqualToString:@"Q"]||
-             [type isEqualToString:@"b"]||[type isEqualToString:@"B"]) {
+             [type isEqualToString:@"b"]||[type isEqualToString:@"B"]||
+             [type isEqualToString:@"c"]||[type isEqualToString:@"C"]|
+             [type isEqualToString:@"l"]||[type isEqualToString:@"L"]) {
         return SqlInteger;
     }else if([type isEqualToString:@"f"]||[type isEqualToString:@"F"]||
              [type isEqualToString:@"d"]||[type isEqualToString:@"D"]){
@@ -350,8 +352,8 @@ NSString* keyPathValues(NSArray* keyPathValues){
     }else if([type containsString:@"NSData"]||[type containsString:@"NSMutableData"]){
         if(encode){
             NSData* data = value;
-            NSInteger maxLength = 8ll*1024ll*1024ll*1024ll*2ll;
-            NSAssert(data.length<maxLength,@"最大存储容量为2G");
+            NSNumber* maxLength = @(838860800);
+            NSAssert(data.length<maxLength.integerValue,@"最大存储限制为100M");
             return [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
         }else{
             return [[NSData alloc] initWithBase64EncodedString:value options:NSDataBase64DecodingIgnoreUnknownCharacters];
@@ -383,8 +385,8 @@ NSString* keyPathValues(NSArray* keyPathValues){
     }else if ([type containsString:@"UIImage"]){
         if(encode){
             NSData* data = UIImageJPEGRepresentation(value, 1);
-            NSInteger maxLength = 8ll*1024ll*1024ll*1024ll*2ll;
-            NSAssert(data.length<maxLength,@"最大存储容量为2G");
+            NSNumber* maxLength = @(838860800);
+            NSAssert(data.length<maxLength.integerValue,@"最大存储限制为100M");
             return [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
         }else{
             return [UIImage imageWithData:[[NSData alloc] initWithBase64EncodedString:value options:NSDataBase64DecodingIgnoreUnknownCharacters]];
@@ -425,7 +427,9 @@ NSString* keyPathValues(NSArray* keyPathValues){
     }else if([type isEqualToString:@"i"]||[type isEqualToString:@"I"]||
              [type isEqualToString:@"s"]||[type isEqualToString:@"S"]||
              [type isEqualToString:@"q"]||[type isEqualToString:@"Q"]||
-             [type isEqualToString:@"b"]||[type isEqualToString:@"B"]){
+             [type isEqualToString:@"b"]||[type isEqualToString:@"B"]||
+             [type isEqualToString:@"c"]||[type isEqualToString:@"C"]||
+             [type isEqualToString:@"l"]||[type isEqualToString:@"L"]){
         return value;
     }else if([type isEqualToString:@"f"]||[type isEqualToString:@"F"]||
              [type isEqualToString:@"d"]||[type isEqualToString:@"D"]){

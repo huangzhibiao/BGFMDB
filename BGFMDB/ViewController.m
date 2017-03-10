@@ -231,6 +231,7 @@
     p.age = 50;
     p.eye = @"末世眼皮";
     p.Url = [NSURL URLWithString:@"http://www.gmjk.com"];
+    p.addBool = YES;
     p.range = NSMakeRange(0,10);
     p.rect = CGRectMake(0,0,10,20);
     p.size = CGSizeMake(50,50);
