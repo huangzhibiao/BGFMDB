@@ -82,7 +82,7 @@ NSArray* arrayConds3 = [People findFormatSqlConditions:@"where %@ and %@=%@",key
 //将People类数据中name=@"标哥"，num=220.88的数据更新为当前对象的数据.
 [p updateWhere:@[@"name",@"=",@"标哥",@"num",@"=",@(220.88)]];
 
-//将People类中name等于"马云爸爸"的数据的name设为"马化腾",此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
+//将People类中name等于"马云爸爸"的数据的name更新为"马化腾",此接口是为了方便开发者自由扩展更深层次的更新条件逻辑.
 [People updateFormatSqlConditions:@"set %@=%@ where %@=%@",sqlKey(@"name"),sqlValue(@"马化腾"),sqlKey(@"name"),sqlValue(@"马云爸爸")];
 // 将People类数据中name等于"马化腾"的数据更新为当前对象的数据.
 [p updateFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"爸爸")];
@@ -100,7 +100,7 @@ NSArray* arrayConds3 = [People findFormatSqlConditions:@"where %@ and %@=%@",key
 //删除People的数据库表.
 [People drop];
 
-//删除People类中name等于"美国队长"的数据,此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
+//删除People类中name等于"美国队长"的数据,此接口是为了方便开发者自由扩展更深层次的删除条件逻辑.
 [People deleteFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"美国队长")];
 //删除People类中user.student.human.body等于"小芳"的数据
 [People deleteFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
