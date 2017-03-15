@@ -55,7 +55,7 @@
     //[People updateVersion:version keyDict:@{@"data2":@"data"}];
     
     /**
-     事务操作,返回YES提交事务,返回NO则会滚事务.
+     事务操作,返回YES提交事务,返回NO则回滚事务.
      */
 //    [NSObject inTransaction:^BOOL{
 //        [p save];//存储

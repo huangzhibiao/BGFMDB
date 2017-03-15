@@ -628,11 +628,14 @@ static const char IDKey;
 #pragma mark 下面附加字典转模型API,简单好用,在只需要字典转模型功能的情况下,可以不必要再引入MJExtension那么多文件,造成代码冗余,缩减安装包.
 /**
  字典转模型.
- @value 字典(NSDictionary)或json格式字符.
+ @keyValues 字典(NSDictionary)或json格式字符.
  说明:如果模型中有数组且存放的是自定义的类(NSString等系统自带的类型就不必要了),那就实现objectClassInArray这个函数返回一个字典,key是数组名称,value是自定的类Class,用法跟MJExtension一样.
  */
-+(id)objectWithDictionary:(id)value{
-    return [BGTool objectWithClass:[self class] value:value];
++(id _Nonnull)bg_objectWithKeyValues:(id _Nonnull)keyValues{
+    return [BGTool objectWithClass:[self class] value:keyValues];
+}
++(id)bg_objectWithDictionary:(NSDictionary *)dictionary{
+    return [BGTool objectWithClass:[self class] value:dictionary];
 }
 /**
  模型转字典.

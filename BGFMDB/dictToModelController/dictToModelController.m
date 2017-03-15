@@ -24,12 +24,12 @@
 }
 
 - (IBAction)beginTransformAction:(id)sender{
-    NSDictionary* dictAni = [self getAnimalDict];
+    NSDictionary* dictAni = [self getDogDict];
     //一代码搞定字典转模型.
-    Animal* animal = [Animal objectWithDictionary:dictAni];
-    NSDictionary* dictPeo = [self getPeopleDict];
+    Dog* dog = [Dog bg_objectWithKeyValues:dictAni];
+    NSDictionary* dictMy = [self getMyDict];
     //一代码搞定字典转模型.
-    My* people = [My objectWithDictionary:dictPeo];
+    My* my = [My bg_objectWithDictionary:dictMy];
     
     Body* body = [Body new];
     body.hand = @"手";
@@ -45,12 +45,12 @@
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
--(NSDictionary*)getAnimalDict{
+-(NSDictionary*)getDogDict{
     NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
-    dictM[@"name"] = @"逗逼";
-    dictM[@"age"] = @(2);
     dictM[@"foods"] = @[@"肉",@"骨头",@"屎",@"狗粮",@"米饭",@{@"蔬菜":@"狗菜"}];
     dictM[@"body"] = @{@"leg":@"两条腿",@"hand":@"两只手",@"head":@(1)};
+    dictM[@"name"] = @"逗逼";
+    dictM[@"age"] = @(2);
     dictM[@"specy"] = @"哈士奇";
     return dictM;
 }
@@ -60,10 +60,10 @@
     dictM[@"leg"] = @"脚";
     return dictM;
 }
--(NSDictionary*)getPeopleDict{
+-(NSDictionary*)getMyDict{
     NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
     dictM[@"name"] = @"小明";
-    dictM[@"dogs"] = @[[self getAnimalDict],[self getAnimalDict],[self getAnimalDict]];
+    dictM[@"dogs"] = @[[self getDogDict],[self getDogDict],[self getDogDict]];
     dictM[@"bodys"] = @[[self getBodyDict],[self getBodyDict]];
     dictM[@"foods"] = @[@"米饭",@"水果",@"蔬菜"];
     return dictM;
