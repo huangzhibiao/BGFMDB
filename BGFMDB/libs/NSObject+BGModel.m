@@ -631,7 +631,7 @@ static const char IDKey;
  @keyValues 字典(NSDictionary)或json格式字符.
  说明:如果模型中有数组且存放的是自定义的类(NSString等系统自带的类型就不必要了),那就实现objectClassInArray这个函数返回一个字典,key是数组名称,value是自定的类Class,用法跟MJExtension一样.
  */
-+(id _Nonnull)bg_objectWithKeyValues:(id _Nonnull)keyValues{
++(id)bg_objectWithKeyValues:(id)keyValues{
     return [BGTool objectWithClass:[self class] value:keyValues];
 }
 +(id)bg_objectWithDictionary:(NSDictionary *)dictionary{
