@@ -241,7 +241,8 @@
     p.point = CGPointMake(2.55,3.14);
     p.color = [UIColor colorWithRed:245 green:245 blue:245 alpha:1.0];
     p.image = [UIImage imageNamed:@"MarkMan"];
-    p.data2 = UIImageJPEGRepresentation(p.image, 1);
+    NSData* data = UIImageJPEGRepresentation(p.image, 1);
+    p.data2 = data;
     [p setValue:@(110) forKey:@"testAge"];
     p->testName = @"测试名字";
     p.sex_old = @"新名";
@@ -256,8 +257,8 @@
     human.body = @"小芳";
     student.human = human;
     user.student = student;
-    p.students = @[@(1),@"呵呵",@[@"数组元素1",@"数组元素2"],@{@"集合key":@"集合value"},student];
-    p.info = @{@"name":@"标哥",@"年龄":@(1),@"数组":@[@"数组1",@"数组2"],@"集合":@{@"集合1":@"集合2"},@"user":user};
+    p.students = @[@(1),@"呵呵",@[@"数组元素1",@"数组元素2"],@{@"集合key":@"集合value"},student,data];
+    p.info = @{@"name":@"标哥",@"年龄":@(1),@"数组":@[@"数组1",@"数组2"],@"集合":@{@"集合1":@"集合2"},@"user":user,@"data":data};
     
     NSHashTable* hashTable = [NSHashTable hashTableWithOptions:NSPointerFunctionsWeakMemory];
     [hashTable addObject:@"h1"];

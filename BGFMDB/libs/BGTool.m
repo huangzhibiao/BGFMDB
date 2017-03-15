@@ -16,12 +16,16 @@
 //#define SqlBlob @"blob" //数据库的二进制类型
 
 #define BGValue @"BGValue"
+#define BGData @"BGData"
 #define BGArray @"BGArray"
 #define BGSet @"BGSet"
 #define BGDictionary @"BGDictionary"
 #define BGModel @"BGModel"
 #define BGMapTable @"BGMapTable"
 #define BGHashTable @"BGHashTable"
+
+//100M大小限制.
+#define MaxData @(838860800)
 
 Relation const Equal = @"Relation_Equal";
 Relation const Contains = @"Relation_Contains";
@@ -295,6 +299,11 @@ NSString* keyPathValues(NSArray* keyPathValues){
         return @{BGSet:[self jsonStringWithArray:value]};
     }else if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]]){
         return @{BGValue:value};
+    }else if([value isKindOfClass:[NSData class]]){
+        NSData* data = value;
+        NSNumber* maxLength = MaxData;
+        NSAssert(data.length<maxLength.integerValue,@"最大存储限制为100M");
+        return @{BGData:[value base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength]};
     }else if ([value isKindOfClass:[NSDictionary class]]){
         return @{BGDictionary:[self jsonStringWithDictionary:value]};
     }else if ([value isKindOfClass:[NSMapTable class]]){
@@ -328,6 +337,11 @@ NSString* keyPathValues(NSArray* keyPathValues){
         return @{BGSet:[self jsonStringWithArray:value]};
     }else if ([value isKindOfClass:[NSString class]] || [value isKindOfClass:[NSNumber class]]){
         return @{BGValue:value};
+    }else if([value isKindOfClass:[NSData class]]){
+        NSData* data = value;
+        NSNumber* maxLength = MaxData;
+        NSAssert(data.length<maxLength.integerValue,@"最大存储限制为100M");
+        return @{BGData:[value base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength]};
     }else if ([value isKindOfClass:[NSDictionary class]]){
         return @{BGDictionary:[self jsonStringWithDictionary:value]};
     }else if ([value isKindOfClass:[NSMapTable class]]){
@@ -410,7 +424,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
     }else if([type containsString:@"Data"]){
         if(encode){
             NSData* data = value;
-            NSNumber* maxLength = @(838860800);
+            NSNumber* maxLength = MaxData;
             NSAssert(data.length<maxLength.integerValue,@"最大存储限制为100M");
             return [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
         }else{
@@ -443,7 +457,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
     }else if ([type containsString:@"UIImage"]){
         if(encode){
             NSData* data = UIImageJPEGRepresentation(value, 1);
-            NSNumber* maxLength = @(838860800);
+            NSNumber* maxLength = MaxData;
             NSAssert(data.length<maxLength.integerValue,@"最大存储限制为100M");
             return [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
         }else{
@@ -577,6 +591,8 @@ NSString* keyPathValues(NSArray* keyPathValues){
     NSString* key = dictionary.allKeys.firstObject;
     if ([key isEqualToString:BGValue]) {
         return dictionary[key];
+    }else if ([key isEqualToString:BGData]){
+       return [[NSData alloc] initWithBase64EncodedString:dictionary[key] options:NSDataBase64DecodingIgnoreUnknownCharacters];
     }else if([key isEqualToString:BGSet]){
         return [self arrayFromJsonString:dictionary[key]];
     }else if([key isEqualToString:BGArray]){
@@ -598,7 +614,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
 +(NSArray*)arrayFromJsonString:(NSString*)jsonString{
     if(!jsonString || [jsonString isKindOfClass:[NSNull class]])return nil;
     
-    if([jsonString containsString:BGModel]){
+    if([jsonString containsString:BGModel] || [jsonString containsString:BGData]){
         NSMutableArray* arrM = [NSMutableArray array];
         NSArray* array = [self jsonWithString:jsonString];
         for(NSDictionary* dict in array){
@@ -616,6 +632,8 @@ NSString* keyPathValues(NSArray* keyPathValues){
     NSString* keyDest = dictDest.allKeys.firstObject;
     if([keyDest isEqualToString:BGValue]){
         return dictDest[keyDest];
+    }else if ([keyDest isEqualToString:BGData]){
+        return [[NSData alloc] initWithBase64EncodedString:dictDest[keyDest] options:NSDataBase64DecodingIgnoreUnknownCharacters];
     }else if([keyDest isEqualToString:BGSet]){
         return [self arrayFromJsonString:dictDest[keyDest]];
     }else if([keyDest isEqualToString:BGArray]){
@@ -636,7 +654,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
 +(NSDictionary*)dictionaryFromJsonString:(NSString*)jsonString{
     if(!jsonString || [jsonString isKindOfClass:[NSNull class]])return nil;
     
-    if([jsonString containsString:BGModel]){
+    if([jsonString containsString:BGModel] || [jsonString containsString:BGData]){
         NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
         NSDictionary* dictSrc = [self jsonWithString:jsonString];
         for(NSString* keySrc in dictSrc.allKeys){
