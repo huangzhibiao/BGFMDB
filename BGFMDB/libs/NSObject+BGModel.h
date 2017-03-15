@@ -15,21 +15,34 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 #import <Foundation/Foundation.h>
 #import "BGTool.h"
 
-@interface NSObject (BGModel)
+@protocol BGProtocol <NSObject>
+//可选择操作
+@optional
+/**
+ 自定义 “唯一约束” 函数,如果需要 “唯一约束”字段,则在自定类中自己实现该函数.
+ @return 返回值是 “唯一约束” 的字段名(即相对应的变量名).
+ */
+-(NSString* _Nonnull)uniqueKey;
+/**
+ *  数组中需要转换的模型类
+ *
+ *  @return 字典中的key是数组属性名，value是数组中存放模型的Class
+ */
+- (NSDictionary *_Nonnull)objectClassInArray;
+
+@end
+
+@interface NSObject (BGModel)<BGProtocol>
 
 @property(nonatomic,strong)NSNumber*_Nullable ID;//本库自带的自动增长主键.
 
 //同步：线程阻塞；异步：线程非阻塞;
 /**
  设置调试模式
- @debug YES:打印SQL语句, NO:不打印SQL语句.
+ @debug YES:打印调试信息, NO:不打印调试信息.
  */
 +(void)setDebug:(BOOL)debug;
-/**
- 自定义 “唯一约束” 函数,如果需要 “唯一约束”字段,则在自定类中自己实现该函数.
- @return 返回值是 “唯一约束” 的字段名(即相对应的变量名).
- */
--(NSString* _Nonnull)uniqueKey;
+
 /**
  判断这个类的数据表是否已经存在.
  */
@@ -319,4 +332,17 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  @return YES: 移除监听成功; NO: 移除监听失败.
  */
 +(BOOL)removeChangeWithName:(NSString* const _Nonnull)name;
+
+#pragma mark 下面附加字典转模型API,简单好用,在只需要字典转模型功能的情况下,可以不必要再引入MJExtension那么多文件,造成代码冗余,缩减安装包.
+/**
+ 字典转模型.
+ @value 字典(NSDictionary)或json格式字符.
+ 说明:如果模型中有数组且存放的是自定义的类(NSString等系统自带的类型就不必要了),那就实现objectClassInArray这个函数返回一个字典,key是数组名称,value是自定的类Class,用法跟MJExtension一样.
+ */
++(id _Nonnull)objectWithDictionary:(id _Nonnull)value;
+/**
+ 模型转字典.
+ @ignoredKeys 忽略掉模型中的哪些key(即模型变量)不要转,nil时全部转成字典.
+ */
+-(NSMutableDictionary* _Nonnull)bj_keyValuesIgnoredKeys:(NSArray* _Nullable)ignoredKeys;
 @end

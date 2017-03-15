@@ -6,9 +6,9 @@
 //  Copyright © 2017年 Biao. All rights reserved.
 //
 
-#import "BGTool.h"
-#import <objc/runtime.h>
 #import <UIKit/UIKit.h>
+#import <CoreData/CoreData.h>
+#import "BGTool.h"
 
 #define SqlText @"text" //数据库的字符类型
 #define SqlReal @"real" //数据库的浮点类型
@@ -25,6 +25,13 @@
 
 Relation const Equal = @"Relation_Equal";
 Relation const Contains = @"Relation_Contains";
+
+/**
+ *  遍历所有类的block（父类）
+ */
+typedef void (^BGClassesEnumeration)(Class c, BOOL *stop);
+static NSSet *foundationClasses_;
+
 @implementation BGTool
 
 /**
@@ -70,31 +77,82 @@ NSString* keyPathValues(NSArray* keyPathValues){
     return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
 
++ (NSSet *)foundationClasses
+{
+    if (foundationClasses_ == nil) {
+        // 集合中没有NSObject，因为几乎所有的类都是继承自NSObject，具体是不是NSObject需要特殊判断
+        foundationClasses_ = [NSSet setWithObjects:
+                              [NSURL class],
+                              [NSDate class],
+                              [NSValue class],
+                              [NSData class],
+                              [NSError class],
+                              [NSArray class],
+                              [NSDictionary class],
+                              [NSString class],
+                              [NSAttributedString class], nil];
+    }
+    return foundationClasses_;
+}
+
++ (void)bg_enumerateClasses:(__unsafe_unretained Class)srcCla complete:(BGClassesEnumeration)enumeration
+{
+    // 1.没有block就直接返回
+    if (enumeration == nil) return;
+    // 2.停止遍历的标记
+    BOOL stop = NO;
+    // 3.当前正在遍历的类
+    Class c = srcCla;
+    // 4.开始遍历每一个类
+    while (c && !stop) {
+        // 4.1.执行操作
+        enumeration(c, &stop);
+        // 4.2.获得父类
+        c = class_getSuperclass(c);
+        if ([self isClassFromFoundation:c]) break;
+    }
+}
+
++ (BOOL)isClassFromFoundation:(Class)c
+{
+    if (c == [NSObject class] || c == [NSManagedObject class]) return YES;
+    __block BOOL result = NO;
+    [[self foundationClasses] enumerateObjectsUsingBlock:^(Class foundationClass, BOOL *stop) {
+        if ([c isSubclassOfClass:foundationClass]) {
+            result = YES;
+            *stop = YES;
+        }
+    }];
+    return result;
+}
+
 
 /**
  根据类获取变量名列表
  @onlyKey YES:紧紧返回key,NO:在key后面添加type.
  */
 +(NSArray*)getClassIvarList:(__unsafe_unretained Class)cla onlyKey:(BOOL)onlyKey{
-    unsigned int numIvars; //成员变量个数
-    Ivar *vars = class_copyIvarList(cla, &numIvars);
     NSMutableArray* keys = [NSMutableArray array];
     [keys addObject:[NSString stringWithFormat:@"%@*q",primaryKey]];//手动添加库自带的自动增长主键ID和类型q
-    for(int i = 0; i < numIvars; i++) {
-        Ivar thisIvar = vars[i];
-        NSString* key = [NSString stringWithUTF8String:ivar_getName(thisIvar)];//获取成员变量的名
-        if ([key containsString:@"_"]) {
-            key = [key substringFromIndex:1];
+    [self bg_enumerateClasses:cla complete:^(__unsafe_unretained Class c, BOOL *stop) {
+        unsigned int numIvars; //成员变量个数
+        Ivar *vars = class_copyIvarList(c, &numIvars);
+        for(int i = 0; i < numIvars; i++) {
+            Ivar thisIvar = vars[i];
+            NSString* key = [NSString stringWithUTF8String:ivar_getName(thisIvar)];//获取成员变量的名
+            if ([key containsString:@"_"]) {
+                key = [key substringFromIndex:1];
+            }
+            if (!onlyKey) {
+                //获取成员变量的数据类型
+                NSString* type = [NSString stringWithUTF8String:ivar_getTypeEncoding(thisIvar)];
+                //NSLog(@"key = %@ , type = %@",key,type);
+                key = [NSString stringWithFormat:@"%@*%@",key,type];
+            }
+            [keys addObject:key];//存储对象的变量名
         }
-        if (!onlyKey) {
-            //获取成员变量的数据类型
-            NSString* type = [NSString stringWithUTF8String:ivar_getTypeEncoding(thisIvar)];
-            //NSLog(@"key = %@ , type = %@",key,type);
-            key = [NSString stringWithFormat:@"%@*%@",key,type];
-        }
-        [keys addObject:key];//存储对象的变量名
-    }
-    free(vars);//释放资源
+        free(vars);//释放资源
+    }];
     return keys;
 }
 
@@ -323,33 +381,33 @@ NSString* keyPathValues(NSArray* keyPathValues){
 +(id)getSqlValue:(id)value type:(NSString*)type encode:(BOOL)encode{
     if(!value || [value isKindOfClass:[NSNull class]])return nil;
     
-    if([type containsString:@"NSString"]||[type containsString:@"NSMutableString"]){
+    if([type containsString:@"String"]){
         return value;
-    }else if([type containsString:@"NSNumber"]||[type containsString:@"NSMutableNumber"]){
+    }else if([type containsString:@"Number"]){
         if(encode) {
             return [NSString stringWithFormat:@"%@",value];
         }else{
             return [[NSNumberFormatter new] numberFromString:value];
         }
-    }else if([type containsString:@"NSArray"]||[type containsString:@"NSMutableArray"]){
+    }else if([type containsString:@"Array"]){
         if(encode){
             return [self jsonStringWithArray:value];
         }else{
             return [self arrayFromJsonString:value];
         }
-    }else if([type containsString:@"NSDictionary"]||[type containsString:@"NSMutableDictionary"]){
+    }else if([type containsString:@"Dictionary"]){
         if(encode){
             return [self jsonStringWithDictionary:value];
         }else{
             return [self dictionaryFromJsonString:value];
         }
-    }else if([type containsString:@"NSSet"]||[type containsString:@"NSMutableSet"]){
+    }else if([type containsString:@"Set"]){
         if(encode){
             return [self jsonStringWithArray:value];
         }else{
             return [self arrayFromJsonString:value];
         }
-    }else if([type containsString:@"NSData"]||[type containsString:@"NSMutableData"]){
+    }else if([type containsString:@"Data"]){
         if(encode){
             NSData* data = value;
             NSNumber* maxLength = @(838860800);
@@ -445,7 +503,9 @@ NSString* keyPathValues(NSArray* keyPathValues){
         }
     }
 }
-
+/**
+ 存储转换用的字典转化成对象处理函数.
+ */
 +(id)objectFromJsonStringWithClassName:(NSString*)claName valueDict:(NSDictionary*)valueDict{
     Class cla = NSClassFromString(claName);
     id object = [cla new];
@@ -465,6 +525,49 @@ NSString* keyPathValues(NSArray* keyPathValues){
             }
         }
     }
+    
+    return object;
+}
+
+/**
+ 字典或json格式字符转模型用的处理函数.
+ */
++(id)objectWithClass:(__unsafe_unretained _Nonnull Class)cla value:(id)value{
+    if(value == nil)return nil;
+    
+    NSDictionary* dataDict;
+    id object = [cla new];
+    if ([value isKindOfClass:[NSString class]]){
+        NSAssert([NSJSONSerialization isValidJSONObject:value],@"json数据格式错误!");
+        dataDict = [self jsonWithString:value];
+    }else if ([value isKindOfClass:[NSDictionary class]]){
+        dataDict = value;
+    }else{
+        NSAssert(NO,@"数据格式错误!, 只能转换字典或json格式数据.");
+    }
+    NSDictionary* const objectClaInArr = [self getClassInArrayType:object];
+    NSArray* const claKeys = [self getClassIvarList:cla onlyKey:YES];
+    [dataDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        for(NSString* claKey in claKeys){
+            if ([key isEqualToString:claKey]){
+                __block id ArrObject = dataDict[key];
+                !objectClaInArr?:[objectClaInArr enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull Arrkey, id  _Nonnull ArrObjCla, BOOL * _Nonnull stop){
+                    if([key isEqualToString:Arrkey]){
+                        NSMutableArray* ArrObjects = [NSMutableArray array];
+                        for(NSDictionary* ArrObject in dataDict[key]){
+                            id obj = [self objectWithClass:ArrObjCla value:ArrObject];
+                            [ArrObjects addObject:obj];
+                        }
+                        ArrObject = ArrObjects;
+                        *stop = YES;
+                    }
+                }];
+                
+                
+                [object setValue:ArrObject forKey:key];
+            }
+        }
+    }];
     
     return object;
 }
@@ -597,11 +700,22 @@ NSString* keyPathValues(NSArray* keyPathValues){
  */
 +(NSString*)getUnique:(id)object{
     NSString* uniqueKey = nil;
-    if([object respondsToSelector:NSSelectorFromString(@"uniqueKey")]){
-        SEL uniqueKeySeltor = NSSelectorFromString(@"uniqueKey");
+    SEL uniqueKeySeltor = NSSelectorFromString(@"uniqueKey");
+    if([object respondsToSelector:uniqueKeySeltor]){
         uniqueKey = [object performSelector:uniqueKeySeltor];
     }
     return uniqueKey;
+}
+/**
+ 获取字典转模型部分的数组数据类型
+ */
++(NSDictionary*)getClassInArrayType:(id)object{
+    NSDictionary* dict = nil;
+    SEL objectClassInArraySeltor = NSSelectorFromString(@"objectClassInArray");
+    if([object respondsToSelector:objectClassInArraySeltor]){
+        dict = [object performSelector:objectClassInArraySeltor];
+    }
+    return dict;
 }
 +(BOOL)getBoolWithKey:(NSString*)key{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];

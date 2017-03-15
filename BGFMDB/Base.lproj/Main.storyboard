@@ -67,8 +67,19 @@
                                     <action selector="removeChangeAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="HnG-gE-srt"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zhk-gX-U8k">
+                                <frame key="frameInset" minX="221" minY="162" width="138" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.0" green="0.63450863489999998" blue="0.60562294409999995" alpha="1" colorSpace="calibratedRGB"/>
+                                <state key="normal" title="字典转模型">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="dictToModelAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="nPx-LW-wql"/>
+                                </connections>
+                            </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="v6n-xU-bFw">
-                                <frame key="frameInset" minX="106" minY="268" width="164" height="30"/>
+                                <frame key="frameInset" minX="221" minY="114" width="138" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <state key="normal" title="模拟股票数据">

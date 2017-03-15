@@ -17,7 +17,7 @@
     return stock;
 }
 
-//覆写“唯一约束”返回指定的唯一约束name.
+//实现该函数,返回指定的 “唯一约束” name.
 -(NSString *)uniqueKey{
     return @"name";
 }

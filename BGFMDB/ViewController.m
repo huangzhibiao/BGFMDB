@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "stockController.h"
+#import "dictToModelController.h"
 #import "people.h"
 
 @interface ViewController ()
@@ -20,6 +21,8 @@
 - (IBAction)removeChangeAction:(id)sender;
 
 - (IBAction)stockAction:(id)sender;
+- (IBAction)dictToModelAction:(id)sender;
+
 
 
 @end
@@ -323,6 +326,11 @@
 
 - (IBAction)stockAction:(id)sender {
     stockController* con = [stockController new];
+    [self presentViewController:con animated:YES completion:nil];
+}
+
+- (IBAction)dictToModelAction:(id)sender{
+    dictToModelController* con = [dictToModelController new];
     [self presentViewController:con animated:YES completion:nil];
 }
 @end

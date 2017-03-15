@@ -38,28 +38,6 @@
 2017-02-22 14:33:49.039491 BGFMDB[448:43650] key = url , type = @"NSURL"
 
 
-json1	__NSCFString *	@"[\n  \"1\",\n  2,\n  \"[\\n  \\\"arr1\\\",\\n  \\\"arr2\\\",\\n  3\\n]\",\n  \"{\\n  \\\"key1\\\" : \\\"value1\\\",\\n  \\\"key2\\\" : 2\\n}\",\n  \"{\\n  \\\"bint\\\" : 0,\\n  \\\"blonglong\\\" : 0,\\n  \\\"addBool\\\" : false,\\n  \\\"bdouble\\\" : 0,\\n  \\\"bNSInteger\\\" : 0,\\n  \\\"rect\\\" : \\\"{{0, 0}, {0, 0}}\\\",\\n  \\\"bsigned\\\" : 0,\\n  \\\"bCGFloat\\\" : 0,\\n  \\\"blong\\\" : 0,\\n  \\\"bfloat\\\" : 0,\\n  \\\"name\\\" : \\\"测试黄芝标\\\",\\n  \\\"size\\\" : \\\"{0, 0}\\\",\\n  \\\"eye\\\" : \\\"标哥的眼皮\\\",\\n  \\\"bunsigned\\\" : 0,\\n  \\\"point\\\" : \\\"{0, 0}\\\",\\n  \\\"num\\\" : \\\"119\\\",\\n  \\\"testAge\\\" : 0,\\n  \\\"range\\\" : \\\"{0, 0}\\\",\\n  \\\"age\\\" : 100,\\n  \\\"bshort\\\" : 0\\n}\"\n]"	0x0000000174027a00
+[2]	(null)	@"foods" : @"[\n  {\n    \"BGValue\" : \"肉\"\n  },\n  {\n    \"BGValue\" : \"骨头\"\n  },\n  {\n    \"BGValue\" : \"屎\"\n  },\n  {\n    \"BGValue\" : \"狗粮\"\n  },\n  {\n    \"BGValue\" : \"米饭\"\n  },\n  {\n    \"BGDictionary\" : \"{\\n  \\\"蔬菜\\\" : \\\"狗菜\\\"\\n}\"\n  },\n  {\n    \"BGModel*Dog\" : \"{\\n  \\\"name\\\" : \\\"花花\\\",\\n  \\\"age\\\" : \\\"0.5\\\",\\n  \\\"specy\\\" : \\\"泰迪\\\"\\n}\"\n  },\n  {\n    \"BGModel*Dog\" : \"{\\n  \\\"name\\\" : \\\"花花\\\",\\n  \\\"age\\\" : \\\"0.5\\\",\\n  \\\"specy\\\" : \\\"泰迪\\\"\\n}\"\n  }\n]"
 
-
-_sqlColumnValue	__NSCFString *	@"/9j/4AAQSkZJRgABAQAASABIAAD/4QBYRXhpZgAATU0AKgAAAAgAAgESAAMAAAAB\r\nAAEAAIdpAAQAAAABAAAAJgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAC0KAD\r\nAAQAAAABAAAFAAAAAAD/7QA4UGhvdG9zaG9wIDMuMAA4QklNBAQAAAAAAAA4QklN\r\nBCUAAAAAABDUHYzZjwCyBOmACZjs+EJ+/8AAEQgFAALQAwERAAIRAQMRAf/EAB8A\r\nAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAAB\r\nfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYn\r\nKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeI\r\niYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh\r\n4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYH\r\nCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRC\r\nkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZX\r\nWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKz\r\ntLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/bAEMA\r\nAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB\r\nAQEBAQEBAQEBAQEBAQEBAf/bAEMBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB\r\nAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBA"...	0x00000001740511f0
-
-
-User~{
-"userAge" : 1.024,
-"userNumer" : "3.14",
-"student" : "Student~{\n  \"num\" : \"测试学生数量...标哥\",\n  \"names\" : \"[\\n  \\\"小哥哥\\\",\\n  \\\"小红\\\",\\n  110,\\n  [\\n    \\\"数组元素1\\\",\\n    \\\"数组元素2\\\"\\n  ],\\n  {\\n    \\\"集合key\\\" : \\\"集合value\\\"\\n  }\\n]\",\n  \"human\" : \"Human~{\\n  \\\"sex\\\" : \\\"女生\\\",\\n  \\\"humanAge\\\" : 9999,\\n  \\\"body\\\" : \\\"小芳\\\"\\n}\"\n}",
-"name" : "测试用户名字...重复吗?",
-"attri" : "{\n  \"用户名\" : \"黄芝标\",\n  \"密码\" : 123456,\n  \"数组\" : [\n    \"数组1\",\n    \"数组2\"\n  ],\n  \"集合\" : {\n    \"集合1\" : \"集合2\"\n  }\n}"
-}
-
-
-"student" : "{\n  \"num\" : \"测试学生数量...标哥\",\n  \"names\" : \"[\\n  \\\"小哥哥\\\",\\n  \\\"小红\\\",\\n  110,\\n  [\\n    \\\"数组元素1\\\",\\n    \\\"数组元素2\\\"\\n  ],\\n  {\\n    \\\"集合key\\\" : \\\"集合value\\\"\\n  }\\n]\",\n  \"human\" : \"{\\n  \\\"sex\\\" : \\\"男\\\",\\n  \\\"humanAge\\\" : 9999,\\n  \\\"body\\\" : \\\"小芳\\\"\\n}\"\n}",
-"name" : "测试用户名字...重复吗?",
-"attri" : "{\n  \"用户名\" : \"黄芝标\",\n  \"密码\" : 123456,\n  \"数组\" : [\n    \"数组1\",\n    \"数组2\"\n  ],\n  \"集合\" : {\n    \"集合1\" : \"集合2\"\n  }\n}"
-}  :
-{
-"userAge" : 0,
-"name" : "小芳花花"
-}
-
-SQL	__NSCFString *	@"update People set BG_bunsigned=0,BG_num='220.88',BG_students='[\n  {\n    \"BGValue\" : 1\n  },\n  {\n    \"BGValue\" : \"呵呵\"\n  },\n  {\n    \"BGArray\" : \"[\\n  \\\"数组元素1\\\",\\n  \\\"数组元素2\\\"\\n]\"\n  },\n  {\n    \"BGDictionary\" : \"{\\n  \\\"集合key\\\" : \\\"集合value\\\"\\n}\"\n  },\n  {\n    \"BGModel*Student\" : \"{\\n  \\\"num\\\" : \\\"测试学生数量...标哥\\\",\\n  \\\"names\\\" : \\\"[\\\\n  \\\\\\\"小哥哥\\\\\\\",\\\\n  \\\\\\\"小红\\\\\\\",\\\\n  110,\\\\n  [\\\\n    \\\\\\\"数组元素1\\\\\\\",\\\\n    \\\\\\\"数组元素2\\\\\\\"\\\\n  ],\\\\n  {\\\\n    \\\\\\\"集合key\\\\\\\" : \\\\\\\"集合value\\\\\\\"\\\\n  }\\\\n]\\\",\\n  \\\"human\\\" : \\\"{\\\\n  \\\\\\\"sex\\\\\\\" : \\\\\\\"女\\\\\\\",\\\\n  \\\\\\\"humanAge\\\\\\\" : 9999,\\\\n  \\\\\\\"body\\\\\\\" : \\\\\\\"小芳\\\\\\\"\\\\n}\\\"\\n}\"\n  }\n]',BG_range='{0, 10}',BG_bfloat=8.88,BG_bsigned=0,BG_rect='{{0, 0}, {10, 20}}',BG_eye='末世眼皮',BG_point='{2.5499999999999998, 3.1400000000000001}',BG_testName='测试名字',BG_sex_old='新名',BG_addBool=0,BG_info='{\n  \"集合\" : {\n    \"BGDictionary\" : \"{\\n  \\\"集合1\\\" : \\\"集合2\\\"\\n}\"\n  },\n  \"年龄\" : {\n    \"BGValue\" : 1\n  },\n  \"name\" : {\n    \"BGValue\" : \"标哥\"\n  },\n  \"数组\" : {\n    \"BGArray\" : \"[\\n  \\\"数组1\\\",\\n  \\\"数组2\\\"\\n]\"\n  },\n  \"user\" : {\n    \"BGMo"...	0x0000000174265ac0
+sqlValue	__NSCFString *	@"{\n  \"name\" : \"花花\",\n  \"age\" : \"0.5\",\n  \"specy\" : \"泰迪\"\n}"	0x0000000170102d90

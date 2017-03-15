@@ -1,0 +1,71 @@
+//
+//  dictToModelController.m
+//  BGFMDB
+//
+//  Created by huangzhibiao on 17/3/14.
+//  Copyright © 2017年 Biao. All rights reserved.
+//
+
+#import "dictToModelController.h"
+#import "Animal.h"
+
+@interface dictToModelController ()
+- (IBAction)beginTransformAction:(id)sender;
+- (IBAction)backAction:(id)sender;
+
+
+@end
+
+@implementation dictToModelController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+}
+
+- (IBAction)beginTransformAction:(id)sender{
+    NSDictionary* dictAni = [self getAnimalDict];
+    //一代码搞定字典转模型.
+    Animal* animal = [Animal objectWithDictionary:dictAni];
+    NSDictionary* dictPeo = [self getPeopleDict];
+    //一代码搞定字典转模型.
+    My* people = [My objectWithDictionary:dictPeo];
+    
+    Body* body = [Body new];
+    body.hand = @"手";
+    body.leg = @"脚";
+    //一句代码搞定模型转字典.
+    NSDictionary* dictBodyAll = [body bj_keyValuesIgnoredKeys:nil];
+    //忽略掉hand不转.
+    NSDictionary* dictBody = [body bj_keyValuesIgnoredKeys:@[@"hand"]];
+    NSLog(@"断点察看结果");
+}
+
+- (IBAction)backAction:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+-(NSDictionary*)getAnimalDict{
+    NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
+    dictM[@"name"] = @"逗逼";
+    dictM[@"age"] = @(2);
+    dictM[@"foods"] = @[@"肉",@"骨头",@"屎",@"狗粮",@"米饭",@{@"蔬菜":@"狗菜"}];
+    dictM[@"body"] = @{@"leg":@"两条腿",@"hand":@"两只手",@"head":@(1)};
+    dictM[@"specy"] = @"哈士奇";
+    return dictM;
+}
+-(NSDictionary*)getBodyDict{
+    NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
+    dictM[@"hand"] = @"手";
+    dictM[@"leg"] = @"脚";
+    return dictM;
+}
+-(NSDictionary*)getPeopleDict{
+    NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
+    dictM[@"name"] = @"小明";
+    dictM[@"dogs"] = @[[self getAnimalDict],[self getAnimalDict],[self getAnimalDict]];
+    dictM[@"bodys"] = @[[self getBodyDict],[self getBodyDict]];
+    dictM[@"foods"] = @[@"米饭",@"水果",@"蔬菜"];
+    return dictM;
+}
+@end

@@ -6,10 +6,7 @@
 //  Copyright © 2016年 Biao. All rights reserved.
 //
 
-
 #import "BGFMDB.h"
-
-#define debug(param) if(self.debug){NSLog(@"调试输出: %@",param);}
 
 @interface BGFMDB()
 
@@ -888,7 +885,8 @@ static BGFMDB* BGFmdb;
         if (!isExist){//如果不存在就新建
             [strongSelf createTableWithTableName:tableName keys:[BGTool getClassIvarList:[object class] onlyKey:NO] uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
                 if (isSuccess){
-                    NSLog(@"建表成功 第一次建立 %@ 对应的表",tableName);
+                    NSString* successInfo = [NSString stringWithFormat:@"建表成功 第一次建立 %@ 对应的表",tableName];
+                    debug(successInfo);
                 }
             }];
         }

@@ -32,13 +32,7 @@ static const char IDKey;
         [BGFMDB shareManager].debug = debug;
     }
 }
-/**
- 自定义 “唯一约束” 函数,如果需要 “唯一约束”,则在自定类中自己实现该函数.
- @return 返回值是 “唯一约束” 的字段名(即相对应的变量名).
- */
--(NSString *)uniqueKey{
-    return nil;
-}
+
 /**
  判断这个类的数据表是否已经存在.
  */
@@ -130,7 +124,7 @@ static const char IDKey;
     NSMutableString* param = [NSMutableString string];
     !(orderBy&&desc)?:[param appendFormat:@"order by %@%@ desc",BG,orderBy];
     !param.length?:[param appendString:@" "];
-    !limit?:[param appendFormat:@"limit %ld",limit];
+    !limit?:[param appendFormat:@"limit %@",@(limit)];
     param = param.length?param:nil;
     __block NSArray* results;
      [[BGFMDB shareManager] queryObjectWithClass:[self class] where:nil param:param complete:^(NSArray * _Nullable array) {
@@ -159,7 +153,7 @@ static const char IDKey;
     NSMutableString* param = [NSMutableString string];
     !(orderBy&&desc)?:[param appendFormat:@"order by %@%@ desc ",BG,orderBy];
     NSAssert((range.location>=0)&&(range.length>0),@"range参数错误,location应该大于或等于零,length应该大于零");
-    [param appendFormat:@"limit %ld,%ld",range.location,range.length];
+    [param appendFormat:@"limit %@,%@",@(range.location),@(range.length)];
     __block NSArray* results;
     [[BGFMDB shareManager] queryObjectWithClass:[self class] where:nil param:param complete:^(NSArray * _Nullable array) {
         results = array;
@@ -629,5 +623,36 @@ static const char IDKey;
  */
 +(BOOL)removeChangeWithName:(NSString* const _Nonnull)name{
     return [[BGFMDB shareManager] removeChangeWithName:name];
+}
+
+#pragma mark 下面附加字典转模型API,简单好用,在只需要字典转模型功能的情况下,可以不必要再引入MJExtension那么多文件,造成代码冗余,缩减安装包.
+/**
+ 字典转模型.
+ @value 字典(NSDictionary)或json格式字符.
+ 说明:如果模型中有数组且存放的是自定义的类(NSString等系统自带的类型就不必要了),那就实现objectClassInArray这个函数返回一个字典,key是数组名称,value是自定的类Class,用法跟MJExtension一样.
+ */
++(id)objectWithDictionary:(id)value{
+    return [BGTool objectWithClass:[self class] value:value];
+}
+/**
+ 模型转字典.
+ @ignoredKeys 忽略掉模型中的哪些key(即模型变量)不要转,nil时全部转成字典.
+ */
+-(NSMutableDictionary*)bj_keyValuesIgnoredKeys:(NSArray*)ignoredKeys{
+    NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:self];
+    NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
+    if (ignoredKeys) {
+        for(BGModelInfo* info in infos){
+            if(![ignoredKeys containsObject:info.propertyName]){
+                dictM[info.propertyName] = info.sqlColumnValue;
+            }
+        }
+    }else{
+        for(BGModelInfo* info in infos){
+            dictM[info.propertyName] = info.sqlColumnValue;
+        }
+    }
+    
+    return dictM;
 }
 @end

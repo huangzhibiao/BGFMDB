@@ -7,10 +7,20 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <objc/runtime.h>
 #import "BGModelInfo.h"
 #import "FMDB.h"
 
 #define SQLITE_NAME @"BGFMDB.sqlite"
+
+// 日志输出
+#ifdef DEBUG
+#define BGLog(...) NSLog(__VA_ARGS__)
+#else
+#define BGLog(...)
+#endif
+
+#define debug(param) if(self.debug){BGLog(@"调试输出: %@",param);}
 
 #define BG @"BG_"
 #define primaryKey @"ID"
@@ -95,6 +105,16 @@ extern NSString* _Nonnull keyPathValues(NSArray* _Nonnull keyPathValues);
  @array 传入要转换的数组数据.
  */
 +(NSArray* _Nonnull)tansformDataFromSqlDataWithTableName:(NSString* _Nonnull)tableName array:(NSArray* _Nonnull)array;
+/**
+ 转换从数据库中读取出来的数据.
+ @claName 类名.
+ @valueDict 传入要转换的字典数据.
+ */
++(id _Nonnull)objectFromJsonStringWithClassName:(NSString* _Nonnull)claName valueDict:(NSDictionary* _Nonnull)valueDict;
+/**
+ 字典或json格式字符转模型用的处理函数.
+ */
++(id _Nonnull)objectWithClass:(__unsafe_unretained _Nonnull Class)cla value:(id _Nonnull)value;
 /**
  获取"唯一约束"
  */

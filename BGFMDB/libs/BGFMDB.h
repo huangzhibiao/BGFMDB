@@ -5,11 +5,6 @@
 //  Created by huangzhibiao on 16/4/28.
 //  Copyright © 2016年 Biao. All rights reserved.
 //
-/** 
- 使用提示:
- 1.存储对象时,如果变量名改变了,请先存储再查询,不然可能查询不到新增的变量名(字段名).
- 2.存储对象时,对象中的 数组或字典变量 中的元素目前只支持系统自带的类型.
- */
 #import <Foundation/Foundation.h>
 #import "BGTool.h"
 
