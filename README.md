@@ -28,7 +28,7 @@ LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo
 platform :ios, '8.0'
 
 target '工程名称' do
-pod ‘BGFMDB’, '~> 1.10’
+pod ‘BGFMDB’, '~> 1.11’
 end
 ```
 ## 直接下载库代码使用方式.
@@ -325,17 +325,29 @@ NSInteger count = [People countFormatSqlConditions:@"where %@=%@ and %@",sqlKey(
 ```
 ### 字典转模型
 ```Objective-C
+NSDictionary* dictAni = [self getDogDict];
 /**
 一代码搞定字典转模型.
 */
-Animal* animal = [Animal objectWithDictionary:dictAni];
+Dog* dog = [Dog bg_objectWithKeyValues:dictAni];
+
+NSDictionary* dictMy = [self getMyDict];
+/**
+一代码搞定字典转模型.
+*/
+My* my = [My bg_objectWithDictionary:dictMy];
 ```
 ### 模型转字典
 ```Objective-C
 /**
 一句代码搞定模型转字典.
 */
-NSDictionary* dictBodyAll = [body bj_keyValuesIgnoredKeys:nil];
+ NSDictionary* dictBodyAll = [body bj_keyValuesIgnoredKeys:nil];
+ 
+/**
+忽略掉hand这个变量不转.
+*/
+NSDictionary* dictBody = [body bj_keyValuesIgnoredKeys:@[@"hand"]];
 ```
 ### 如果模型中的数组变量存储的是自定义类,则需要实现下面的这个函数:
 ```Objective-C
