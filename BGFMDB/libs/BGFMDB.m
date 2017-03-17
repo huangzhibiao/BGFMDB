@@ -23,13 +23,16 @@ static BGFMDB* BGFmdb;
 @implementation BGFMDB
 
 -(void)dealloc{
-    if (self.changeBlocks) {
-        [self.changeBlocks removeAllObjects];
+    if (self.changeBlocks){
+        [self.changeBlocks removeAllObjects];//清除所有注册列表.
         self.changeBlocks = nil;
     }
-    if (self.queue) {
-        [self.queue close];//关闭数据库
+    if(self.queue) {
+        [self.queue close];//关闭数据库.
         self.queue = nil;
+    }
+    if (BGFmdb) {
+        BGFmdb = nil;
     }
 }
 
@@ -849,15 +852,23 @@ static BGFMDB* BGFmdb;
 /**
  处理插入的字典数据并返回
  */
--(void)insertDictWithObject:(id)object complete:(Complete_B)complete{
+-(void)insertDictWithObject:(id)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete{
     NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:object];
-    NSMutableDictionary* dict = [NSMutableDictionary dictionary];
-    for(BGModelInfo* info in infos){
-        dict[info.sqlColumnName] = info.sqlColumnValue;
+    NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
+    if (ignoredKeys) {
+        for(BGModelInfo* info in infos){
+            if(![ignoredKeys containsObject:info.propertyName]){
+                dictM[info.sqlColumnName] = info.sqlColumnValue;
+            }
+        }
+    }else{
+        for(BGModelInfo* info in infos){
+            dictM[info.sqlColumnName] = info.sqlColumnValue;
+        }
     }
     NSString* tableName = [NSString stringWithFormat:@"%@",[object class]];
     __weak typeof(self) BGSelf = self;
-    [self insertIntoTableName:tableName Dict:dict complete:^(BOOL isSuccess){
+    [self insertIntoTableName:tableName Dict:dictM complete:^(BOOL isSuccess){
         __strong typeof(BGSelf) strongSelf = BGSelf;
         if (isSuccess) {
             if (complete) {
@@ -866,7 +877,7 @@ static BGFMDB* BGFmdb;
         }else{
             //检查表字段是否有改变
             [strongSelf changeTableWhenClassIvarChange:[object class]];
-            [strongSelf insertIntoTableName:tableName Dict:dict complete:complete];
+            [strongSelf insertIntoTableName:tableName Dict:dictM complete:complete];
         }
     }];
 
@@ -874,7 +885,7 @@ static BGFMDB* BGFmdb;
 /**
  存储一个对象.
  */
--(void)saveObject:(id _Nonnull)object complete:(Complete_B)complete{
+-(void)saveObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete{
     //检查是否建立了跟对象相对应的数据表
     NSString* tableName = NSStringFromClass([object class]);
     //获取"唯一约束"字段名
@@ -892,7 +903,7 @@ static BGFMDB* BGFmdb;
         }
         
         //插入数据
-        [strongSelf insertDictWithObject:object complete:complete];
+        [strongSelf insertDictWithObject:object ignoredKeys:ignoredKeys complete:complete];
     }];
 }
 

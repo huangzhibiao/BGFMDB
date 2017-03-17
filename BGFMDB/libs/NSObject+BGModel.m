@@ -48,20 +48,40 @@ static const char IDKey;
  */
 -(BOOL)save{
     __block BOOL result;
-    [[BGFMDB shareManager] saveObject:self complete:^(BOOL isSuccess) {
+    [[BGFMDB shareManager] saveObject:self ignoredKeys:nil complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     return result;
 }
 /**
- @async YES:异步存储,NO:同步存储.
+ 异步存储.
  */
 -(void)saveAsync:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [[BGFMDB shareManager] saveObject:self complete:complete];
+        [[BGFMDB shareManager] saveObject:self ignoredKeys:nil complete:complete];
     });
 }
+/**
+ 同步存储.
+ @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.
+ */
+-(BOOL)saveIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys{
+    __block BOOL result;
+    [[BGFMDB shareManager] saveObject:self ignoredKeys:ignoredKeys complete:^(BOOL isSuccess) {
+        result = isSuccess;
+    }];
+    return result;
+}
+/**
+ 异步存储.
+ @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.
+ */
+-(void)saveAsyncIgnoreKeys:(NSArray* const _Nonnull)ignoredKeys complete:(Complete_B)complete{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+        [[BGFMDB shareManager] saveObject:self ignoredKeys:ignoredKeys complete:complete];
+    });
 
+}
 /**
  同步覆盖存储.
  覆盖掉原来的数据,只存储当前的数据.
@@ -70,7 +90,7 @@ static const char IDKey;
     __block BOOL result;
     [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess) {
         if(isSuccess)
-            [[BGFMDB shareManager] saveObject:self complete:^(BOOL isSuccess) {
+            [[BGFMDB shareManager] saveObject:self ignoredKeys:nil complete:^(BOOL isSuccess) {
                 result = isSuccess;
             }];
         else
@@ -80,22 +100,53 @@ static const char IDKey;
 }
 
 /**
+ 异步覆盖存储.
  覆盖掉原来的数据,只存储当前的数据.
- @async YES:异步存储,NO:同步存储.
  */
 -(void)coverAsync:(Complete_B)complete{
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
         [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess){
             if(isSuccess)
-            [[BGFMDB shareManager] saveObject:self complete:complete];
+            [[BGFMDB shareManager] saveObject:self ignoredKeys:nil complete:complete];
             else
             !complete?:complete(isSuccess);
         }];
     });
     
 }
-
+/**
+ 同步覆盖存储.
+ 覆盖掉原来的数据,只存储当前的数据.
+ @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.
+ */
+-(BOOL)coverIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys{
+    __block BOOL result;
+    [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess) {
+        if(isSuccess)
+            [[BGFMDB shareManager] saveObject:self ignoredKeys:ignoredKeys complete:^(BOOL isSuccess) {
+                result = isSuccess;
+            }];
+        else
+            result = NO;
+    }];
+    return result;
+}
+/**
+ 异步覆盖存储.
+ 覆盖掉原来的数据,只存储当前的数据.
+ @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.
+ */
+-(void)coverAsyncIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys complete:(Complete_B)complete{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+        [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess){
+            if(isSuccess)
+                [[BGFMDB shareManager] saveObject:self ignoredKeys:ignoredKeys complete:complete];
+            else
+                !complete?:complete(isSuccess);
+        }];
+    });
+}
 /**
  同步查询所有结果.
  */

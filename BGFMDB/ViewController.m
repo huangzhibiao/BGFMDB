@@ -38,6 +38,11 @@
      存储
      */
     [p save];
+    
+    /**
+     忽略存储，即忽略掉 user,info,students 这三个变量不存储.
+     */
+    //[p saveIgnoredKeys:@[@"user",@"info",@"students"]];
    
     /**
      获取该类的数据库版本号;

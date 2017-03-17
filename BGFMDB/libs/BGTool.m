@@ -579,6 +579,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
                 
                 
                 [object setValue:ArrObject forKey:key];
+                break;//匹配到了就跳出循环.
             }
         }
     }];

@@ -56,6 +56,16 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  */
 -(void)saveAsync:(Complete_B)complete;
 /**
+ 同步存储.
+ @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.
+ */
+-(BOOL)saveIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys;
+/**
+ 异步存储.
+ @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.
+ */
+-(void)saveAsyncIgnoreKeys:(NSArray* const _Nonnull)ignoredKeys complete:(Complete_B)complete;
+/**
  同步覆盖存储.
  覆盖掉原来的数据,只存储当前的数据.
  */
@@ -65,6 +75,18 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  覆盖掉原来的数据,只存储当前的数据.
  */
 -(void)coverAsync:(Complete_B)complete;
+/**
+ 同步覆盖存储.
+ 覆盖掉原来的数据,只存储当前的数据.
+ @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.
+ */
+-(BOOL)coverIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys;
+/**
+ 异步覆盖存储.
+ 覆盖掉原来的数据,只存储当前的数据.
+ @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.
+ */
+-(void)coverAsyncIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys complete:(Complete_B)complete;
 /**
  同步查询所有结果.
  */

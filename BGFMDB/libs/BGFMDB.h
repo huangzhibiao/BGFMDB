@@ -38,9 +38,10 @@
 /**
  存储一个对象.
  @object 将要存储的对象.
+ @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储,nil时全部存储.
  @complete 回调的block.
  */
--(void)saveObject:(id _Nonnull)object complete:(Complete_B)complete;
+-(void)saveObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete;
 /**
  根据条件查询对象.
  @cla 代表对应的类.
