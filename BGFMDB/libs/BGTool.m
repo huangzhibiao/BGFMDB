@@ -534,7 +534,10 @@ NSString* keyPathValues(NSArray* keyPathValues){
                     [object setValue:ivarValue forKey:arrKT.firstObject];
                 }else{
                     SEL primaryKeySel = NSSelectorFromString([NSString stringWithFormat:@"set%@:",primaryKey]);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
                     [object performSelector:primaryKeySel withObject:ivarValue];
+#pragma clang diagnostic pop
                 }
             }
         }
@@ -721,7 +724,10 @@ NSString* keyPathValues(NSArray* keyPathValues){
     NSString* uniqueKey = nil;
     SEL uniqueKeySeltor = NSSelectorFromString(@"uniqueKey");
     if([object respondsToSelector:uniqueKeySeltor]){
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         uniqueKey = [object performSelector:uniqueKeySeltor];
+#pragma clang diagnostic pop
     }
     return uniqueKey;
 }
@@ -732,7 +738,10 @@ NSString* keyPathValues(NSArray* keyPathValues){
     NSDictionary* dict = nil;
     SEL objectClassInArraySeltor = NSSelectorFromString(@"objectClassInArray");
     if([object respondsToSelector:objectClassInArraySeltor]){
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         dict = [object performSelector:objectClassInArraySeltor];
+#pragma clang diagnostic pop
     }
     return dict;
 }

@@ -13,6 +13,9 @@
 
 #define SQLITE_NAME @"BGFMDB.sqlite"
 
+// 过期
+#define BGFMDBDeprecated(instead) NS_DEPRECATED(2_0, 2_0, 2_0, 2_0, instead)
+
 // 日志输出
 #ifdef DEBUG
 #define BGLog(...) NSLog(__VA_ARGS__)

@@ -38,7 +38,6 @@
      存储
      */
     [p save];
-    
     /**
      忽略存储，即忽略掉 user,info,students 这三个变量不存储.
      */
@@ -232,7 +231,7 @@
 
 -(People*)people{
     //存储对象使用示例
-    [NSObject setDebug:YES];//打开调试模式,输出SQL语句.
+    [NSObject setDebug:YES];//打开调试模式,打印输出调试信息.
     People* p = [People new];
     p.name = @"美国队长";
     p.num = @(220.88);
