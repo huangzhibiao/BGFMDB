@@ -8,8 +8,10 @@
 2.部分代码块加入了自动释放池,防止查询数据量巨大时内存溢出.       
 3.类数据库更新和类之间数据拷贝加入了事务操作.   
 ## 小伙伴们的使用反馈   
-[![BGFMDB]](http://o7pq80nc2.bkt.clouddn.com/showUse.png)![BGFMDB](http://o7pq80nc2.bkt.clouddn.com/showUseThumbnail.jpg "小伙伴们的使用反馈")[![BGFMDB1]](http://o7pq80nc2.bkt.clouddn.com/showUse1.png)
-![BGFMDB1](http://o7pq80nc2.bkt.clouddn.com/showUse1Thumbnail.jpg "小伙伴们的使用反馈")
+[![BGFMDB](http://o7pq80nc2.bkt.clouddn.com/showUse.png)
+[BGFMDB](http://o7pq80nc2.bkt.clouddn.com/showUseThumbnail.jpg "小伙伴们的使用反馈")
+[![BGFMDB1](http://o7pq80nc2.bkt.clouddn.com/showUse1.png)
+[BGFMDB1](http://o7pq80nc2.bkt.clouddn.com/showUse1Thumbnail.jpg "小伙伴们的使用反馈")
 ## 作者联系方式:       
 QQ: 450426721   
 QQ邮箱: 450426721@qq.com   
