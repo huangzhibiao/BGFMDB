@@ -51,8 +51,8 @@
 //@property(nonatomic,copy)NSString* sex;
 @property(nonatomic,copy)NSString* eye;
 @property(nonatomic,copy)NSString* sex_old;
-@property(nonatomic,strong)NSArray* stud;
-@property(nonatomic,strong)NSDictionary* info;
+@property(nonatomic,strong)NSArray* students;
+@property(nonatomic,strong)NSDictionary* infoDic;
 @property(nonatomic,strong)User* user;//第一层类嵌套
 @property(nonatomic,strong)User* user1;
 

@@ -137,7 +137,11 @@ NSString* keyPathValues(NSArray* keyPathValues){
  */
 +(NSArray*)getClassIvarList:(__unsafe_unretained Class)cla onlyKey:(BOOL)onlyKey{
     NSMutableArray* keys = [NSMutableArray array];
-    [keys addObject:[NSString stringWithFormat:@"%@*q",primaryKey]];//手动添加库自带的自动增长主键ID和类型q
+    if(onlyKey){
+        [keys addObject:primaryKey];
+    }else{
+        [keys addObject:[NSString stringWithFormat:@"%@*q",primaryKey]];//手动添加库自带的自动增长主键ID和类型q
+    }
     [self bg_enumerateClasses:cla complete:^(__unsafe_unretained Class c, BOOL *stop) {
         unsigned int numIvars; //成员变量个数
         Ivar *vars = class_copyIvarList(c, &numIvars);
@@ -527,8 +531,9 @@ NSString* keyPathValues(NSArray* keyPathValues){
     NSArray* keyAndTypes = [self getClassIvarList:cla onlyKey:NO];
     for(NSString* keyAndType in keyAndTypes){
         NSArray* arrKT = [keyAndType componentsSeparatedByString:@"*"];
+        NSString* BGArrKT = [NSString stringWithFormat:@"%@%@",BG,[arrKT firstObject]];
         for(NSString* valueKey in valueDictKeys){
-            if ([valueKey isEqualToString:arrKT.firstObject]){
+            if ([valueKey isEqualToString:BGArrKT]){
                 id ivarValue = [self getSqlValue:valueDict[valueKey] type:arrKT.lastObject encode:NO];
                 if(![arrKT.firstObject isEqualToString:primaryKey]){
                     [object setValue:ivarValue forKey:arrKT.firstObject];
@@ -539,6 +544,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
                     [object performSelector:primaryKeySel withObject:ivarValue];
 #pragma clang diagnostic pop
                 }
+                break;//匹配处理完后跳出内循环.
             }
         }
     }
@@ -706,13 +712,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
 +(NSArray*)tansformDataFromSqlDataWithTableName:(NSString*)tableName array:(NSArray*)array{
     NSMutableArray* arrM = [NSMutableArray array];
     for(NSDictionary* dict in array){
-        NSArray* allNewKeys = dict.allKeys;
-        NSMutableDictionary* newDictM = [NSMutableDictionary dictionary];
-        for(NSString* newKey in allNewKeys){
-            NSString* newDictKey = [newKey stringByReplacingOccurrencesOfString:BG withString:@""];
-            newDictM[newDictKey] = dict[newKey];
-        }
-        id object = [BGTool objectFromJsonStringWithClassName:tableName valueDict:newDictM];
+        id object = [BGTool objectFromJsonStringWithClassName:tableName valueDict:dict];
         [arrM addObject:object];
     }
     return arrM;

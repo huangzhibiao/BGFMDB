@@ -799,27 +799,27 @@ static BGFMDB* BGFmdb;
     NSString* BGTempTable = @"BGTempTable";
     //事务操作.
     [self inTransaction:^BOOL{
-        __block BOOL success = NO;
+        __block int recordFailCount = 0;
         [self copyA:name toB:BGTempTable keys:keys complete:^(dealState result) {
             if(result == Complete){
-                success = YES;
+                recordFailCount++;
             }
         }];
         [self dropTable:name complete:^(BOOL isSuccess) {
-            success = isSuccess;
+            if(isSuccess)recordFailCount++;
         }];
         [self copyA:BGTempTable toB:name keys:keys complete:^(dealState result) {
             if(result == Complete){
-                success = YES;
+                recordFailCount++;
             }
         }];
         [self dropTable:BGTempTable complete:^(BOOL isSuccess) {
-            success = isSuccess;
+            if(isSuccess)recordFailCount++;
         }];
-        if(!success){
+        if(recordFailCount != 4){
             debug(@"发生错误，更新数据库失败!");
         }
-        return success;
+        return recordFailCount==4;
     }];
 }
 
@@ -953,27 +953,27 @@ static BGFMDB* BGFmdb;
     
     NSString* BGTempTable = @"BGTempTable";
     [self inTransaction:^BOOL{
-        __block BOOL success = NO;
+        __block int recordFailCount = 0;
         [self copyA:name toB:BGTempTable keyDict:keyDict complete:^(dealState result) {
             if(result == Complete){
-                success = YES;
+                recordFailCount++;
             }
         }];
         [self dropTable:name complete:^(BOOL isSuccess) {
-            success = isSuccess;
+            if(isSuccess)recordFailCount++;
         }];
         [self copyA:BGTempTable toB:name keys:[BGTool getClassIvarList:NSClassFromString(name) onlyKey:NO] complete:^(dealState result) {
             if(result == Complete){
-                success = YES;
+                recordFailCount++;
             }
         }];
         [self dropTable:BGTempTable complete:^(BOOL isSuccess) {
-            success = isSuccess;
+            if(isSuccess)recordFailCount++;
         }];
-        if (!success) {
+        if (recordFailCount != 4) {
             debug(@"发生错误，更新数据库失败!");
         }
-        return success;
+        return recordFailCount==4;
     }];
 }
 
@@ -986,27 +986,75 @@ static BGFMDB* BGFmdb;
 
 }
 
-//判断类的变量名是否变更,然后改变表字段结构.
--(void)changeTableWhenClassIvarChange:(__unsafe_unretained Class)cla{
-    NSString* tableName = NSStringFromClass(cla);
-    NSMutableArray* newKeys = [NSMutableArray array];
-    [self executeDB:^(FMDatabase * _Nonnull db){
-        NSArray* keys = [BGTool getClassIvarList:cla onlyKey:NO];
-        for (NSString* keyAndtype in keys){
-            NSString* key = [[keyAndtype componentsSeparatedByString:@"*"] firstObject];
-            key = [NSString stringWithFormat:@"%@%@",BG,key];
-            if(![db columnExists:key inTableWithName:tableName]){
-                [newKeys addObject:keyAndtype];
-            }
-        }
-    }];
-    
-    //写在外面是为了防止数据库队列发生死锁.
-    for(NSString* key in newKeys){
-        //添加新字段
-        [self addTable:tableName key:key complete:^(BOOL isSuccess){}];
-    }
-}
+////判断类的变量名是否变更,然后改变表字段结构.
+//-(void)changeTableWhenClassIvarChange:(__unsafe_unretained Class)cla{
+//    NSString* tableName = NSStringFromClass(cla);
+//    NSMutableArray* copyKeys = [NSMutableArray array];
+//    //先把相同的列拷贝.
+//    [self executeDB:^(FMDatabase * _Nonnull db){
+//        NSArray* currentKeys = [BGTool getClassIvarList:cla onlyKey:YES];
+//        NSString* SQL = [NSString stringWithFormat:@"select * from %@ limit 0,1",tableName];
+//        // 1.查询数据
+//        debug(SQL);
+//        FMResultSet *rs = [db executeQuery:SQL];
+//        for (int i=0; i<[rs columnCount]; i++) {
+//            NSString * columnName = [rs columnNameForIndex:i];
+//            [currentKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+//                NSString* currentKey = [NSString stringWithFormat:@"%@%@",BG,obj];
+//                if([columnName isEqualToString:currentKey]){
+//                    if([obj isEqualToString:primaryKey]){
+//                      currentKey = [NSString stringWithFormat:@"%@ primary key autoincrement integer",currentKey];
+//                    }
+//                    [copyKeys addObject:currentKey];
+//                    *stop = YES;
+//                }
+//            }];
+//        }
+//    }];
+//    //事务操作.
+//    [self inTransaction:^BOOL{
+//        __block int recordFailCount = 0;
+//        [self executeDB:^(FMDatabase * _Nonnull db){
+//            NSMutableString* param = [NSMutableString string];
+//            for(int i=0;i<copyKeys.count;i++){
+//                [param appendString:copyKeys[i]];
+//                if (i != (copyKeys.count-1)){
+//                    [param appendString:@","];
+//                }
+//            }
+//            NSString* SQL = [NSString stringWithFormat:@"create table BGTempTable as select %@ from %@;",param,tableName];
+//            debug(SQL);
+//            if([db executeUpdate:SQL])recordFailCount++;
+//        }];
+//        [self dropTable:tableName complete:^(BOOL isSuccess) {
+//            if(isSuccess)recordFailCount++;
+//        }];
+//        [self executeDB:^(FMDatabase * _Nonnull db){
+//            NSString* SQL = [NSString stringWithFormat:@"alter table BGTempTable rename to %@;",tableName];
+//            debug(SQL);
+//            if([db executeUpdate:SQL])recordFailCount++;
+//        }];
+//        return recordFailCount==3;
+//    }];
+//    
+//    NSMutableArray* newKeys = [NSMutableArray array];
+//    [self executeDB:^(FMDatabase * _Nonnull db){
+//        NSArray* keys = [BGTool getClassIvarList:cla onlyKey:NO];
+//        for (NSString* keyAndtype in keys){
+//            NSString* key = [[keyAndtype componentsSeparatedByString:@"*"] firstObject];
+//            key = [NSString stringWithFormat:@"%@%@",BG,key];
+//            if(![db columnExists:key inTableWithName:tableName]){
+//                [newKeys addObject:keyAndtype];
+//            }
+//        }
+//    }];
+//    
+//    //写在外面是为了防止数据库队列发生死锁.
+//    for(NSString* key in newKeys){
+//        //添加新字段
+//        [self addTable:tableName key:key complete:^(BOOL isSuccess){}];
+//    }
+//}
 
 /**
  处理插入的字典数据并返回
@@ -1035,7 +1083,9 @@ static BGFMDB* BGFmdb;
             }
         }else{
             //检查表字段是否有改变
-            [strongSelf changeTableWhenClassIvarChange:[object class]];
+            //[strongSelf changeTableWhenClassIvarChange:[object class]];
+            //刷新表数据库.
+            [self refreshQueueTable:tableName keys:[BGTool getClassIvarList:[object class] onlyKey:NO] complete:nil];
             [strongSelf insertIntoTableName:tableName Dict:dictM complete:complete];
         }
     }];
@@ -1053,7 +1103,21 @@ static BGFMDB* BGFmdb;
     [self isExistWithTableName:tableName complete:^(BOOL isExist) {
         __strong typeof(BGSelf) strongSelf = BGSelf;
         if (!isExist){//如果不存在就新建
-            [strongSelf createTableWithTableName:tableName keys:[BGTool getClassIvarList:[object class] onlyKey:NO] uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
+            NSMutableArray* createKeys = [NSMutableArray arrayWithArray:[BGTool getClassIvarList:[object class] onlyKey:NO]];
+            if (ignoredKeys){
+                for(__block int i=0;i<createKeys.count;i++){
+                    NSString* createKey = [createKeys[i] componentsSeparatedByString:@"*"][0];
+                    [ignoredKeys enumerateObjectsUsingBlock:^(id  _Nonnull ignoreKey, NSUInteger idi, BOOL * _Nonnull stop) {
+                        if([createKey isEqualToString:ignoreKey]){
+                            [createKeys removeObjectAtIndex:i];
+                            NSLog(@"ignoreKey = %@",ignoreKey);
+                            i--;
+                            *stop = YES;
+                        }
+                    }];
+                }
+            }
+            [strongSelf createTableWithTableName:tableName keys:createKeys uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
                 if (isSuccess){
                     NSString* successInfo = [NSString stringWithFormat:@"建表成功 第一次建立 %@ 对应的表",tableName];
                     debug(successInfo);
