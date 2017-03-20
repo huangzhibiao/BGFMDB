@@ -12,9 +12,7 @@
 #import <UIKit/UIKit.h>
 
 static const char IDKey;
-
 @implementation NSObject (BGModel)
-
 
 -(NSNumber*)ID{
     return objc_getAssociatedObject(self, &IDKey);
@@ -149,6 +147,7 @@ static const char IDKey;
 }
 /**
  同步查询所有结果.
+ 温馨提示: 当数据量巨大时,请用范围接口进行分页查询,避免查询出来的数据量过大导致程序崩溃.
  */
 +(NSArray* _Nullable)findAll{
     __block NSArray* results;
@@ -159,6 +158,7 @@ static const char IDKey;
 }
 /**
  异步查询所有结果.
+ 温馨提示: 当数据量巨大时,请用范围接口进行分页查询,避免查询出来的数据量过大导致程序崩溃.
  */
 +(void)findAllAsync:(Complete_A)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{

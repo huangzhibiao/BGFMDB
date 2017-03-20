@@ -33,11 +33,12 @@
     [super viewDidLoad];
     
     People* p = [self people];
-    
+
     /**
      存储
      */
     [p save];
+
     /**
      忽略存储，即忽略掉 user,info,students 这三个变量不存储.
      */
@@ -51,7 +52,7 @@
     /**
      如果类'变量名'或'唯一约束'发生改变,则调用此API刷新该类数据库,不需要新旧映射的情况下使用此API.
      */
-    //[People updateVersion:version];
+    //[People updateVersion:[People version]+1];
     
     /**
      如果类'变量名'或'唯一约束'发生改变,则调用此API刷新该类数据库.data2是新变量名,data是旧变量名,即将旧的值映射到新的变量名,其他不变的变量名会自动复制,只管写出变化的对应映射即可.
@@ -64,7 +65,7 @@
 //    [NSObject inTransaction:^BOOL{
 //        [p save];//存储
 //        [p save];
-//        return NO;
+//        return YES;
 //    }];
     
     /**
@@ -146,26 +147,36 @@
     //NSLog(@"数量 = %ld",count);
     
     /**
+     当数据量巨大时采用分页范围查询.
+     */
+    NSInteger count = [People countWhere:nil];
+    for(int i=0;i<count;i+=10){
+            NSArray* arr = [People findAllWithRange:NSMakeRange(i,10) orderBy:nil desc:NO];
+            for(People* p in arr)
+            NSLog(@"主键 = %@",p.ID);
+    }
+    
+    /**
      同步查询People类所有数据.
      */
-    NSArray* finfAlls = [People findAll];
-    People* lastObj = finfAlls.lastObject;
-    _showImage.image = [UIImage imageWithData:lastObj.data2];
-    self.view.backgroundColor = lastObj.color?lastObj.color:[UIColor whiteColor];
-    for(People* obj in finfAlls){
-        for(id value in obj.nsset){
-            NSLog(@"NSSet = %@",value);
-        }
-
-        for(id value in obj.mapTable.objectEnumerator.allObjects){
-            NSLog(@"mapTable = %@",value);
-        }
-        for(id value in obj.hashTable){
-            NSLog(@"hashTable = %@",value);
-        }
-        NSLog(@"主键ID = %@",obj.ID);
-        NSLog(@"查询结果： name = %@，testAge = %d,testName = %@,num = %@,age = %d,students = %@,info = %@,eye = %@,user.name = %@,user.密码 = %@ , user.student.num = %@,user.student.names[0] = %@, user.student.humane.sex = %@,p.user.student.human.body = %@",obj.name,obj->testAge,obj->testName,obj.num,obj.age,obj.students,obj.info,obj.eye,obj.user.name,obj.user.attri[@"密码"],obj.user.student.num,obj.user.student.names[0],obj.user.student.human.sex,obj.user.student.human.body);
-    }
+//    NSArray* finfAlls = [People findAll];
+//    People* lastObj = finfAlls.lastObject;
+//    _showImage.image = [UIImage imageWithData:lastObj.data2];
+//    self.view.backgroundColor = lastObj.color?lastObj.color:[UIColor whiteColor];
+//    for(People* obj in finfAlls){
+//        for(id value in obj.nsset){
+//            NSLog(@"NSSet = %@",value);
+//        }
+//
+//        for(id value in obj.mapTable.objectEnumerator.allObjects){
+//            NSLog(@"mapTable = %@",value);
+//        }
+//        for(id value in obj.hashTable){
+//            NSLog(@"hashTable = %@",value);
+//        }
+//        NSLog(@"主键ID = %@",obj.ID);
+//        NSLog(@"查询结果： name = %@，testAge = %d,testName = %@,num = %@,age = %d,students = %@,info = %@,eye = %@,user.name = %@,user.密码 = %@ , user.student.num = %@,user.student.names[0] = %@, user.student.humane.sex = %@,p.user.student.human.body = %@",obj.name,obj->testAge,obj->testName,obj.num,obj.age,obj.students,obj.info,obj.eye,obj.user.name,obj.user.attri[@"密码"],obj.user.student.num,obj.user.student.names[0],obj.user.student.human.sex,obj.user.student.human.body);
+//    }
     
     /**
      查询name等于爸爸和age等于45,或者name等于马哥的数据.  此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
@@ -190,7 +201,7 @@
 //                                                       @"num":@"Man_num",
 //                                                       @"age":@"Man_age",
 //                                                       @"image":@"image"}
-//               append:NO];
+//               append:YES];
     /**
      异步查询Man的所有数据.
      */
@@ -247,6 +258,7 @@
     p.image = [UIImage imageNamed:@"MarkMan"];
     NSData* data = UIImageJPEGRepresentation(p.image, 1);
     p.data2 = data;
+    
     [p setValue:@(110) forKey:@"testAge"];
     p->testName = @"测试名字";
     p.sex_old = @"新名";
@@ -261,7 +273,7 @@
     human.body = @"小芳";
     student.human = human;
     user.student = student;
-    p.students = @[@(1),@"呵呵",@[@"数组元素1",@"数组元素2"],@{@"集合key":@"集合value"},student,data];
+    p.stud = @[@(1),@"呵呵",@[@"数组元素1",@"数组元素2"],@{@"集合key":@"集合value"},student,data];
     p.info = @{@"name":@"标哥",@"年龄":@(1),@"数组":@[@"数组1",@"数组2"],@"集合":@{@"集合1":@"集合2"},@"user":user,@"data":data};
     
     NSHashTable* hashTable = [NSHashTable hashTableWithOptions:NSPointerFunctionsWeakMemory];

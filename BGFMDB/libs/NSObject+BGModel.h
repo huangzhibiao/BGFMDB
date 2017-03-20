@@ -89,10 +89,12 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 -(void)coverAsyncIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys complete:(Complete_B)complete;
 /**
  同步查询所有结果.
+ 温馨提示: 当数据量巨大时,请用范围接口进行分页查询,避免查询出来的数据量过大导致程序崩溃.
  */
 +(NSArray* _Nullable)findAll;
 /**
  异步查询所有结果
+ 温馨提示: 当数据量巨大时,请用范围接口进行分页查询,避免查询出来的数据量过大导致程序崩溃.
  */
 +(void)findAllAsync:(Complete_A)complete;
 /**

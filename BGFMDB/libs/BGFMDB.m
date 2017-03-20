@@ -8,8 +8,12 @@
 
 #import "BGFMDB.h"
 
-@interface BGFMDB()
+static const void * const BGFMDBDispatchQueueSpecificKey = &BGFMDBDispatchQueueSpecificKey;
 
+@interface BGFMDB()
+{
+    dispatch_queue_t    serialQueue;
+}
 @property (nonatomic, strong) FMDatabaseQueue *queue;
 @property (nonatomic, strong) FMDatabase* db;
 @property (nonatomic, strong) NSRecursiveLock *threadLock;
@@ -26,6 +30,10 @@ static BGFMDB* BGFmdb;
     if (self.changeBlocks){
         [self.changeBlocks removeAllObjects];//清除所有注册列表.
         self.changeBlocks = nil;
+    }
+    if (serialQueue) {
+        FMDBDispatchQueueRelease(serialQueue);
+        serialQueue = 0x00;
     }
     if(self.queue) {
         [self.queue close];//关闭数据库.
@@ -45,10 +53,12 @@ static BGFMDB* BGFmdb;
         self.queue = [FMDatabaseQueue databaseQueueWithPath:filename];
         self.threadLock = [[NSRecursiveLock alloc] init];
         self.changeBlocks = [NSMutableDictionary dictionary];
+        //初始化串行队列,用于解决多线程问题,模仿FMDB的FMDatabaseQueue处理.
+        serialQueue = dispatch_queue_create([[NSString stringWithFormat:@"BGFMDB.%@", self] UTF8String], NULL);
+        dispatch_queue_set_specific(serialQueue, BGFMDBDispatchQueueSpecificKey, (__bridge void *)self, NULL);
     }
     return self;
 }
-
 /**
  获取单例函数.
  */
@@ -241,10 +251,8 @@ static BGFMDB* BGFmdb;
         complete(result);
     }
 }
-/**
- 直接传入条件sql语句查询
- */
--(void)queryWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(Complete_A)complete{
+
+-(void)queryQueueWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(Complete_A)complete{
     NSAssert(name,@"表名不能为空!");
     NSAssert(conditions||conditions.length,@"查询条件不能为空!");
     NSMutableArray* arrM = [[NSMutableArray alloc] init];
@@ -265,9 +273,22 @@ static BGFMDB* BGFmdb;
             [arrM addObject:dictM];
         }
     }];
-    
+
     if (complete) {
         complete(arrM);
+    }
+}
+
+/**
+ 直接传入条件sql语句查询
+ */
+-(void)queryWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(Complete_A)complete{
+    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
+    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    @autoreleasepool {
+    dispatch_sync(serialQueue, ^() {
+        [self queryQueueWithTableName:name conditions:conditions complete:complete];
+    });
     }
 }
 /**
@@ -421,10 +442,7 @@ static BGFMDB* BGFmdb;
         complete(result);
     }
 }
-/**
- 直接传入条件sql语句更新.
- */
--(void)updateWithTableName:(NSString* _Nonnull)name valueDict:(NSDictionary* _Nullable)valueDict conditions:(NSString* _Nonnull)conditions complete:(Complete_B)complete{
+-(void)updateQueueWithTableName:(NSString* _Nonnull)name valueDict:(NSDictionary* _Nullable)valueDict conditions:(NSString* _Nonnull)conditions complete:(Complete_B)complete{
     NSAssert(name,@"表名不能为空!");
     NSAssert(conditions||conditions.length,@"查询条件不能为空!");
     __block BOOL result;
@@ -440,7 +458,7 @@ static BGFMDB* BGFmdb;
                 if ([value isKindOfClass:[NSString class]]) {
                     [param appendFormat:@"%@='%@'",key,value];
                 }else{
-                     [param appendFormat:@"%@=%@",key,value];
+                    [param appendFormat:@"%@=%@",key,value];
                 }
                 if(i != (valueDict.allKeys.count-1)) {
                     [param appendString:@","];
@@ -458,7 +476,18 @@ static BGFMDB* BGFmdb;
     if (complete) {
         complete(result);
     }
-
+}
+/**
+ 直接传入条件sql语句更新.
+ */
+-(void)updateWithTableName:(NSString* _Nonnull)name valueDict:(NSDictionary* _Nullable)valueDict conditions:(NSString* _Nonnull)conditions complete:(Complete_B)complete{
+    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
+    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    @autoreleasepool {
+    dispatch_sync(serialQueue, ^() {
+        [self updateQueueWithTableName:name valueDict:valueDict conditions:conditions complete:complete];
+    });
+    }
 }
 /**
  根据keypath更新数据
@@ -517,10 +546,8 @@ static BGFMDB* BGFmdb;
         complete(result);
     }
 }
-/**
- 直接传入条件sql语句删除.
- */
--(void)deleteWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(Complete_B)complete{
+
+-(void)deleteQueueWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(Complete_B)complete{
     NSAssert(name,@"表名不能为空!");
     NSAssert(conditions||conditions.length,@"查询条件不能为空!");
     __block BOOL result;
@@ -536,8 +563,21 @@ static BGFMDB* BGFmdb;
         complete(result);
     }
 }
-//根据keypath删除表内容.
--(void)deleteWithTableName:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
+
+/**
+ 直接传入条件sql语句删除.
+ */
+-(void)deleteWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(Complete_B)complete{
+    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
+    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    @autoreleasepool {
+    dispatch_sync(serialQueue, ^() {
+        [self deleteQueueWithTableName:name conditions:conditions complete:complete];
+    });
+    }
+}
+
+-(void)deleteQueueWithTableName:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
     NSAssert(name,@"表名不能为空!");
     NSString* like = [BGTool getLikeWithKeyPathAndValues:keyPathValues where:YES];
     __block BOOL result;
@@ -552,6 +592,17 @@ static BGFMDB* BGFmdb;
     [self doChange:result state:Delete];
     if (complete){
         complete(result);
+    }
+}
+
+//根据keypath删除表内容.
+-(void)deleteWithTableName:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
+    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
+    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    @autoreleasepool {
+    dispatch_sync(serialQueue, ^() {
+        [self deleteQueueWithTableName:name forKeyPathAndValues:keyPathValues complete:complete];
+    });
     }
 
 }
@@ -671,57 +722,56 @@ static BGFMDB* BGFmdb;
     }];
     return count;
 }
-/**
- 刷新数据库，即将旧数据库的数据复制到新建的数据库,这是为了去掉没用的字段.
- */
--(void)refreshTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* const _Nonnull)keys complete:(Complete_I)complete{
-    NSAssert(name,@"表名不能为空!");
-    NSAssert(keys,@"字段数组不能为空!");
+
+-(void)copyA:(NSString* _Nonnull)A toB:(NSString* _Nonnull)B keys:(NSArray<NSString*>* const _Nonnull)keys complete:(Complete_I)complete{
+    //获取"唯一约束"字段名
+    NSString* uniqueKey = [BGTool getUnique:[NSClassFromString(A) new]];
+    //建立一张临时表
+    __block BOOL createFlag;
+    [self createTableWithTableName:B keys:keys uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
+        createFlag = isSuccess;
+    }];
+    if (!createFlag){
+        debug(@"数据库更新失败!")
+        !complete?:complete(Error);
+        return;
+    }
     __block dealState refreshstate = Error;
     __block BOOL recordError = NO;
     __block BOOL recordSuccess = NO;
     __weak typeof(self) BGSelf = self;
-    //先查询出旧表数据
-    [self queryWithTableName:name keys:nil where:nil complete:^(NSArray * _Nullable array){
-        __strong typeof(BGSelf) strongSelf = BGSelf;
-        //接着删掉旧表
-        [BGSelf dropTable:name complete:^(BOOL isSuccess){
-            __strong typeof(BGSelf) secondSelf = strongSelf;
-            if (isSuccess){
-                //获取"唯一约束"字段名
-                NSString* uniqueKey = [BGTool getUnique:[NSClassFromString(name) new]];
-                //创建新表
-                [strongSelf createTableWithTableName:name keys:keys uniqueKey:uniqueKey complete:^(BOOL isSuccess){
-                    if(isSuccess){
-                        for(NSDictionary* oldDict in array){
-                            NSMutableDictionary* newDict = [NSMutableDictionary dictionary];
-                            for(NSString* keyAndType in keys){
-                                NSString* key = [keyAndType componentsSeparatedByString:@"*"][0];
-                                //字段名前加上 @"BG_"
-                                key = [NSString stringWithFormat:@"%@%@",BG,key];
-                                if (oldDict[key]){
-                                    newDict[key] = oldDict[key];
-                                }
-                            }
-                            //将旧表的数据插入到新表
-                            [secondSelf insertIntoTableName:name Dict:newDict complete:^(BOOL isSuccess){
-                                if (isSuccess){
-                                    if (!recordSuccess) {
-                                        recordSuccess = YES;
-                                    }
-                                }else{
-                                    if (!recordError) {
-                                        recordError = YES;
-                                    }
-                                }
-                            }];
+    NSInteger count = [self countForTable:A where:nil];
+    for(NSInteger i=0;i<count;i+=10){
+        @autoreleasepool{//由于查询出来的数据量可能巨大,所以加入自动释放池.
+            NSString* param = [NSString stringWithFormat:@"limit %@,%@",@(i),@(10)];
+            [self queryWithTableName:A param:param where:nil complete:^(NSArray * _Nullable array) {
+                for(NSDictionary* oldDict in array){
+                    NSMutableDictionary* newDict = [NSMutableDictionary dictionary];
+                    for(NSString* keyAndType in keys){
+                        NSString* key = [keyAndType componentsSeparatedByString:@"*"][0];
+                        //字段名前加上 @"BG_"
+                        key = [NSString stringWithFormat:@"%@%@",BG,key];
+                        if (oldDict[key]){
+                            newDict[key] = oldDict[key];
                         }
                     }
-                    
+                    //将旧表的数据插入到新表
+                    [BGSelf insertIntoTableName:B Dict:newDict complete:^(BOOL isSuccess){
+                        if (isSuccess){
+                            if (!recordSuccess) {
+                                recordSuccess = YES;
+                            }
+                        }else{
+                            if (!recordError) {
+                                recordError = YES;
+                            }
+                        }
+                        
+                    }];
+                }
                 }];
+                }
             }
-        }];
-    }];
     
     if (complete){
         if (recordError && recordSuccess) {
@@ -733,14 +783,152 @@ static BGFMDB* BGFmdb;
         }else;
         complete(refreshstate);
     }
+
 }
 
--(void)refreshTable:(NSString* _Nonnull)name keyDict:(NSDictionary* const _Nonnull)keyDict complete:(Complete_I)complete{
+-(void)refreshQueueTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* const _Nonnull)keys complete:(Complete_I)complete{
     NSAssert(name,@"表名不能为空!");
-    NSAssert(keyDict,@"变量名影射集合不能为空!");
-    __block NSArray* keys = [BGTool getClassIvarList:NSClassFromString(name) onlyKey:YES];
+    NSAssert(keys,@"字段数组不能为空!");
+    [self isExistWithTableName:name complete:^(BOOL isSuccess){
+        if (!isSuccess){
+            debug(@"没有数据存在,数据库更新失败!")
+            !complete?:complete(Error);
+            return;
+        }
+    }];
+    NSString* BGTempTable = @"BGTempTable";
+    //事务操作.
+    [self inTransaction:^BOOL{
+        __block BOOL success = NO;
+        [self copyA:name toB:BGTempTable keys:keys complete:^(dealState result) {
+            if(result == Complete){
+                success = YES;
+            }
+        }];
+        [self dropTable:name complete:^(BOOL isSuccess) {
+            success = isSuccess;
+        }];
+        [self copyA:BGTempTable toB:name keys:keys complete:^(dealState result) {
+            if(result == Complete){
+                success = YES;
+            }
+        }];
+        [self dropTable:BGTempTable complete:^(BOOL isSuccess) {
+            success = isSuccess;
+        }];
+        if(!success){
+            debug(@"发生错误，更新数据库失败!");
+        }
+        return success;
+    }];
+}
+
+/**
+ 刷新数据库，即将旧数据库的数据复制到新建的数据库,这是为了去掉没用的字段.
+ */
+-(void)refreshTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* const _Nonnull)keys complete:(Complete_I)complete{
+    
+    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
+    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    @autoreleasepool {
+    dispatch_sync(serialQueue, ^() {
+        [self refreshQueueTable:name keys:keys complete:complete];
+    });
+    }
+
+}
+
+-(void)copyA:(NSString* _Nonnull)A toB:(NSString* _Nonnull)B keyDict:(NSDictionary* const _Nullable)keyDict complete:(Complete_I)complete{
+    //获取"唯一约束"字段名
+    NSString* uniqueKey = [BGTool getUnique:[NSClassFromString(A) new]];
+    __block NSArray* keys = [BGTool getClassIvarList:NSClassFromString(A) onlyKey:NO];
     NSArray* newKeys = keyDict.allKeys;
     NSArray* oldKeys = keyDict.allValues;
+    //建立一张临时表
+    __block BOOL createFlag;
+    [self createTableWithTableName:B keys:keys uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
+        createFlag = isSuccess;
+    }];
+    if (!createFlag){
+        debug(@"数据库更新失败!")
+        !complete?:complete(Error);
+        return;
+    }
+    
+    __block dealState refreshstate = Error;
+    __block BOOL recordError = NO;
+    __block BOOL recordSuccess = NO;
+    __weak typeof(self) BGSelf = self;
+    NSInteger count = [self countForTable:A where:nil];
+    for(NSInteger i=0;i<count;i+=10){
+        @autoreleasepool{//由于查询出来的数据量可能巨大,所以加入自动释放池.
+            NSString* param = [NSString stringWithFormat:@"limit %@,%@",@(i),@(10)];
+            [self queryWithTableName:A param:param where:nil complete:^(NSArray * _Nullable array) {
+                __strong typeof(BGSelf) strongSelf = BGSelf;
+                for(NSDictionary* oldDict in array){
+                    NSMutableDictionary* newDict = [NSMutableDictionary dictionary];
+                    for(NSString* keyAndType in keys){
+                        NSString* key = [keyAndType componentsSeparatedByString:@"*"][0];
+                        //字段名前加上 @"BG_"
+                        key = [NSString stringWithFormat:@"%@%@",BG,key];
+                        if (oldDict[key]){
+                            newDict[key] = oldDict[key];
+                        }
+                    }
+                    for(int i=0;i<oldKeys.count;i++){
+                        //字段名前加上 @"BG_"
+                        NSString* oldkey = [NSString stringWithFormat:@"%@%@",BG,oldKeys[i]];
+                        NSString* newkey = [NSString stringWithFormat:@"%@%@",BG,newKeys[i]];
+                        if (oldDict[oldkey]){
+                            newDict[newkey] = oldDict[oldkey];
+                        }
+                    }
+                    //将旧表的数据插入到新表
+                    [strongSelf insertIntoTableName:B Dict:newDict complete:^(BOOL isSuccess){
+                      
+                        if (isSuccess){
+                            if (!recordSuccess) {
+                                recordSuccess = YES;
+                            }
+                        }else{
+                            if (!recordError) {
+                                recordError = YES;
+                            }
+                        }
+                    }];
+                }
+
+            }];
+        }
+    }
+
+    if (complete){
+        if (recordError && recordSuccess) {
+            refreshstate = Incomplete;
+        }else if(recordError && !recordSuccess){
+            refreshstate = Error;
+        }else if (recordSuccess && !recordError){
+            refreshstate = Complete;
+        }else;
+        complete(refreshstate);
+    }
+
+    
+}
+
+-(void)refreshQueueTable:(NSString* _Nonnull)name keyDict:(NSDictionary* const _Nonnull)keyDict complete:(Complete_I)complete{
+    NSAssert(name,@"表名不能为空!");
+    NSAssert(keyDict,@"变量名影射集合不能为空!");
+    [self isExistWithTableName:name complete:^(BOOL isSuccess){
+        if (!isSuccess){
+            debug(@"没有数据存在,数据库更新失败!")
+            !complete?:complete(Error);
+            return;
+        }
+    }];
+    __block NSArray* keys = [BGTool getClassIvarList:NSClassFromString(name) onlyKey:YES];
+    NSArray* newKeys = keyDict.allKeys;
+    NSArray* oldKeys =keyDict.allValues;
     for(int i=0;i<newKeys.count;i++){
         if (![keys containsObject:newKeys[i]]){
             NSString* result = [NSString stringWithFormat:@"新变量出错名称 = %@",newKeys[i]];
@@ -748,82 +936,53 @@ static BGFMDB* BGFmdb;
             @throw [NSException exceptionWithName:@"类新变量名称写错" reason:@"请检查keydict中的 新Key 是否书写正确!" userInfo:nil];
         }
     }
-    __block dealState refreshstate = Error;
-    __block BOOL recordError = NO;
-    __block BOOL recordSuccess = NO;
-    __weak typeof(self) BGSelf = self;
-    //先查询出旧表数据
-    [self queryWithTableName:name keys:nil where:nil complete:^(NSArray<NSDictionary*> * _Nullable array){
+
+    [self queryWithTableName:name param:@"limit 0,1" where:nil complete:^(NSArray<NSDictionary*> * _Nullable array) {
         NSArray* tableKeys = array.firstObject.allKeys;
         NSString* tableKey;
         for(int i=0;i<oldKeys.count;i++){
-           tableKey = [NSString stringWithFormat:@"%@%@",BG,oldKeys[i]];
+            tableKey = [NSString stringWithFormat:@"%@%@",BG,oldKeys[i]];
             if (![tableKeys containsObject:tableKey]){
                 NSString* result = [NSString stringWithFormat:@"旧变量出错名称 = %@",oldKeys[i]];
                 debug(result);
-//                @throw [NSException exceptionWithName:@"类旧变量名称写错" reason:@"请检查keydict中的 旧Key 是否书写正确!" userInfo:nil];
+                @throw [NSException exceptionWithName:@"类旧变量名称写错" reason:@"请检查keydict中的 旧Key 是否书写正确!" userInfo:nil];
             }
         }
-        //重新获取类变量名和类型的数组
-        keys = [BGTool getClassIvarList:NSClassFromString(name) onlyKey:NO];
-        __strong typeof(BGSelf) strongSelf = BGSelf;
-        //接着删掉旧表
-        [BGSelf dropTable:name complete:^(BOOL isSuccess){
-            __strong typeof(BGSelf) secondSelf = strongSelf;
-            if (isSuccess){
-                //获取"唯一约束"字段名
-                NSString* uniqueKey = [BGTool getUnique:[NSClassFromString(name) new]];
-                //创建新表
-                [strongSelf createTableWithTableName:name keys:keys uniqueKey:uniqueKey complete:^(BOOL isSuccess){
-                    if(isSuccess){
-                        for(NSDictionary* oldDict in array){
-                            NSMutableDictionary* newDict = [NSMutableDictionary dictionary];
-                            for(NSString* keyAndType in keys){
-                                NSString* key = [keyAndType componentsSeparatedByString:@"*"][0];
-                                //字段名前加上 @"BG_"
-                                key = [NSString stringWithFormat:@"%@%@",BG,key];
-                                if (oldDict[key]){
-                                    newDict[key] = oldDict[key];
-                                }
-                            }
-                            for(int i=0;i<oldKeys.count;i++){
-                                //字段名前加上 @"BG_"
-                                NSString* oldkey = [NSString stringWithFormat:@"%@%@",BG,oldKeys[i]];
-                                NSString* newkey = [NSString stringWithFormat:@"%@%@",BG,newKeys[i]];
-                                if (oldDict[oldkey]){
-                                    newDict[newkey] = oldDict[oldkey];
-                                }
-                            }
-                            //将旧表的数据插入到新表
-                            [secondSelf insertIntoTableName:name Dict:newDict complete:^(BOOL isSuccess){
-                                if (isSuccess){
-                                    if (!recordSuccess) {
-                                        recordSuccess = YES;
-                                    }
-                                }else{
-                                    if (!recordError) {
-                                        recordError = YES;
-                                    }
-                                }
-                            }];
-                        }
-                    }
-                    
-                }];
-            }
-        }];
+
     }];
     
-    if (complete){
-        if (recordError && recordSuccess) {
-            refreshstate = Incomplete;
-        }else if(recordError && !recordSuccess){
-            refreshstate = Error;
-        }else if (recordSuccess && !recordError){
-            refreshstate = Complete;
-        }else;
-        complete(refreshstate);
-    }
+    NSString* BGTempTable = @"BGTempTable";
+    [self inTransaction:^BOOL{
+        __block BOOL success = NO;
+        [self copyA:name toB:BGTempTable keyDict:keyDict complete:^(dealState result) {
+            if(result == Complete){
+                success = YES;
+            }
+        }];
+        [self dropTable:name complete:^(BOOL isSuccess) {
+            success = isSuccess;
+        }];
+        [self copyA:BGTempTable toB:name keys:[BGTool getClassIvarList:NSClassFromString(name) onlyKey:NO] complete:^(dealState result) {
+            if(result == Complete){
+                success = YES;
+            }
+        }];
+        [self dropTable:BGTempTable complete:^(BOOL isSuccess) {
+            success = isSuccess;
+        }];
+        if (!success) {
+            debug(@"发生错误，更新数据库失败!");
+        }
+        return success;
+    }];
+}
+
+-(void)refreshTable:(NSString* _Nonnull)name keyDict:(NSDictionary* const _Nonnull)keyDict complete:(Complete_I)complete{
+    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
+    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    dispatch_sync(serialQueue, ^() {
+        [self refreshQueueTable:name keyDict:keyDict complete:complete];
+    });
 
 }
 
@@ -885,7 +1044,7 @@ static BGFMDB* BGFmdb;
 /**
  存储一个对象.
  */
--(void)saveObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete{
+-(void)saveQueueObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete{
     //检查是否建立了跟对象相对应的数据表
     NSString* tableName = NSStringFromClass([object class]);
     //获取"唯一约束"字段名
@@ -905,14 +1064,19 @@ static BGFMDB* BGFmdb;
         //插入数据
         [strongSelf insertDictWithObject:object ignoredKeys:ignoredKeys complete:complete];
     }];
+
+}
+-(void)saveObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete{
+    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
+    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    @autoreleasepool {
+        dispatch_sync(serialQueue, ^() {
+            [self saveQueueObject:object ignoredKeys:ignoredKeys complete:complete];
+        });
+    }
 }
 
-
-
-/**
- 查询对象.
- */
--(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla where:(NSArray* _Nullable)where param:(NSString* _Nullable)param complete:(Complete_A)complete{
+-(void)queryObjectQueueWithClass:(__unsafe_unretained _Nonnull Class)cla where:(NSArray* _Nullable)where param:(NSString* _Nullable)param complete:(Complete_A)complete{
     //检查是否建立了跟对象相对应的数据表
     NSString* tableName = NSStringFromClass(cla);
     __weak typeof(self) BGSelf = self;
@@ -931,12 +1095,20 @@ static BGFMDB* BGFmdb;
             }];
         }
     }];
-
 }
 /**
- 根据条件查询对象.
+ 查询对象.
  */
--(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla keys:(NSArray<NSString*>* _Nullable)keys where:(NSArray* _Nullable)where complete:(Complete_A)complete{
+-(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla where:(NSArray* _Nullable)where param:(NSString* _Nullable)param complete:(Complete_A)complete{
+    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
+    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    @autoreleasepool {
+    dispatch_sync(serialQueue, ^() {
+        [self queryObjectQueueWithClass:cla where:where param:param complete:complete];
+    });
+    }
+}
+-(void)queryObjectQueueWithClass:(__unsafe_unretained _Nonnull Class)cla keys:(NSArray<NSString*>* _Nullable)keys where:(NSArray* _Nullable)where complete:(Complete_A)complete{
     //检查是否建立了跟对象相对应的数据表
     NSString* tableName = NSStringFromClass(cla);
     __weak typeof(self) BGSelf = self;
@@ -956,9 +1128,20 @@ static BGFMDB* BGFmdb;
         }
     }];
 }
+/**
+ 根据条件查询对象.
+ */
+-(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla keys:(NSArray<NSString*>* _Nullable)keys where:(NSArray* _Nullable)where complete:(Complete_A)complete{
+    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
+    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    @autoreleasepool {
+    dispatch_sync(serialQueue, ^() {
+        [self queryObjectQueueWithClass:cla keys:keys where:where complete:complete];
+    });
+    }
+}
 
-//根据keyPath查询对象
--(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_A)complete{
+-(void)queryObjectQueueWithClass:(__unsafe_unretained _Nonnull Class)cla forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_A)complete{
     //检查是否建立了跟对象相对应的数据表
     NSString* tableName = NSStringFromClass(cla);
     __weak typeof(self) BGSelf = self;
@@ -977,12 +1160,20 @@ static BGFMDB* BGFmdb;
             }];
         }
     }];
-
 }
-/**
- 根据条件改变对象数据.
- */
--(void)updateWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where complete:(Complete_B)complete{
+
+//根据keyPath查询对象
+-(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_A)complete{
+    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
+    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    @autoreleasepool {
+    dispatch_sync(serialQueue, ^() {
+        [self queryObjectQueueWithClass:cla forKeyPathAndValues:keyPathValues complete:complete];
+    });
+    }
+}
+
+-(void)updateQueueWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where complete:(Complete_B)complete{
     NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:object];
     NSMutableDictionary* valueDict = [NSMutableDictionary dictionary];
     for(BGModelInfo* info in infos){
@@ -1003,9 +1194,19 @@ static BGFMDB* BGFmdb;
 }
 
 /**
- 根据keyPath改变对象数据.
+ 根据条件改变对象数据.
  */
--(void)updateWithObject:(id _Nonnull)object forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
+-(void)updateWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where complete:(Complete_B)complete{
+    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
+    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    @autoreleasepool {
+    dispatch_sync(serialQueue, ^() {
+        [self updateQueueWithObject:object where:where complete:complete];
+    });
+    }
+}
+
+-(void)updateQueueWithObject:(id _Nonnull)object forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
     NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:object];
     NSMutableDictionary* valueDict = [NSMutableDictionary dictionary];
     for(BGModelInfo* info in infos){
@@ -1023,6 +1224,19 @@ static BGFMDB* BGFmdb;
             [strongSelf updateWithTableName:tableName forKeyPathAndValues:keyPathValues valueDict:valueDict complete:complete];
         }
     }];
+}
+
+/**
+ 根据keyPath改变对象数据.
+ */
+-(void)updateWithObject:(id _Nonnull)object forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
+    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
+    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    @autoreleasepool {
+    dispatch_sync(serialQueue, ^() {
+        [self updateQueueWithObject:object forKeyPathAndValues:keyPathValues complete:complete];
+    });
+    }
 }
 
 
@@ -1043,10 +1257,8 @@ static BGFMDB* BGFmdb;
         }
     }];
 }
-/**
- 根据条件删除对象表中的对象数据.
- */
--(void)deleteWithClass:(__unsafe_unretained _Nonnull Class)cla where:(NSArray* _Nonnull)where complete:(Complete_B)complete{
+
+-(void)deleteQueueWithClass:(__unsafe_unretained _Nonnull Class)cla where:(NSArray* _Nonnull)where complete:(Complete_B)complete{
     NSString* tableName = NSStringFromClass(cla);
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){
@@ -1059,7 +1271,19 @@ static BGFMDB* BGFmdb;
             [strongSelf deleteWithTableName:tableName where:where complete:complete];
         }
     }];
-    
+}
+
+/**
+ 根据条件删除对象表中的对象数据.
+ */
+-(void)deleteWithClass:(__unsafe_unretained _Nonnull Class)cla where:(NSArray* _Nonnull)where complete:(Complete_B)complete{
+    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
+    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    @autoreleasepool {
+    dispatch_sync(serialQueue, ^() {
+        [self deleteQueueWithClass:cla where:where complete:complete];
+    });
+    }
 }
 /**
  根据类删除此类所有表数据.
@@ -1095,10 +1319,8 @@ static BGFMDB* BGFmdb;
         }
     }];
 }
-/**
- 将某类表的数据拷贝给另一个类表
- */
--(void)copyClass:(__unsafe_unretained _Nonnull Class)srcCla to:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append complete:(Complete_I)complete{
+
+-(void)copyQueueClass:(__unsafe_unretained _Nonnull Class)srcCla to:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append complete:(Complete_I)complete{
     NSAssert(srcCla,@"源类不能为空!");
     NSAssert(destCla,@"目标类不能为空!");
     NSString* srcTable = NSStringFromClass(srcCla);
@@ -1149,28 +1371,34 @@ static BGFMDB* BGFmdb;
     __block dealState copystate = Error;
     __block BOOL recordError = NO;
     __block BOOL recordSuccess = NO;
-    [self queryWithTableName:srcTable keys:srcKeys where:nil complete:^(NSArray * _Nullable array) {
-        for(NSDictionary* srcDict in array){
-            NSMutableDictionary* destDict = [NSMutableDictionary dictionary];
-            for(int i=0;i<srcKeys.count;i++){
-                //字段名前加上 @"BG_"
-                NSString* destSqlKey = [NSString stringWithFormat:@"%@%@",BG,destKeys[i]];
-                NSString* srcSqlKey = [NSString stringWithFormat:@"%@%@",BG,srcKeys[i]];
-                destDict[destSqlKey] = srcDict[srcSqlKey];
-            }
-            [BGSelf insertIntoTableName:destTable Dict:destDict complete:^(BOOL isSuccess) {
-                if (isSuccess){
-                    if (!recordSuccess) {
-                        recordSuccess = YES;
-                    }
-                }else{
-                    if (!recordError) {
-                        recordError = YES;
-                    }
+    NSInteger srcCount = [self countForTable:srcTable where:nil];
+    for(NSInteger i=0;i<srcCount;i+=10){
+    @autoreleasepool{//由于查询出来的数据量可能巨大,所以加入自动释放池.
+        NSString* param = [NSString stringWithFormat:@"limit %@,%@",@(i),@(10)];
+        [self queryWithTableName:srcTable param:param where:nil complete:^(NSArray * _Nullable array) {
+            for(NSDictionary* srcDict in array){
+                NSMutableDictionary* destDict = [NSMutableDictionary dictionary];
+                for(int i=0;i<srcKeys.count;i++){
+                    //字段名前加上 @"BG_"
+                    NSString* destSqlKey = [NSString stringWithFormat:@"%@%@",BG,destKeys[i]];
+                    NSString* srcSqlKey = [NSString stringWithFormat:@"%@%@",BG,srcKeys[i]];
+                    destDict[destSqlKey] = srcDict[srcSqlKey];
                 }
-            }];
-        }
-    }];
+                [BGSelf insertIntoTableName:destTable Dict:destDict complete:^(BOOL isSuccess) {
+                    if (isSuccess){
+                        if (!recordSuccess) {
+                            recordSuccess = YES;
+                        }
+                    }else{
+                        if (!recordError) {
+                            recordError = YES;
+                        }
+                    }
+                }];
+            }
+        }];
+    }
+    }
     
     if (complete){
         if (recordError && recordSuccess) {
@@ -1182,6 +1410,27 @@ static BGFMDB* BGFmdb;
         }else;
         complete(copystate);
     }
+
+}
+
+/**
+ 将某类表的数据拷贝给另一个类表
+ */
+-(void)copyClass:(__unsafe_unretained _Nonnull Class)srcCla to:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append complete:(Complete_I)complete{
+    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
+    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+        dispatch_sync(serialQueue, ^(){
+            //事务操作其过程.
+            [self inTransaction:^BOOL{
+                __block BOOL success = NO;
+                [self copyQueueClass:srcCla to:destCla keyDict:keydict append:append complete:^(dealState result) {
+                    if (result == Complete) {
+                        success = YES;
+                    }
+                }];
+                return success;
+            }];
+        });
 }
 
 @end
