@@ -798,8 +798,8 @@ static BGFMDB* BGFmdb;
     }];
     NSString* BGTempTable = @"BGTempTable";
     //事务操作.
+    __block int recordFailCount = 0;
     [self inTransaction:^BOOL{
-        __block int recordFailCount = 0;
         [self copyA:name toB:BGTempTable keys:keys complete:^(dealState result) {
             if(result == Complete){
                 recordFailCount++;
@@ -821,6 +821,15 @@ static BGFMDB* BGFmdb;
         }
         return recordFailCount==4;
     }];
+    
+    //回调结果.
+    if (recordFailCount==0) {
+        !complete?:complete(Error);
+    }else if (recordFailCount>0&&recordFailCount<4){
+        !complete?:complete(Incomplete);
+    }else{
+        !complete?:complete(Complete);
+    }
 }
 
 /**
@@ -950,10 +959,10 @@ static BGFMDB* BGFmdb;
         }
 
     }];
-    
+    //事务操作.
     NSString* BGTempTable = @"BGTempTable";
+    __block int recordFailCount = 0;
     [self inTransaction:^BOOL{
-        __block int recordFailCount = 0;
         [self copyA:name toB:BGTempTable keyDict:keyDict complete:^(dealState result) {
             if(result == Complete){
                 recordFailCount++;
@@ -975,6 +984,16 @@ static BGFMDB* BGFmdb;
         }
         return recordFailCount==4;
     }];
+    
+    //回调结果.
+    if (recordFailCount==0) {
+        !complete?:complete(Error);
+    }else if (recordFailCount>0&&recordFailCount<4){
+        !complete?:complete(Incomplete);
+    }else{
+        !complete?:complete(Complete);
+    }
+
 }
 
 -(void)refreshTable:(NSString* _Nonnull)name keyDict:(NSDictionary* const _Nonnull)keyDict complete:(Complete_I)complete{

@@ -537,16 +537,7 @@ static const char IDKey;
 +(NSInteger)version{
     return [BGTool getIntegerWithKey:NSStringFromClass([self class])];
 }
-+(void)refreshAsync:(BOOL)async complete:(Complete_I)complete{
-    NSString* tableName = NSStringFromClass([self class]);
-    if (async) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-            [[BGFMDB shareManager] refreshTable:tableName keys:[BGTool getClassIvarList:[self class] onlyKey:NO] complete:complete];
-        });
-    }else{
-        [[BGFMDB shareManager] refreshTable:tableName keys:[BGTool getClassIvarList:[self class] onlyKey:NO] complete:complete];
-    }
-}
+
 /**
  刷新,当类变量名称或"唯一约束"改变时,调用此接口刷新一下.
  同步刷新.
@@ -559,7 +550,7 @@ static const char IDKey;
     if(version > oldVersion){
         [BGTool setIntegerWithKey:tableName value:version];
         __block dealState state;
-        [self refreshAsync:NO complete:^(dealState result) {
+        [[BGFMDB shareManager] refreshTable:tableName keys:[BGTool getClassIvarList:[self class] onlyKey:NO] complete:^(dealState result) {
             state = result;
         }];
         return state;
@@ -574,14 +565,16 @@ static const char IDKey;
  说明: 本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
  */
 +(void)updateVersionAsync:(NSInteger)version complete:(Complete_I)complete{
-    NSString* tableName = NSStringFromClass([self class]);
-    NSInteger oldVersion = [BGTool getIntegerWithKey:tableName];
-    if(version > oldVersion){
-        [BGTool setIntegerWithKey:tableName value:version];
-        [self refreshAsync:YES complete:complete];
-    }else{
-        !complete?:complete(Error);
-    }
+        NSString* tableName = NSStringFromClass([self class]);
+        NSInteger oldVersion = [BGTool getIntegerWithKey:tableName];
+        if(version > oldVersion){
+            [BGTool setIntegerWithKey:tableName value:version];
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+                [[BGFMDB shareManager] refreshTable:tableName keys:[BGTool getClassIvarList:[self class] onlyKey:NO] complete:complete];
+                });
+        }else{
+            !complete?:complete(Error);
+        }
 }
 /**
  刷新,当类变量名称或"唯一约束"改变时,调用此接口刷新一下.
