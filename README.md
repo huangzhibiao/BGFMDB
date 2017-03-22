@@ -96,6 +96,12 @@ People* p = [self people];
  忽略存储，即忽略掉 user,info,students 这三个变量不存储.
  */
 [p saveIgnoredKeys:@[@"user",@"info",@"students"]];
+
+/**
+ 同步存储或更新.
+ 当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
+ */
+[p saveOrUpdate];
 ```
 ### 查询
 ```Objective-C
