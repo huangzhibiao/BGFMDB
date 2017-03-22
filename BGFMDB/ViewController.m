@@ -38,7 +38,6 @@
      存储
      */
     [p save];
-
     /**
      忽略存储，即忽略掉 user,info,students 这三个变量不存储.
      */
@@ -306,6 +305,7 @@
     People* p = [self people];
     [p save];
     Man* m = [Man new];
+    m.Man_age = 10;
     [m save];
 }
 
