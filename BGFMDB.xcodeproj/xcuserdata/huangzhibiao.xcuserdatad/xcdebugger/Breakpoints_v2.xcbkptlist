@@ -52,12 +52,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "BGFMDB/ViewController.m"
-            timestampString = "511684360.253343"
+            timestampString = "511843468.799228"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "156"
-            endingLineNumber = "156"
-            landmarkName = "-viewDidLoad"
+            startingLineNumber = "343"
+            endingLineNumber = "343"
+            landmarkName = "-registerChangeAction:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

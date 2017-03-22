@@ -22,6 +22,7 @@
 -(void)executeDB:(void (^_Nonnull)(FMDatabase *_Nonnull db))block;
 /**
  注册数据变化监听.
+ @claName 注册监听的类名.
  @name 注册名称,此字符串唯一,不可重复,移除监听的时候使用此字符串移除.
  @return YES: 注册监听成功; NO: 注册监听失败.
  */

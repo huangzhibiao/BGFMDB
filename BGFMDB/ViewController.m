@@ -305,6 +305,8 @@
 - (IBAction)insertAction:(id)sender {
     People* p = [self people];
     [p save];
+    Man* m = [Man new];
+    [m save];
 }
 
 - (IBAction)deleteAction:(id)sender{
@@ -334,6 +336,11 @@
             default:
                 break;
         }
+    }];
+    
+    [Man registerChangeWithName:@"man" block:^(changeState result) {
+        
+        NSLog(@"man = %ld",result);
     }];
 }
 

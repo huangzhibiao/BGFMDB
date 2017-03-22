@@ -8,6 +8,8 @@
 
 #import "BGFMDB.h"
 
+#define MaxQueryPageNum 50
+
 static const void * const BGFMDBDispatchQueueSpecificKey = &BGFMDBDispatchQueueSpecificKey;
 
 @interface BGFMDB()
@@ -117,7 +119,8 @@ static BGFMDB* BGFmdb;
  */
 -(BOOL)registerChangeWithName:(NSString* const _Nonnull)name block:(ChangeBlock)block{
     if ([_changeBlocks.allKeys containsObject:name]){
-        NSString* reason = @"注册名称name重复,注册监听失败!";
+        NSArray* array = [name componentsSeparatedByString:@"*"];
+        NSString* reason = [NSString stringWithFormat:@"%@类注册监听名称%@重复,注册监听失败!",array.firstObject,array.lastObject];
         debug(reason);
         return NO;
     }else{
@@ -133,17 +136,22 @@ static BGFMDB* BGFmdb;
         [_changeBlocks removeObjectForKey:name];
         return YES;
     }else{
-        NSString* reason = @"没有找到name对应的监听,移除监听失败!";
+        NSArray* array = [name componentsSeparatedByString:@"*"];
+        NSString* reason = [NSString stringWithFormat:@"没有找到类%@对应的%@名称监听,移除监听失败!",array.firstObject,array.lastObject];
         debug(reason);
         return NO;
     }
 }
--(void)doChange:(BOOL)flag state:(changeState)state{
+-(void)doChangeWithName:(NSString* const _Nonnull)name flag:(BOOL)flag state:(changeState)state{
     if(flag){
-        for(id obj in _changeBlocks.allValues){
-            void(^block)(changeState) = obj;
-            !block?:block(state);
-        }
+        [_changeBlocks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop){
+            NSArray* array = [key componentsSeparatedByString:@"*"];
+            if([name isEqualToString:array.firstObject]){
+                void(^block)(changeState) = obj;
+                block(state);
+                *stop = YES;
+            }
+        }];
     }
 }
 
@@ -246,7 +254,7 @@ static BGFMDB* BGFmdb;
         result = [db executeUpdate:SQL withArgumentsInArray:values];
     }];
     //数据监听执行函数
-    [self doChange:result state:Insert];
+    [self doChangeWithName:name flag:result state:Insert];
     if (complete) {
         complete(result);
     }
@@ -437,7 +445,7 @@ static BGFMDB* BGFmdb;
     }];
     
     //数据监听执行函数
-    [self doChange:result state:Update];
+    [self doChangeWithName:name flag:result state:Update];
     if (complete) {
         complete(result);
     }
@@ -472,7 +480,7 @@ static BGFMDB* BGFmdb;
     }];
     
     //数据监听执行函数
-    [self doChange:result state:Update];
+    [self doChangeWithName:name flag:result state:Update];
     if (complete) {
         complete(result);
     }
@@ -512,7 +520,7 @@ static BGFMDB* BGFmdb;
     }];
     
     //数据监听执行函数
-    [self doChange:result state:Update];
+    [self doChangeWithName:name flag:result state:Update];
     if (complete) {
         complete(result);
     }
@@ -541,7 +549,7 @@ static BGFMDB* BGFmdb;
     }];
     
     //数据监听执行函数
-    [self doChange:result state:Delete];
+    [self doChangeWithName:name flag:result state:Delete];
     if (complete){
         complete(result);
     }
@@ -558,7 +566,7 @@ static BGFMDB* BGFmdb;
     }];
     
     //数据监听执行函数
-    [self doChange:result state:Delete];
+    [self doChangeWithName:name flag:result state:Delete];
     if (complete){
         complete(result);
     }
@@ -589,7 +597,7 @@ static BGFMDB* BGFmdb;
     }];
     
     //数据监听执行函数
-    [self doChange:result state:Delete];
+    [self doChangeWithName:name flag:result state:Delete];
     if (complete){
         complete(result);
     }
@@ -619,7 +627,7 @@ static BGFMDB* BGFmdb;
     }];
     
     //数据监听执行函数
-    [self doChange:result state:Delete];
+    [self doChangeWithName:name flag:result state:Delete];
     if (complete) {
         complete(result);
     }
@@ -638,7 +646,7 @@ static BGFMDB* BGFmdb;
     }];
     
     //数据监听执行函数
-    [self doChange:result state:Drop];
+    [self doChangeWithName:name flag:result state:Drop];
     if (complete){
         complete(result);
     }
@@ -741,9 +749,9 @@ static BGFMDB* BGFmdb;
     __block BOOL recordSuccess = NO;
     __weak typeof(self) BGSelf = self;
     NSInteger count = [self countForTable:A where:nil];
-    for(NSInteger i=0;i<count;i+=10){
+    for(NSInteger i=0;i<count;i+=MaxQueryPageNum){
         @autoreleasepool{//由于查询出来的数据量可能巨大,所以加入自动释放池.
-            NSString* param = [NSString stringWithFormat:@"limit %@,%@",@(i),@(10)];
+            NSString* param = [NSString stringWithFormat:@"limit %@,%@",@(i),@(MaxQueryPageNum)];
             [self queryWithTableName:A param:param where:nil complete:^(NSArray * _Nullable array) {
                 for(NSDictionary* oldDict in array){
                     NSMutableDictionary* newDict = [NSMutableDictionary dictionary];
@@ -869,9 +877,9 @@ static BGFMDB* BGFmdb;
     __block BOOL recordSuccess = NO;
     __weak typeof(self) BGSelf = self;
     NSInteger count = [self countForTable:A where:nil];
-    for(NSInteger i=0;i<count;i+=10){
+    for(NSInteger i=0;i<count;i+=MaxQueryPageNum){
         @autoreleasepool{//由于查询出来的数据量可能巨大,所以加入自动释放池.
-            NSString* param = [NSString stringWithFormat:@"limit %@,%@",@(i),@(10)];
+            NSString* param = [NSString stringWithFormat:@"limit %@,%@",@(i),@(MaxQueryPageNum)];
             [self queryWithTableName:A param:param where:nil complete:^(NSArray * _Nullable array) {
                 __strong typeof(BGSelf) strongSelf = BGSelf;
                 for(NSDictionary* oldDict in array){
@@ -1455,9 +1463,9 @@ static BGFMDB* BGFmdb;
     __block BOOL recordError = NO;
     __block BOOL recordSuccess = NO;
     NSInteger srcCount = [self countForTable:srcTable where:nil];
-    for(NSInteger i=0;i<srcCount;i+=10){
+    for(NSInteger i=0;i<srcCount;i+=MaxQueryPageNum){
     @autoreleasepool{//由于查询出来的数据量可能巨大,所以加入自动释放池.
-        NSString* param = [NSString stringWithFormat:@"limit %@,%@",@(i),@(10)];
+        NSString* param = [NSString stringWithFormat:@"limit %@,%@",@(i),@(MaxQueryPageNum)];
         [self queryWithTableName:srcTable param:param where:nil complete:^(NSArray * _Nullable array) {
             for(NSDictionary* srcDict in array){
                 NSMutableDictionary* destDict = [NSMutableDictionary dictionary];

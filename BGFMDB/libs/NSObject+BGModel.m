@@ -60,6 +60,35 @@ static const char IDKey;
     });
 }
 /**
+ 同步存储或更新.
+ 当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
+ */
+-(BOOL)saveOrUpdate{
+    NSString* uniqueKey = [BGTool getUnique:self];
+    if (uniqueKey) {
+        id uniqueKeyVlaue = [self valueForKey:uniqueKey];
+        NSInteger count = [[self class] countWhere:@[uniqueKey,@"=",uniqueKeyVlaue]];
+        if (count){//有数据存在就更新.
+            return [self updateWhere:@[uniqueKey,@"=",uniqueKeyVlaue]];
+        }else{//没有就存储.
+            return [self save];
+        }
+    }else{
+        return [self save];
+    }
+}
+/**
+ 异步存储或更新.
+ 当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
+ */
+-(void)saveOrUpdateAsync:(Complete_B)complete{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+        BOOL result;
+        result = [self saveOrUpdate];
+        !complete?:complete(result);
+    });
+}
+/**
  同步存储.
  @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.
  */
@@ -658,7 +687,8 @@ static const char IDKey;
  @return YES: 注册监听成功; NO: 注册监听失败.
  */
 +(BOOL)registerChangeWithName:(NSString* const _Nonnull)name block:(ChangeBlock)block{
-    return [[BGFMDB shareManager] registerChangeWithName:name block:block];
+    NSString* uniqueName = [NSString stringWithFormat:@"%@*%@",NSStringFromClass([self class]),name];
+    return [[BGFMDB shareManager] registerChangeWithName:uniqueName block:block];
 }
 /**
  移除数据变化监听.
@@ -666,7 +696,8 @@ static const char IDKey;
  @return YES: 移除监听成功; NO: 移除监听失败.
  */
 +(BOOL)removeChangeWithName:(NSString* const _Nonnull)name{
-    return [[BGFMDB shareManager] removeChangeWithName:name];
+     NSString* uniqueName = [NSString stringWithFormat:@"%@*%@",NSStringFromClass([self class]),name];
+    return [[BGFMDB shareManager] removeChangeWithName:uniqueName];
 }
 
 #pragma mark 下面附加字典转模型API,简单好用,在只需要字典转模型功能的情况下,可以不必要再引入MJExtension那么多文件,造成代码冗余,缩减安装包.
