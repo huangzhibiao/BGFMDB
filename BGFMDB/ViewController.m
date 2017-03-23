@@ -38,6 +38,13 @@
      存储
      */
     [p save];
+    
+    /**
+     同步存储或更新.
+     当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
+     */
+    //[p saveOrUpdate];
+    
     /**
      忽略存储，即忽略掉 user,info,students 这三个变量不存储.
      */
@@ -151,8 +158,9 @@
     NSInteger count = [People countWhere:nil];
     for(int i=0;i<count;i+=10){
             NSArray* arr = [People findAllWithRange:NSMakeRange(i,10) orderBy:nil desc:NO];
-            for(People* p in arr)
-            NSLog(@"主键 = %@",p.ID);
+            for(People* pp in arr)
+            //库新增两个自带字段createTime和createTime方便开发者使用和做参考对比.
+            NSLog(@"主键 = %@ , 创建时间 = %@ , 更新时间 = %@",pp.ID,pp.createTime,pp.updateTime);
     }
     
     /**
@@ -243,9 +251,9 @@
     //存储对象使用示例
     [NSObject setDebug:YES];//打开调试模式,打印输出调试信息.
     People* p = [People new];
-    p.name = @"美国队长";
+    p.name = @"斯巴达";
     p.num = @(220.88);
-    p.age = 50;
+    p.age = 10;
     p.eye = @"末世眼皮";
     p.Url = [NSURL URLWithString:@"http://www.gmjk.com"];
     p.addBool = YES;
@@ -304,18 +312,15 @@
 - (IBAction)insertAction:(id)sender {
     People* p = [self people];
     [p save];
-    Man* m = [Man new];
-    m.Man_age = 10;
-    [m save];
 }
 
 - (IBAction)deleteAction:(id)sender{
-    [People deleteWhere:@[@"ID",@"=",@(3)]];
+    [People deleteWhere:@[@"ID",@"=",@(1)]];
 }
 
 - (IBAction)updateAction:(id)sender {
     People* p = [self people];
-    [p updateWhere:@[@"ID",@"=",@(4)]];
+    [p updateWhere:@[@"ID",@"=",@(1)]];
 }
 
 - (IBAction)registerChangeAction:(id)sender{
@@ -336,11 +341,6 @@
             default:
                 break;
         }
-    }];
-    
-    [Man registerChangeWithName:@"man" block:^(changeState result) {
-        
-        NSLog(@"man = %ld",result);
     }];
 }
 

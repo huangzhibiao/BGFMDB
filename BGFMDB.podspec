@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
 
   s.name         = "BGFMDB"
   s.version      = "1.19"
-  s.summary      = "完美支持iOS大部分类型数据的存储,同时带有"字典转模型"功能模块"
+  s.summary      = "完美支持iOS大部分类型数据的存储,同时带有 字典转模型 功能模块."
 
   # This description is used to generate tags and improve search results.
   #   * Think: What does it do? Why did you write it? What is the focus?
@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
   #   * Write the description between the DESC delimiters below.
   #   * Finally, don't worry about the indent, CocoaPods strips it!
   s.description  = <<-DESC
-  完美支持iOS大部分类型数据的存储,同时带有"字典转模型"功能模块
+  完美支持iOS大部分类型数据的存储,同时带有 字典转模型 功能模块.
                    DESC
 
   s.homepage     = "https://github.com/huangzhibiao/BGFMDB"

@@ -149,7 +149,6 @@ static BGFMDB* BGFmdb;
             if([name isEqualToString:array.firstObject]){
                 void(^block)(changeState) = obj;
                 block(state);
-                *stop = YES;
             }
         }];
     }
@@ -189,13 +188,13 @@ static BGFMDB* BGFmdb;
                 if([BGTool isUniqueKey:uniqueKey with:keys[i]]){
                     uniqueKeyFlag = YES;
                     [sql appendFormat:@"%@ unique",[BGTool keyAndType:keys[i]]];
-                }else if ([[keys[i] componentsSeparatedByString:@"*"][0] isEqualToString:primaryKey]){
+                }else if ([[keys[i] componentsSeparatedByString:@"*"][0] isEqualToString:BGPrimaryKey]){
                     [sql appendFormat:@"%@ primary key autoincrement",[BGTool keyAndType:keys[i]]];
                 }else{
                     [sql appendString:[BGTool keyAndType:keys[i]]];
                 }
             }else{
-                if ([[keys[i] componentsSeparatedByString:@"*"][0] isEqualToString:primaryKey]){
+                if ([[keys[i] componentsSeparatedByString:@"*"][0] isEqualToString:BGPrimaryKey]){
                     [sql appendFormat:@"%@ primary key autoincrement",[BGTool keyAndType:keys[i]]];
                 }else{
                     [sql appendString:[BGTool keyAndType:keys[i]]];
@@ -1131,13 +1130,13 @@ static BGFMDB* BGFmdb;
         __strong typeof(BGSelf) strongSelf = BGSelf;
         if (!isExist){//如果不存在就新建
             NSMutableArray* createKeys = [NSMutableArray arrayWithArray:[BGTool getClassIvarList:[object class] onlyKey:NO]];
+            //判断是否有需要忽略的key集合.
             if (ignoredKeys){
                 for(__block int i=0;i<createKeys.count;i++){
                     NSString* createKey = [createKeys[i] componentsSeparatedByString:@"*"][0];
                     [ignoredKeys enumerateObjectsUsingBlock:^(id  _Nonnull ignoreKey, NSUInteger idi, BOOL * _Nonnull stop) {
                         if([createKey isEqualToString:ignoreKey]){
                             [createKeys removeObjectAtIndex:i];
-                            NSLog(@"ignoreKey = %@",ignoreKey);
                             i--;
                             *stop = YES;
                         }
@@ -1265,11 +1264,7 @@ static BGFMDB* BGFmdb;
 }
 
 -(void)updateQueueWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where complete:(Complete_B)complete{
-    NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:object];
-    NSMutableDictionary* valueDict = [NSMutableDictionary dictionary];
-    for(BGModelInfo* info in infos){
-        valueDict[info.sqlColumnName] = info.sqlColumnValue;
-    }
+    NSDictionary* valueDict = [BGTool getUpdateDictWithObject:object];
     NSString* tableName = NSStringFromClass([object class]);
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){
@@ -1298,11 +1293,7 @@ static BGFMDB* BGFmdb;
 }
 
 -(void)updateQueueWithObject:(id _Nonnull)object forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
-    NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:object];
-    NSMutableDictionary* valueDict = [NSMutableDictionary dictionary];
-    for(BGModelInfo* info in infos){
-        valueDict[info.sqlColumnName] = info.sqlColumnValue;
-    }
+    NSDictionary* valueDict = [BGTool getUpdateDictWithObject:object];
     NSString* tableName = NSStringFromClass([object class]);
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){

@@ -11,15 +11,28 @@
 #import <objc/message.h>
 #import <UIKit/UIKit.h>
 
-static const char IDKey;
 @implementation NSObject (BGModel)
 
+//分类中只生成属性get,set函数的声明,没有声称其实现,所以要自己实现get,set函数.
 -(NSNumber*)ID{
-    return objc_getAssociatedObject(self, &IDKey);
+    return objc_getAssociatedObject(self, _cmd);
+}
+-(void)setID:(NSNumber*)ID{
+    objc_setAssociatedObject(self,@selector(ID),ID,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
--(void)setID:(NSNumber*)ID{
-    objc_setAssociatedObject(self,&IDKey,ID,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+-(NSString *)createTime{
+    return objc_getAssociatedObject(self, _cmd);
+}
+-(void)setCreateTime:(NSString *)createTime{
+    objc_setAssociatedObject(self,@selector(createTime),createTime,OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
+-(NSString *)updateTime{
+    return objc_getAssociatedObject(self, _cmd);
+}
+-(void)setUpdateTime:(NSString *)updateTime{
+    objc_setAssociatedObject(self,@selector(updateTime),updateTime,OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
 /**
@@ -359,8 +372,10 @@ static const char IDKey;
     NSString *conditions = [[NSString alloc] initWithFormat:format arguments:ap];
     va_end (ap);
     NSString* tableName = NSStringFromClass([self class]);
+    //加入更新时间字段值.
+    NSDictionary* valueDict = @{BGUpdateTime:[BGTool stringWithDate:[NSDate new]]};
     __block BOOL result;
-    [[BGFMDB shareManager] updateWithTableName:tableName valueDict:nil conditions:conditions complete:^(BOOL isSuccess) {
+    [[BGFMDB shareManager] updateWithTableName:tableName valueDict:valueDict conditions:conditions complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     
@@ -381,11 +396,7 @@ static const char IDKey;
     NSString *conditions = [[NSString alloc] initWithFormat:format arguments:ap];
     va_end (ap);
     NSString* tableName = NSStringFromClass([self class]);
-    NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:self];
-    NSMutableDictionary* valueDict = [NSMutableDictionary dictionary];
-    for(BGModelInfo* info in infos){
-        valueDict[info.sqlColumnName] = info.sqlColumnValue;
-    }
+    NSDictionary* valueDict = [BGTool getUpdateDictWithObject:self];
     __block BOOL result;
     [[BGFMDB shareManager] updateWithTableName:tableName valueDict:valueDict conditions:conditions complete:^(BOOL isSuccess) {
         result = isSuccess;

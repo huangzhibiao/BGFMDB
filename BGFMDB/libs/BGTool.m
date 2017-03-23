@@ -138,9 +138,15 @@ NSString* keyPathValues(NSArray* keyPathValues){
 +(NSArray*)getClassIvarList:(__unsafe_unretained Class)cla onlyKey:(BOOL)onlyKey{
     NSMutableArray* keys = [NSMutableArray array];
     if(onlyKey){
-        [keys addObject:primaryKey];
+        [keys addObject:BGPrimaryKey];
+        [keys addObject:BGCreateTime];
+        [keys addObject:BGUpdateTime];
     }else{
-        [keys addObject:[NSString stringWithFormat:@"%@*q",primaryKey]];//手动添加库自带的自动增长主键ID和类型q
+        //手动添加库自带的自动增长主键ID和类型q
+        [keys addObject:[NSString stringWithFormat:@"%@*q",BGPrimaryKey]];
+        //建表时此处加入额外的两个字段(createTime和updateTime).
+        [keys addObject:[NSString stringWithFormat:@"%@*@\"NSString\"",BGCreateTime]];
+        [keys addObject:[NSString stringWithFormat:@"%@*@\"NSString\"",BGUpdateTime]];
     }
     [self bg_enumerateClasses:cla complete:^(__unsafe_unretained Class c, BOOL *stop) {
         unsigned int numIvars; //成员变量个数
@@ -284,7 +290,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
         NSArray* arr = [keyAndType componentsSeparatedByString:@"*"];
         NSString* propertyName = arr[0];
         NSString* propertyType = arr[1];
-        if(![propertyName isEqualToString:primaryKey]){
+        if(![propertyName isEqualToString:BGPrimaryKey]){
             id propertyValue = [object valueForKey:propertyName];
             if (propertyValue){
                 id Value = [self getSqlValue:propertyValue type:propertyType encode:YES];
@@ -389,8 +395,8 @@ NSString* keyPathValues(NSArray* keyPathValues){
     }
     return  [self dataToJson:arrM];
 }
-//NSDate转json字符串.
-+(NSString*)jsonStringWithDate:(NSDate*)date{
+//NSDate转字符串,格式: yyyy-MM-dd HH:mm:ss
++(NSString*)stringWithDate:(NSDate*)date{
     NSDateFormatter* formatter = [NSDateFormatter new];
     formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
     return [formatter stringFromDate:date];
@@ -448,9 +454,9 @@ NSString* keyPathValues(NSArray* keyPathValues){
         }
     }else if ([type containsString:@"NSDate"]){
         if(encode){
-            return [self jsonStringWithDate:value];
+            return [self stringWithDate:value];
         }else{
-            return [self dateFromJsonString:value];
+            return [self dateFromString:value];
         }
     }else if ([type containsString:@"NSURL"]){
         if(encode){
@@ -535,15 +541,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
         for(NSString* valueKey in valueDictKeys){
             if ([valueKey isEqualToString:BGArrKT]){
                 id ivarValue = [self getSqlValue:valueDict[valueKey] type:arrKT.lastObject encode:NO];
-                if(![arrKT.firstObject isEqualToString:primaryKey]){
-                    [object setValue:ivarValue forKey:arrKT.firstObject];
-                }else{
-                    SEL primaryKeySel = NSSelectorFromString([NSString stringWithFormat:@"set%@:",primaryKey]);
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-                    [object performSelector:primaryKeySel withObject:ivarValue];
-#pragma clang diagnostic pop
-                }
+                [object setValue:ivarValue forKey:arrKT.firstObject];
                 break;//匹配处理完后跳出内循环.
             }
         }
@@ -701,7 +699,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
     return hashTable;
 }
 //json字符串转NSDate
-+(NSDate*)dateFromJsonString:(NSString*)jsonString{
++(NSDate*)dateFromString:(NSString*)jsonString{
     if(!jsonString || [jsonString isKindOfClass:[NSNull class]])return nil;
     
     NSDateFormatter *formatter = [NSDateFormatter new];
@@ -744,6 +742,19 @@ NSString* keyPathValues(NSArray* keyPathValues){
 #pragma clang diagnostic pop
     }
     return dict;
+}
+/**
+ 根据对象获取要更新的字典.
+ */
++(NSDictionary*)getUpdateDictWithObject:(id)object{
+    NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:object];
+    NSMutableDictionary* valueDict = [NSMutableDictionary dictionary];
+    for(BGModelInfo* info in infos){
+        valueDict[info.sqlColumnName] = info.sqlColumnValue;
+    }
+    //移除创建时间字段不做更新.
+    [valueDict removeObjectForKey:[NSString stringWithFormat:@"%@%@",BG,BGCreateTime]];
+    return valueDict;
 }
 +(BOOL)getBoolWithKey:(NSString*)key{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];

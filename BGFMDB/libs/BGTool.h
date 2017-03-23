@@ -26,8 +26,9 @@
 #define debug(param) if(self.debug){BGLog(@"调试输出: %@",param);}
 
 #define BG @"BG_"
-#define primaryKey @"ID"
-#define uniquekey @"uniquekey"
+#define BGPrimaryKey @"ID"
+#define BGCreateTime @"createTime"
+#define BGUpdateTime @"updateTime"
 
 #define Complete_B void(^_Nullable)(BOOL isSuccess)
 #define Complete_I void(^_Nullable)(dealState result)
@@ -95,6 +96,8 @@ extern NSString* _Nonnull keyPathValues(NSArray* _Nonnull keyPathValues);
  根据类属性类型返回数据库存储类型.
  */
 +(NSString* _Nonnull)getSqlType:(NSString* _Nonnull)type;
+//NSDate转字符串,格式: yyyy-MM-dd HH:mm:ss
++(NSString* _Nonnull)stringWithDate:(NSDate* _Nonnull)date;
 /**
  根据类属性值和属性类型返回数据库存储的值.
  @value 数值.
@@ -122,6 +125,10 @@ extern NSString* _Nonnull keyPathValues(NSArray* _Nonnull keyPathValues);
  获取"唯一约束"
  */
 +(NSString* _Nonnull)getUnique:(id _Nonnull)object;
+/**
+ 根据对象获取要更新的字典.
+ */
++(NSDictionary* _Nonnull)getUpdateDictWithObject:(id _Nonnull)object;
 /**
  NSUserDefaults封装使用函数.
  */
