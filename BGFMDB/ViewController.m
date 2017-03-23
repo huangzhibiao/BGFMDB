@@ -37,13 +37,13 @@
     /**
      存储
      */
-    [p save];
+    //[p save];
     
     /**
      同步存储或更新.
      当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
      */
-    //[p saveOrUpdate];
+    [p saveOrUpdate];
     
     /**
      忽略存储，即忽略掉 user,info,students 这三个变量不存储.
@@ -159,7 +159,7 @@
     for(int i=0;i<count;i+=10){
             NSArray* arr = [People findAllWithRange:NSMakeRange(i,10) orderBy:nil desc:NO];
             for(People* pp in arr)
-            //库新增两个自带字段createTime和createTime方便开发者使用和做参考对比.
+            //库新增两个自带字段createTime和updateTime方便开发者使用和做参考对比.
             NSLog(@"主键 = %@ , 创建时间 = %@ , 更新时间 = %@",pp.ID,pp.createTime,pp.updateTime);
     }
     
@@ -253,7 +253,8 @@
     People* p = [People new];
     p.name = @"斯巴达";
     p.num = @(220.88);
-    p.age = 10;
+    p.age = 50;
+    p.sex = @"男";
     p.eye = @"末世眼皮";
     p.Url = [NSURL URLWithString:@"http://www.gmjk.com"];
     p.addBool = YES;
@@ -265,6 +266,11 @@
     p.image = [UIImage imageNamed:@"MarkMan"];
     NSData* data = UIImageJPEGRepresentation(p.image, 1);
     p.data2 = data;
+    
+    p.arrM = [NSMutableArray array];
+    for(int i=1;i<=5;i++){
+        [p.arrM addObject:UIImageJPEGRepresentation([UIImage imageNamed:[NSString stringWithFormat:@"ima%d",i]], 1)];
+    }
     
     [p setValue:@(110) forKey:@"testAge"];
     p->testName = @"测试名字";

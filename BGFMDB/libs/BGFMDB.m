@@ -1103,15 +1103,13 @@ static BGFMDB* BGFmdb;
     __weak typeof(self) BGSelf = self;
     [self insertIntoTableName:tableName Dict:dictM complete:^(BOOL isSuccess){
         __strong typeof(BGSelf) strongSelf = BGSelf;
-        if (isSuccess) {
-            if (complete) {
-                complete(isSuccess);
-            }
+        if (isSuccess){
+            !complete?:complete(isSuccess);
         }else{
             //检查表字段是否有改变
             //[strongSelf changeTableWhenClassIvarChange:[object class]];
             //刷新表数据库.
-            [self refreshQueueTable:tableName keys:[BGTool getClassIvarList:[object class] onlyKey:NO] complete:nil];
+            [strongSelf refreshQueueTable:tableName keys:[BGTool getClassIvarList:[object class] onlyKey:NO] complete:nil];
             [strongSelf insertIntoTableName:tableName Dict:dictM complete:complete];
         }
     }];
@@ -1266,17 +1264,27 @@ static BGFMDB* BGFmdb;
 -(void)updateQueueWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where complete:(Complete_B)complete{
     NSDictionary* valueDict = [BGTool getUpdateDictWithObject:object];
     NSString* tableName = NSStringFromClass([object class]);
-    __weak typeof(self) BGSelf = self;
+    __block BOOL result = NO;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){
-        __strong typeof(BGSelf) strongSelf = BGSelf;
-        if (!isExist){//如果不存在就返回NO
-            if (complete) {
-                complete(NO);
-            }
-        }else{
-            [strongSelf updateWithTableName:tableName valueDict:valueDict where:where complete:complete];
-        }
+        result = isExist;
     }];
+    
+    if (!result){
+        //如果不存在就返回NO
+        !complete?:complete(NO);
+    }else{
+        __block BOOL success = NO;
+        [self updateWithTableName:tableName valueDict:valueDict where:where complete:^(BOOL isSuccess) {
+            success = isSuccess;
+        }];
+        if (success){
+            !complete?:complete(success);
+        }else{
+            [self refreshQueueTable:tableName keys:[BGTool getClassIvarList:[object class] onlyKey:NO] complete:nil];
+            [self updateWithTableName:tableName valueDict:valueDict where:where complete:complete];
+        }
+    }
+
 }
 
 /**

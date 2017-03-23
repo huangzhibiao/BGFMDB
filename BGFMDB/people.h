@@ -48,7 +48,7 @@
 @property(nonatomic,copy)NSString* name;
 @property(nonatomic,strong)NSNumber* num;
 @property(nonatomic,assign)int age;
-//@property(nonatomic,copy)NSString* sex;
+@property(nonatomic,copy)NSString* sex;
 @property(nonatomic,copy)NSString* eye;
 @property(nonatomic,copy)NSString* sex_old;
 @property(nonatomic,strong)NSArray* students;
