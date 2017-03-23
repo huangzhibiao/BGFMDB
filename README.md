@@ -34,7 +34,7 @@ LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo
 platform :ios, '8.0'
 
 target '工程名称' do
-pod ‘BGFMDB’, '~> 1.19’
+pod ‘BGFMDB’, '~> 1.20’
 end
 ```
 ## 直接下载库代码使用方式.
@@ -59,6 +59,12 @@ libsqlite3
 本库自带的自动增长主键.
 */
 @property(nonatomic,strong)NSNumber*_Nullable ID;
+
+/**
+ 为了方便开发者，特此加入以下两个字段属性供开发者做参考.(自动记录数据的存入时间和更新时间)
+ */
+@property(nonatomic,copy)NSString* _Nonnull createTime;//数据创建时间(即存入数据库的时间)
+@property(nonatomic,copy)NSString* _Nonnull updateTime;//数据最后那次更新的时间.
 ```
 ### 唯一约束
 ```Objective-C
