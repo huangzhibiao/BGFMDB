@@ -14,6 +14,10 @@
  获取单例函数.
  */
 +(_Nonnull instancetype)shareManager;
+/**
+ 关闭数据库.
+ */
+-(void)closeDB;
 //事务操作
 -(void)inTransaction:(BOOL (^_Nonnull)())block;
 /**

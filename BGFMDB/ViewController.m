@@ -37,13 +37,13 @@
     /**
      存储
      */
-    //[p save];
-    
+    [p save];
+
     /**
      同步存储或更新.
      当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
      */
-    [p saveOrUpdate];
+    //[p saveOrUpdate];
     
     /**
      忽略存储，即忽略掉 user,info,students 这三个变量不存储.
@@ -108,8 +108,8 @@
     /**
      将People类中name等于"马云爸爸"的数据的name设为"马化腾",此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
      */
-    //[People updateFormatSqlConditions:@"set %@=%@ where %@=%@",sqlKey(@"name"),sqlValue(@"马化腾"),sqlKey(@"name"),sqlValue(@"马云爸爸")];
-    
+    BOOL updateState = [People updateFormatSqlConditions:@"set %@=%@ where %@=%@",sqlKey(@"name"),sqlValue(@"马化腾"),sqlKey(@"name"),sqlValue(@"斯巴达")];
+    NSLog(@"------");
     /**
      将People类数据中name等于"马化腾"的数据更新为当前对象的数据.
      */

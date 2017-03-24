@@ -13,64 +13,82 @@
 static const void * const BGFMDBDispatchQueueSpecificKey = &BGFMDBDispatchQueueSpecificKey;
 
 @interface BGFMDB()
-{
-    dispatch_queue_t    serialQueue;
-}
+//信号量.
+@property (nonatomic, strong)dispatch_semaphore_t _Nullable semaphore;
+//数据库队列
 @property (nonatomic, strong) FMDatabaseQueue *queue;
 @property (nonatomic, strong) FMDatabase* db;
-@property (nonatomic, strong) NSRecursiveLock *threadLock;
+//递归锁.
+//@property (nonatomic, strong) NSRecursiveLock *threadLock;
 
 @property (nonatomic,strong) NSMutableDictionary* changeBlocks;//记录注册监听数据变化的block.
 
 @end
 
-static BGFMDB* BGFmdb;
-
+static BGFMDB* BGFmdb = nil;
 @implementation BGFMDB
 
 -(void)dealloc{
-    if (self.changeBlocks){
-        [self.changeBlocks removeAllObjects];//清除所有注册列表.
-        self.changeBlocks = nil;
+    //烧毁数据.
+    [self destroy];
+}
+
+
+-(void)destroy{
+    if (_changeBlocks){
+        [_changeBlocks removeAllObjects];//清除所有注册列表.
+        _changeBlocks = nil;
     }
-    if (serialQueue) {
-        FMDBDispatchQueueRelease(serialQueue);
-        serialQueue = 0x00;
+    if (_semaphore) {
+        _semaphore = 0x00;
     }
-    if(self.queue) {
-        [self.queue close];//关闭数据库.
-        self.queue = nil;
+    if(_queue) {
+        [_queue close];//关闭数据库.
+        _queue = nil;
     }
     if (BGFmdb) {
         BGFmdb = nil;
+    }
+
+}
+/**
+ 关闭数据库.
+ */
+-(void)closeDB{
+    if(_queue) {
+        [_queue close];//关闭数据库.
+        _queue = nil;
     }
 }
 
 -(instancetype)init{
     self = [super init];
     if (self) {
-        // 0.获得沙盒中的数据库文件名
-        NSString *filename = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:SQLITE_NAME];
-        // 1.创建数据库队列
-        self.queue = [FMDatabaseQueue databaseQueueWithPath:filename];
-        self.threadLock = [[NSRecursiveLock alloc] init];
+        
+        //self.threadLock = [[NSRecursiveLock alloc] init];
         self.changeBlocks = [NSMutableDictionary dictionary];
-        //初始化串行队列,用于解决多线程问题,模仿FMDB的FMDatabaseQueue处理.
-        serialQueue = dispatch_queue_create([[NSString stringWithFormat:@"BGFMDB.%@", self] UTF8String], NULL);
-        dispatch_queue_set_specific(serialQueue, BGFMDBDispatchQueueSpecificKey, (__bridge void *)self, NULL);
+        //创建信号量.
+        self.semaphore = dispatch_semaphore_create(1);
     }
     return self;
 }
+
+-(FMDatabaseQueue *)queue{
+    if(_queue)return _queue;
+    // 0.获得沙盒中的数据库文件名
+    NSString *filename = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:SQLITE_NAME];
+    _queue = [FMDatabaseQueue databaseQueueWithPath:filename];
+    return _queue;
+}
+
 /**
  获取单例函数.
  */
 +(_Nonnull instancetype)shareManager{
-    if(BGFmdb == nil){
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            BGFmdb = [[BGFMDB alloc] init];
-        });
-    }
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        BGFmdb = [[BGFMDB alloc] init];
+    });
     return BGFmdb;
 }
 //事务操作
@@ -98,7 +116,7 @@ static BGFMDB* BGFmdb;
  */
 -(void)executeDB:(void (^_Nonnull)(FMDatabase *_Nonnull db))block{
     NSAssert(block, @"block is nil!");
-    [self.threadLock lock];//加锁
+    //[self.threadLock lock];//加锁
     
     if (_db){//为了事务操作防止死锁而设置.
         block(_db);
@@ -111,7 +129,7 @@ static BGFMDB* BGFmdb;
         BGSelf.db = nil;
     }];
     
-    [self.threadLock unlock];//解锁
+    //[self.threadLock unlock];//解锁
 }
 
 /**
@@ -143,15 +161,21 @@ static BGFMDB* BGFmdb;
     }
 }
 -(void)doChangeWithName:(NSString* const _Nonnull)name flag:(BOOL)flag state:(changeState)state{
-    if(flag){
-        [_changeBlocks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop){
-            NSArray* array = [key componentsSeparatedByString:@"*"];
-            if([name isEqualToString:array.firstObject]){
-                void(^block)(changeState) = obj;
-                block(state);
-            }
-        }];
-    }
+        if(flag && _changeBlocks.count>0){
+            //开一个子线程去执行block,防止死锁.
+            dispatch_async(dispatch_get_global_queue(0,0), ^{
+            [_changeBlocks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop){
+                NSArray* array = [key componentsSeparatedByString:@"*"];
+                if([name isEqualToString:array.firstObject]){
+                    void(^block)(changeState) = obj;
+                    //返回主线程回调.
+                    dispatch_sync(dispatch_get_main_queue(), ^{
+                        block(state);
+                    });
+                }
+            }];
+          });
+        }
 }
 
 /**
@@ -290,13 +314,11 @@ static BGFMDB* BGFmdb;
  直接传入条件sql语句查询
  */
 -(void)queryWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(Complete_A)complete{
-    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
-    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    dispatch_sync(serialQueue, ^() {
-        [self queryQueueWithTableName:name conditions:conditions complete:complete];
-    });
+    [self queryQueueWithTableName:name conditions:conditions complete:complete];
     }
+    dispatch_semaphore_signal(self.semaphore);
 }
 /**
  根据条件查询字段.
@@ -455,7 +477,7 @@ static BGFMDB* BGFmdb;
     __block BOOL result;
     [self executeDB:^(FMDatabase * _Nonnull db){
         NSString* SQL;
-        if ((valueDict==nil) || !valueDict.allKeys.count) {
+        if (!valueDict || !valueDict.count) {
             SQL = [NSString stringWithFormat:@"update %@ %@",name,conditions];
         }else{
             NSMutableString* param = [NSMutableString stringWithFormat:@"update %@ set ",name];
@@ -488,13 +510,11 @@ static BGFMDB* BGFmdb;
  直接传入条件sql语句更新.
  */
 -(void)updateWithTableName:(NSString* _Nonnull)name valueDict:(NSDictionary* _Nullable)valueDict conditions:(NSString* _Nonnull)conditions complete:(Complete_B)complete{
-    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
-    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    dispatch_sync(serialQueue, ^() {
-        [self updateQueueWithTableName:name valueDict:valueDict conditions:conditions complete:complete];
-    });
+    [self updateQueueWithTableName:name valueDict:valueDict conditions:conditions complete:complete];
     }
+    dispatch_semaphore_signal(self.semaphore);
 }
 /**
  根据keypath更新数据
@@ -575,13 +595,7 @@ static BGFMDB* BGFmdb;
  直接传入条件sql语句删除.
  */
 -(void)deleteWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(Complete_B)complete{
-    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
-    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
-    @autoreleasepool {
-    dispatch_sync(serialQueue, ^() {
-        [self deleteQueueWithTableName:name conditions:conditions complete:complete];
-    });
-    }
+    [self deleteQueueWithTableName:name conditions:conditions complete:complete];
 }
 
 -(void)deleteQueueWithTableName:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
@@ -604,14 +618,7 @@ static BGFMDB* BGFmdb;
 
 //根据keypath删除表内容.
 -(void)deleteWithTableName:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
-    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
-    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
-    @autoreleasepool {
-    dispatch_sync(serialQueue, ^() {
-        [self deleteQueueWithTableName:name forKeyPathAndValues:keyPathValues complete:complete];
-    });
-    }
-
+    [self deleteQueueWithTableName:name forKeyPathAndValues:keyPathValues complete:complete];
 }
 /**
  根据表名删除表格全部内容.
@@ -843,15 +850,11 @@ static BGFMDB* BGFmdb;
  刷新数据库，即将旧数据库的数据复制到新建的数据库,这是为了去掉没用的字段.
  */
 -(void)refreshTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* const _Nonnull)keys complete:(Complete_I)complete{
-    
-    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
-    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    dispatch_sync(serialQueue, ^() {
-        [self refreshQueueTable:name keys:keys complete:complete];
-    });
+    [self refreshQueueTable:name keys:keys complete:complete];
     }
-
+    dispatch_semaphore_signal(self.semaphore);
 }
 
 -(void)copyA:(NSString* _Nonnull)A toB:(NSString* _Nonnull)B keyDict:(NSDictionary* const _Nullable)keyDict complete:(Complete_I)complete{
@@ -1004,83 +1007,12 @@ static BGFMDB* BGFmdb;
 }
 
 -(void)refreshTable:(NSString* _Nonnull)name keyDict:(NSDictionary* const _Nonnull)keyDict complete:(Complete_I)complete{
-    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
-    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
-    dispatch_sync(serialQueue, ^() {
-        [self refreshQueueTable:name keyDict:keyDict complete:complete];
-    });
-
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    @autoreleasepool {
+    [self refreshQueueTable:name keyDict:keyDict complete:complete];
+    }
+    dispatch_semaphore_signal(self.semaphore);
 }
-
-////判断类的变量名是否变更,然后改变表字段结构.
-//-(void)changeTableWhenClassIvarChange:(__unsafe_unretained Class)cla{
-//    NSString* tableName = NSStringFromClass(cla);
-//    NSMutableArray* copyKeys = [NSMutableArray array];
-//    //先把相同的列拷贝.
-//    [self executeDB:^(FMDatabase * _Nonnull db){
-//        NSArray* currentKeys = [BGTool getClassIvarList:cla onlyKey:YES];
-//        NSString* SQL = [NSString stringWithFormat:@"select * from %@ limit 0,1",tableName];
-//        // 1.查询数据
-//        debug(SQL);
-//        FMResultSet *rs = [db executeQuery:SQL];
-//        for (int i=0; i<[rs columnCount]; i++) {
-//            NSString * columnName = [rs columnNameForIndex:i];
-//            [currentKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-//                NSString* currentKey = [NSString stringWithFormat:@"%@%@",BG,obj];
-//                if([columnName isEqualToString:currentKey]){
-//                    if([obj isEqualToString:primaryKey]){
-//                      currentKey = [NSString stringWithFormat:@"%@ primary key autoincrement integer",currentKey];
-//                    }
-//                    [copyKeys addObject:currentKey];
-//                    *stop = YES;
-//                }
-//            }];
-//        }
-//    }];
-//    //事务操作.
-//    [self inTransaction:^BOOL{
-//        __block int recordFailCount = 0;
-//        [self executeDB:^(FMDatabase * _Nonnull db){
-//            NSMutableString* param = [NSMutableString string];
-//            for(int i=0;i<copyKeys.count;i++){
-//                [param appendString:copyKeys[i]];
-//                if (i != (copyKeys.count-1)){
-//                    [param appendString:@","];
-//                }
-//            }
-//            NSString* SQL = [NSString stringWithFormat:@"create table BGTempTable as select %@ from %@;",param,tableName];
-//            debug(SQL);
-//            if([db executeUpdate:SQL])recordFailCount++;
-//        }];
-//        [self dropTable:tableName complete:^(BOOL isSuccess) {
-//            if(isSuccess)recordFailCount++;
-//        }];
-//        [self executeDB:^(FMDatabase * _Nonnull db){
-//            NSString* SQL = [NSString stringWithFormat:@"alter table BGTempTable rename to %@;",tableName];
-//            debug(SQL);
-//            if([db executeUpdate:SQL])recordFailCount++;
-//        }];
-//        return recordFailCount==3;
-//    }];
-//    
-//    NSMutableArray* newKeys = [NSMutableArray array];
-//    [self executeDB:^(FMDatabase * _Nonnull db){
-//        NSArray* keys = [BGTool getClassIvarList:cla onlyKey:NO];
-//        for (NSString* keyAndtype in keys){
-//            NSString* key = [[keyAndtype componentsSeparatedByString:@"*"] firstObject];
-//            key = [NSString stringWithFormat:@"%@%@",BG,key];
-//            if(![db columnExists:key inTableWithName:tableName]){
-//                [newKeys addObject:keyAndtype];
-//            }
-//        }
-//    }];
-//    
-//    //写在外面是为了防止数据库队列发生死锁.
-//    for(NSString* key in newKeys){
-//        //添加新字段
-//        [self addTable:tableName key:key complete:^(BOOL isSuccess){}];
-//    }
-//}
 
 /**
  处理插入的字典数据并返回
@@ -1155,13 +1087,11 @@ static BGFMDB* BGFmdb;
 
 }
 -(void)saveObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete{
-    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
-    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-        dispatch_sync(serialQueue, ^() {
-            [self saveQueueObject:object ignoredKeys:ignoredKeys complete:complete];
-        });
+    [self saveQueueObject:object ignoredKeys:ignoredKeys complete:complete];
     }
+    dispatch_semaphore_signal(self.semaphore);
 }
 
 -(void)queryObjectQueueWithClass:(__unsafe_unretained _Nonnull Class)cla where:(NSArray* _Nullable)where param:(NSString* _Nullable)param complete:(Complete_A)complete{
@@ -1188,13 +1118,11 @@ static BGFMDB* BGFmdb;
  查询对象.
  */
 -(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla where:(NSArray* _Nullable)where param:(NSString* _Nullable)param complete:(Complete_A)complete{
-    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
-    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    dispatch_sync(serialQueue, ^() {
-        [self queryObjectQueueWithClass:cla where:where param:param complete:complete];
-    });
+    [self queryObjectQueueWithClass:cla where:where param:param complete:complete];
     }
+    dispatch_semaphore_signal(self.semaphore);
 }
 -(void)queryObjectQueueWithClass:(__unsafe_unretained _Nonnull Class)cla keys:(NSArray<NSString*>* _Nullable)keys where:(NSArray* _Nullable)where complete:(Complete_A)complete{
     //检查是否建立了跟对象相对应的数据表
@@ -1220,13 +1148,11 @@ static BGFMDB* BGFmdb;
  根据条件查询对象.
  */
 -(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla keys:(NSArray<NSString*>* _Nullable)keys where:(NSArray* _Nullable)where complete:(Complete_A)complete{
-    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
-    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    dispatch_sync(serialQueue, ^() {
-        [self queryObjectQueueWithClass:cla keys:keys where:where complete:complete];
-    });
+    [self queryObjectQueueWithClass:cla keys:keys where:where complete:complete];
     }
+    dispatch_semaphore_signal(self.semaphore);
 }
 
 -(void)queryObjectQueueWithClass:(__unsafe_unretained _Nonnull Class)cla forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_A)complete{
@@ -1252,13 +1178,11 @@ static BGFMDB* BGFmdb;
 
 //根据keyPath查询对象
 -(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_A)complete{
-    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
-    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    dispatch_sync(serialQueue, ^() {
-        [self queryObjectQueueWithClass:cla forKeyPathAndValues:keyPathValues complete:complete];
-    });
+    [self queryObjectQueueWithClass:cla forKeyPathAndValues:keyPathValues complete:complete];
     }
+    dispatch_semaphore_signal(self.semaphore);
 }
 
 -(void)updateQueueWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where complete:(Complete_B)complete{
@@ -1291,13 +1215,11 @@ static BGFMDB* BGFmdb;
  根据条件改变对象数据.
  */
 -(void)updateWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where complete:(Complete_B)complete{
-    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
-    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    dispatch_sync(serialQueue, ^() {
-        [self updateQueueWithObject:object where:where complete:complete];
-    });
+    [self updateQueueWithObject:object where:where complete:complete];
     }
+    dispatch_semaphore_signal(self.semaphore);
 }
 
 -(void)updateQueueWithObject:(id _Nonnull)object forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
@@ -1320,13 +1242,11 @@ static BGFMDB* BGFmdb;
  根据keyPath改变对象数据.
  */
 -(void)updateWithObject:(id _Nonnull)object forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
-    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
-    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    dispatch_sync(serialQueue, ^() {
-        [self updateQueueWithObject:object forKeyPathAndValues:keyPathValues complete:complete];
-    });
+    [self updateQueueWithObject:object forKeyPathAndValues:keyPathValues complete:complete];
     }
+    dispatch_semaphore_signal(self.semaphore);
 }
 
 
@@ -1367,13 +1287,7 @@ static BGFMDB* BGFmdb;
  根据条件删除对象表中的对象数据.
  */
 -(void)deleteWithClass:(__unsafe_unretained _Nonnull Class)cla where:(NSArray* _Nonnull)where complete:(Complete_B)complete{
-    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
-    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
-    @autoreleasepool {
-    dispatch_sync(serialQueue, ^() {
-        [self deleteQueueWithClass:cla where:where complete:complete];
-    });
-    }
+    [self deleteQueueWithClass:cla where:where complete:complete];
 }
 /**
  根据类删除此类所有表数据.
@@ -1507,20 +1421,20 @@ static BGFMDB* BGFmdb;
  将某类表的数据拷贝给另一个类表
  */
 -(void)copyClass:(__unsafe_unretained _Nonnull Class)srcCla to:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append complete:(Complete_I)complete{
-    BGFMDB *currentSyncQueue = (__bridge id)dispatch_get_specific(BGFMDBDispatchQueueSpecificKey);
-    assert(currentSyncQueue != self && "inDatabase: was called reentrantly on the same queue, which would lead to a deadlock");
-        dispatch_sync(serialQueue, ^(){
-            //事务操作其过程.
-            [self inTransaction:^BOOL{
-                __block BOOL success = NO;
-                [self copyQueueClass:srcCla to:destCla keyDict:keydict append:append complete:^(dealState result) {
-                    if (result == Complete) {
-                        success = YES;
-                    }
-                }];
-                return success;
-            }];
-        });
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    @autoreleasepool {
+    //事务操作其过程.
+    [self inTransaction:^BOOL{
+        __block BOOL success = NO;
+        [self copyQueueClass:srcCla to:destCla keyDict:keydict append:append complete:^(dealState result) {
+            if (result == Complete) {
+                success = YES;
+            }
+        }];
+        return success;
+    }];
+    }
+    dispatch_semaphore_signal(self.semaphore);
 }
 
 @end

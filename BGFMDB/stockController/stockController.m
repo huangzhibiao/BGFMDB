@@ -44,17 +44,17 @@
     _shenData = @(10427.24);
     stockModel* shenStock = [stockModel stockWithName:@"深市" stockData:_shenData];
     _shenStock = shenStock;
-    [shenStock save];
+    [shenStock saveOrUpdate];
     //沪市数据初始
     _huData = @(3013.56);
     stockModel* huStock = [stockModel stockWithName:@"沪市" stockData:_huData];
     _huStock = huStock;
-    [huStock save];
+    [huStock saveOrUpdate];
     //创业板数据初始
     _chuangData = @(1954.91);
     stockModel* chuangStock = [stockModel stockWithName:@"创业版" stockData:_chuangData];
     _chuangStock = chuangStock;
-    [chuangStock save];
+    [chuangStock saveOrUpdate];
     
     _updateFlag = YES;//设置循环更新标志.
     [self performSelector:@selector(updateData) withObject:nil afterDelay:1.0];
