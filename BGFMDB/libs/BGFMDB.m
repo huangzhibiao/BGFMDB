@@ -13,8 +13,6 @@
 static const void * const BGFMDBDispatchQueueSpecificKey = &BGFMDBDispatchQueueSpecificKey;
 
 @interface BGFMDB()
-//信号量.
-@property (nonatomic, strong)dispatch_semaphore_t _Nullable semaphore;
 //数据库队列
 @property (nonatomic, strong) FMDatabaseQueue *queue;
 @property (nonatomic, strong) FMDatabase* db;
@@ -1047,48 +1045,19 @@ static BGFMDB* BGFmdb = nil;
     }];
 
 }
+
 /**
  存储一个对象.
  */
 -(void)saveQueueObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete{
-    //检查是否建立了跟对象相对应的数据表
-    NSString* tableName = NSStringFromClass([object class]);
-    //获取"唯一约束"字段名
-    NSString* uniqueKey = [BGTool getUnique:object];
-    __weak typeof(self) BGSelf = self;
-    [self isExistWithTableName:tableName complete:^(BOOL isExist) {
-        __strong typeof(BGSelf) strongSelf = BGSelf;
-        if (!isExist){//如果不存在就新建
-            NSMutableArray* createKeys = [NSMutableArray arrayWithArray:[BGTool getClassIvarList:[object class] onlyKey:NO]];
-            //判断是否有需要忽略的key集合.
-            if (ignoredKeys){
-                for(__block int i=0;i<createKeys.count;i++){
-                    NSString* createKey = [createKeys[i] componentsSeparatedByString:@"*"][0];
-                    [ignoredKeys enumerateObjectsUsingBlock:^(id  _Nonnull ignoreKey, NSUInteger idi, BOOL * _Nonnull stop) {
-                        if([createKey isEqualToString:ignoreKey]){
-                            [createKeys removeObjectAtIndex:i];
-                            i--;
-                            *stop = YES;
-                        }
-                    }];
-                }
-            }
-            [strongSelf createTableWithTableName:tableName keys:createKeys uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
-                if (isSuccess){
-                    NSString* successInfo = [NSString stringWithFormat:@"建表成功 第一次建立 %@ 对应的表",tableName];
-                    debug(successInfo);
-                }
-            }];
-        }
-        
-        //插入数据
-        [strongSelf insertDictWithObject:object ignoredKeys:ignoredKeys complete:complete];
-    }];
+    //插入数据
+    [self insertDictWithObject:object ignoredKeys:ignoredKeys complete:complete];
 
 }
 -(void)saveObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
+    [BGTool ifNotExistWillCreateTableWithObject:object ignoredKeys:ignoredKeys];
     [self saveQueueObject:object ignoredKeys:ignoredKeys complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);

@@ -11,6 +11,8 @@
 #import <objc/message.h>
 #import <UIKit/UIKit.h>
 
+#define BGComplete(obj) !complete?:complete(obj);
+
 @implementation NSObject (BGModel)
 
 //分类中只生成属性get,set函数的声明,没有声称其实现,所以要自己实现get,set函数.
@@ -73,9 +75,43 @@
  */
 -(void)saveAsync:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [[BGFMDB shareManager] saveObject:self ignoredKeys:nil complete:complete];
-        //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        BOOL flag = [self save];
+        BGComplete(flag);
+    });
+}
+/**
+ 同步存入对象数组.
+ @array 存放对象的数组.
+ */
++(BOOL)saveArray:(NSArray*)array{
+    NSAssert(array||array.count,@"数组没有元素!");
+    __block BOOL result = YES;
+    dispatch_semaphore_wait([BGFMDB shareManager].semaphore, DISPATCH_TIME_FOREVER);
+    @autoreleasepool {
+    [BGTool ifNotExistWillCreateTableWithObject:array.firstObject ignoredKeys:nil];
+    [array enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [[BGFMDB shareManager] saveQueueObject:obj ignoredKeys:nil complete:^(BOOL isSuccess) {
+            if (!isSuccess) {
+                result = NO;
+                *stop = YES;
+            }
+        }];
+    }];
+    }
+    dispatch_semaphore_signal([BGFMDB shareManager].semaphore);
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return result;
+}
+/**
+ 异步存入对象数组.
+ @array 存放对象的数组.
+ */
++(void)saveArrayAsync:(NSArray*)array complete:(Complete_B)complete{
+    NSAssert(array||array.count,@"数组没有元素!");
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+        BOOL flag = [self saveArray:array];
+        BGComplete(flag);
     });
 }
 /**
@@ -102,9 +138,8 @@
  */
 -(void)saveOrUpdateAsync:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL result;
-        result = [self saveOrUpdate];
-        !complete?:complete(result);
+        BOOL result = [self saveOrUpdate];
+        BGComplete(result);
     });
 }
 /**
@@ -126,9 +161,8 @@
  */
 -(void)saveAsyncIgnoreKeys:(NSArray* const _Nonnull)ignoredKeys complete:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [[BGFMDB shareManager] saveObject:self ignoredKeys:ignoredKeys complete:complete];
-        //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        BOOL flag = [self saveIgnoredKeys:ignoredKeys];
+        BGComplete(flag);
     });
 
 }
@@ -156,16 +190,9 @@
  覆盖掉原来的数据,只存储当前的数据.
  */
 -(void)coverAsync:(Complete_B)complete{
-    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess){
-            if(isSuccess)
-            [[BGFMDB shareManager] saveObject:self ignoredKeys:nil complete:complete];
-            else
-            !complete?:complete(isSuccess);
-            //关闭数据库
-            [[BGFMDB shareManager] closeDB];
-        }];
+        BOOL flag = [self cover];
+        BGComplete(flag);
     });
     
 }
@@ -195,15 +222,8 @@
  */
 -(void)coverAsyncIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys complete:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess){
-            if(isSuccess)
-                [[BGFMDB shareManager] saveObject:self ignoredKeys:ignoredKeys complete:complete];
-            else
-                !complete?:complete(isSuccess);
-            
-            //关闭数据库
-            [[BGFMDB shareManager] closeDB];
-        }];
+        BOOL flag = [self coverIgnoredKeys:ignoredKeys];
+        BGComplete(flag);
     });
 }
 /**
@@ -225,9 +245,8 @@
  */
 +(void)findAllAsync:(Complete_A)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [[BGFMDB shareManager] queryObjectWithClass:[self class] where:nil param:nil complete:complete];
-        //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        NSArray* array = [self findAll];
+        BGComplete(array);
     });
 }
 
@@ -259,9 +278,7 @@
 +(void)findAllAsyncWithLimit:(NSInteger)limit orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc complete:(Complete_A)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
         NSArray* results = [NSObject findAllWithLimit:limit orderBy:orderBy desc:desc];
-        !complete?:complete(results);
-        //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        BGComplete(results);
     });
 }
 /**
@@ -290,9 +307,7 @@
 +(void)findAllAsyncWithRange:(NSRange)range orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc complete:(Complete_A)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
         NSArray* results = [NSObject findAllWithRange:range orderBy:orderBy desc:desc];
-        !complete?:complete(results);
-        //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        BGComplete(results);
     });
 }
 /**
@@ -318,9 +333,8 @@
  */
 +(void)findAsyncWhere:(NSArray* _Nullable)where complete:(Complete_A)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [[BGFMDB shareManager] queryObjectWithClass:[self class] keys:nil where:where complete:complete];
-        //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        NSArray* array = [self findWhere:where];
+        BGComplete(array);
     });
 }
 /**
@@ -371,9 +385,8 @@
  */
 +(void)findAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_A)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [[BGFMDB shareManager] queryObjectWithClass:[self class] forKeyPathAndValues:keyPathValues complete:complete];
-        //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        NSArray* array = [self findForKeyPathAndValues:keyPathValues];
+        BGComplete(array);
     });
 }
 /**
@@ -399,9 +412,8 @@
  */
 -(void)updateAsync:(NSArray* _Nullable)where complete:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [[BGFMDB shareManager] updateWithObject:self where:where complete:complete];
-        //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        BOOL flag = [self updateWhere:where];
+        BGComplete(flag);
     });
 }
 /**
@@ -476,9 +488,8 @@
  */
 -(void)updateAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [[BGFMDB shareManager] updateWithObject:self forKeyPathAndValues:keyPathValues complete:complete];
-        //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        BOOL flag = [self updateForKeyPathAndValues:keyPathValues];
+        BGComplete(flag);
     });
 }
 /**
@@ -504,9 +515,8 @@
  */
 +(void)deleteAsync:(NSArray* _Nonnull)where complete:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [[BGFMDB shareManager] deleteWithClass:[self class] where:where complete:complete];
-        //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        BOOL flag = [self deleteWhere:where];
+        BGComplete(flag);
     });
 }
 /**
@@ -557,9 +567,8 @@
  */
 +(void)deleteAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [[BGFMDB shareManager] deleteWithTableName:NSStringFromClass([self class]) forKeyPathAndValues:keyPathValues complete:complete];
-        //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        BOOL flag = [self deleteForKeyPathAndValues:keyPathValues];
+        BGComplete(flag);
     });
 }
 /**
@@ -579,9 +588,8 @@
  */
 +(void)clearAsync:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [[BGFMDB shareManager] clearWithClass:[self class] complete:complete];
-        //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        BOOL flag = [self clear];
+        BGComplete(flag);
     });
 }
 /**
@@ -601,9 +609,8 @@
  */
 +(void)dropAsync:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [[BGFMDB shareManager] dropWithClass:[self class] complete:complete];
-        //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        BOOL flag = [self drop];
+        BGComplete(flag);
     });
 }
 /**
@@ -691,12 +698,11 @@
         if(version > oldVersion){
             [BGTool setIntegerWithKey:tableName value:version];
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-                [[BGFMDB shareManager] refreshTable:tableName keys:[BGTool getClassIvarList:[self class] onlyKey:NO] complete:complete];
-                //关闭数据库
-                [[BGFMDB shareManager] closeDB];
+                dealState state = [self updateVersion:version];
+                BGComplete(state);
                 });
         }else{
-            !complete?:complete(Error);
+            BGComplete(Error);;
         }
 }
 /**
@@ -738,12 +744,11 @@
     if(version > oldVersion){
         [BGTool setIntegerWithKey:tableName value:version];
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-            [[BGFMDB shareManager] refreshTable:tableName keyDict:keydict complete:complete];
-            //关闭数据库
-            [[BGFMDB shareManager] closeDB];
+            dealState state = [self updateVersion:version keyDict:keydict];
+            BGComplete(state);
         });
     }else{
-        !complete?:complete(Error);
+        BGComplete(Error);;
     }
 }
 /**
@@ -771,9 +776,8 @@
  */
 +(void)copyAsyncToClass:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append complete:(Complete_I)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [[BGFMDB shareManager] copyClass:[self class] to:destCla keyDict:keydict append:append complete:complete];
-        //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        dealState state = [self copyToClass:destCla keyDict:keydict append:append];
+        BGComplete(state);
     });
 }
 /**

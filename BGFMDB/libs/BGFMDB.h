@@ -9,6 +9,8 @@
 #import "BGTool.h"
 
 @interface BGFMDB : NSObject
+//信号量.
+@property (nonatomic, strong)dispatch_semaphore_t _Nullable semaphore;
 @property(nonatomic,assign)BOOL debug;
 /**
  获取单例函数.
@@ -47,6 +49,7 @@
  @complete 回调的block.
  */
 -(void)saveObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete;
+-(void)saveQueueObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete;
 /**
  根据条件查询对象.
  @cla 代表对应的类.

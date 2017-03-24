@@ -130,6 +130,10 @@ extern NSString* _Nonnull keyPathValues(NSArray* _Nonnull keyPathValues);
  */
 +(NSDictionary* _Nonnull)getUpdateDictWithObject:(id _Nonnull)object;
 /**
+ 如果表格不存在就新建.
+ */
++(BOOL)ifNotExistWillCreateTableWithObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys;
+/**
  NSUserDefaults封装使用函数.
  */
 +(BOOL)getBoolWithKey:(NSString* _Nonnull)key;

@@ -61,6 +61,16 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  */
 -(void)saveAsync:(Complete_B)complete;
 /**
+ 同步存入对象数组.
+ @array 存放对象的数组.
+ */
++(BOOL)saveArray:(NSArray* _Nonnull)array;
+/**
+ 异步存入对象数组.
+ @array 存放对象的数组.
+ */
++(void)saveArrayAsync:(NSArray* _Nonnull)array complete:(Complete_B)complete;
+/**
  同步存储或更新.
  当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
  */

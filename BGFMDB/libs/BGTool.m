@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 #import "BGTool.h"
+#import "BGFMDB.h"
 
 #define SqlText @"text" //数据库的字符类型
 #define SqlReal @"real" //数据库的浮点类型
@@ -755,6 +756,39 @@ NSString* keyPathValues(NSArray* keyPathValues){
     //移除创建时间字段不做更新.
     [valueDict removeObjectForKey:[NSString stringWithFormat:@"%@%@",BG,BGCreateTime]];
     return valueDict;
+}
+/**
+ 如果表格不存在就新建.
+ */
++(BOOL)ifNotExistWillCreateTableWithObject:(id)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys{
+    //检查是否建立了跟对象相对应的数据表
+    NSString* tableName = NSStringFromClass([object class]);
+    //获取"唯一约束"字段名
+    NSString* uniqueKey = [BGTool getUnique:object];
+    __block BOOL isExistTable;
+    [[BGFMDB shareManager] isExistWithTableName:tableName complete:^(BOOL isExist) {
+        if (!isExist){//如果不存在就新建
+            NSMutableArray* createKeys = [NSMutableArray arrayWithArray:[BGTool getClassIvarList:[object class] onlyKey:NO]];
+            //判断是否有需要忽略的key集合.
+            if (ignoredKeys){
+                for(__block int i=0;i<createKeys.count;i++){
+                    NSString* createKey = [createKeys[i] componentsSeparatedByString:@"*"][0];
+                    [ignoredKeys enumerateObjectsUsingBlock:^(id  _Nonnull ignoreKey, NSUInteger idi, BOOL * _Nonnull stop) {
+                        if([createKey isEqualToString:ignoreKey]){
+                            [createKeys removeObjectAtIndex:i];
+                            i--;
+                            *stop = YES;
+                        }
+                    }];
+                }
+            }
+            [[BGFMDB shareManager] createTableWithTableName:tableName keys:createKeys uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
+                isExistTable = isSuccess;
+            }];
+        }
+    }];
+    
+    return isExistTable;
 }
 +(BOOL)getBoolWithKey:(NSString*)key{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];

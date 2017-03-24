@@ -108,8 +108,8 @@
     /**
      将People类中name等于"马云爸爸"的数据的name设为"马化腾",此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
      */
-    BOOL updateState = [People updateFormatSqlConditions:@"set %@=%@ where %@=%@",sqlKey(@"name"),sqlValue(@"马化腾"),sqlKey(@"name"),sqlValue(@"斯巴达")];
-    NSLog(@"------");
+    //BOOL updateState = [People updateFormatSqlConditions:@"set %@=%@ where %@=%@",sqlKey(@"name"),sqlValue(@"马化腾"),sqlKey(@"name"),sqlValue(@"斯巴达")];
+
     /**
      将People类数据中name等于"马化腾"的数据更新为当前对象的数据.
      */
