@@ -388,13 +388,30 @@
  */
 -(BOOL)updateWhere:(NSArray* _Nullable)where{
     __block BOOL result;
-    [[BGFMDB shareManager] updateWithObject:self where:where complete:^(BOOL isSuccess) {
+    [[BGFMDB shareManager] updateWithObject:self where:where ignoreKeys:nil complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
     [[BGFMDB shareManager] closeDB];
     return result;
 }
+/**
+ 同步更新数据.
+ @where 条件数组，形式@[@"name",@"=",@"标哥",@"age",@"=>",@(25)],即更新name=标哥,age=>25的数据.
+ 可以为nil,nil时更新所有数据;
+ @ignoreKeys 忽略哪些key不用更新.
+ 不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持(有专门的keyPath更新接口).
+ */
+-(BOOL)updateWhere:(NSArray* _Nullable)where ignoreKeys:(NSArray* const _Nullable)ignoreKeys{
+    __block BOOL result;
+    [[BGFMDB shareManager] updateWithObject:self where:where ignoreKeys:ignoreKeys complete:^(BOOL isSuccess) {
+        result = isSuccess;
+    }];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return result;
+}
+
 /**
  异步更新.
  @where 条件数组，形式@[@"name",@"=",@"标哥",@"age",@"=>",@(25)],即更新name=标哥,age=>25的数据;
@@ -447,9 +464,45 @@
     NSString *conditions = [[NSString alloc] initWithFormat:format arguments:ap];
     va_end (ap);
     NSString* tableName = NSStringFromClass([self class]);
-    NSDictionary* valueDict = [BGTool getUpdateDictWithObject:self];
+    NSDictionary* valueDict = [BGTool getUpdateDictWithObject:self ignoredKeys:nil];
     __block BOOL result;
     [[BGFMDB shareManager] updateWithTableName:tableName valueDict:valueDict conditions:conditions complete:^(BOOL isSuccess) {
+        result = isSuccess;
+    }];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return result;
+}
+/**
+ @format 传入sql条件参数,语句来进行更新,方便开发者自由扩展.
+ 支持keyPath.
+ 使用规则请看demo或如下事例:
+ 1.将People类数据中user.student.human.body等于"小芳"的数据更新为当前对象的数据(忽略name不要更新).
+ NSString* conditions = [NSString stringWithFormat:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+ [p updateFormatSqlConditions:conditions IgnoreKeys:@[@"name"]];
+ 2.将People类中name等于"马云爸爸"的数据更新为当前对象的数据.
+ NSString* conditions = [NSString stringWithFormat:@"where %@=%@",sqlKey(@"name"),sqlValue(@"马云爸爸")])];
+ [p updateFormatSqlConditions:conditions IgnoreKeys:nil];
+ */
+-(BOOL)updateFormatSqlConditions:(NSString*)conditions IgnoreKeys:(NSArray* const _Nullable)ignoreKeys{
+    __block BOOL result;
+    [[BGFMDB shareManager] updateObject:self ignoreKeys:ignoreKeys conditions:conditions complete:^(BOOL isSuccess) {
+        result = isSuccess;
+    }];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return result;
+}
+
+/**
+ 根据keypath更新数据.
+ 同步更新.
+ @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
+ 即更新user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
+ */
+-(BOOL)updateForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
+    __block BOOL result;
+    [[BGFMDB shareManager] updateWithObject:self forKeyPathAndValues:keyPathValues ignoreKeys:nil complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
@@ -461,16 +514,18 @@
  同步更新.
  @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
  即更新user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
+ @ignoreKeys 即或略哪些key不用更新.
  */
--(BOOL)updateForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
+-(BOOL)updateForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues ignoreKeys:(NSArray* const _Nullable)ignoreKeys{
     __block BOOL result;
-    [[BGFMDB shareManager] updateWithObject:self forKeyPathAndValues:keyPathValues complete:^(BOOL isSuccess) {
+    [[BGFMDB shareManager] updateWithObject:self forKeyPathAndValues:keyPathValues ignoreKeys:ignoreKeys complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
     [[BGFMDB shareManager] closeDB];
     return result;
 }
+
 /**
  根据keypath更新数据.
  异步更新.

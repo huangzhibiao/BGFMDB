@@ -747,11 +747,19 @@ NSString* keyPathValues(NSArray* keyPathValues){
 /**
  根据对象获取要更新的字典.
  */
-+(NSDictionary*)getUpdateDictWithObject:(id)object{
++(NSDictionary*)getUpdateDictWithObject:(id)object ignoredKeys:(NSArray* const)ignoredKeys{
     NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:object];
     NSMutableDictionary* valueDict = [NSMutableDictionary dictionary];
-    for(BGModelInfo* info in infos){
-        valueDict[info.sqlColumnName] = info.sqlColumnValue;
+    if (ignoredKeys) {
+        for(BGModelInfo* info in infos){
+            if(![ignoredKeys containsObject:info.propertyName]){
+                valueDict[info.sqlColumnName] = info.sqlColumnValue;
+            }
+        }
+    }else{
+        for(BGModelInfo* info in infos){
+            valueDict[info.sqlColumnName] = info.sqlColumnValue;
+        }
     }
     //移除创建时间字段不做更新.
     [valueDict removeObjectForKey:[NSString stringWithFormat:@"%@%@",BG,BGCreateTime]];
@@ -760,7 +768,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
 /**
  如果表格不存在就新建.
  */
-+(BOOL)ifNotExistWillCreateTableWithObject:(id)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys{
++(BOOL)ifNotExistWillCreateTableWithObject:(id)object ignoredKeys:(NSArray* const)ignoredKeys{
     //检查是否建立了跟对象相对应的数据表
     NSString* tableName = NSStringFromClass([object class]);
     //获取"唯一约束"字段名

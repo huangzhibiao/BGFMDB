@@ -83,13 +83,13 @@
  @where 数组的形式 @[@"key",@"=",@"value",@"key",@">=",@"value"],为nil时设置全部.
  @complete 回调的block
  */
--(void)updateWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where complete:(Complete_B)complete;
+-(void)updateWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where ignoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(Complete_B)complete;
 /**
  根据keyPath改变对象数据.
  @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
  即更新user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
--(void)updateWithObject:(id _Nonnull)object forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete;
+-(void)updateWithObject:(id _Nonnull)object forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues ignoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(Complete_B)complete;
 /**
  根据条件改变对象的部分变量值.
  @cla 代表对应的类.
@@ -98,6 +98,10 @@
  @complete 回调的block
  */
 -(void)updateWithClass:(__unsafe_unretained _Nonnull Class)cla valueDict:(NSDictionary* _Nonnull)valueDict where:(NSArray* _Nullable)where complete:(Complete_B)complete;
+/**
+ 直接传入条件sql语句更新对象.
+ */
+-(void)updateObject:(id _Nonnull)object ignoreKeys:(NSArray* const _Nullable)ignoreKeys conditions:(NSString* _Nonnull)conditions complete:(Complete_B)complete;
 /**
  根据条件删除对象表中的对象数据.
  @cla 代表对应的类.

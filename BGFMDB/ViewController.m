@@ -38,7 +38,8 @@
     /**
      存储
      */
-    [p save];
+    [p saveIgnoredKeys:@[@"name"]];
+    [p updateWhere:@[@"age",@"=",@(50)]];
     
     /**
      同步存储或更新.

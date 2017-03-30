@@ -72,7 +72,7 @@ static BGFMDB* BGFmdb = nil;
 -(FMDatabaseQueue *)queue{
     if(_queue)return _queue;
     // 0.获得沙盒中的数据库文件名
-    NSString *filename = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:SQLITE_NAME];
+    NSString *filename = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:SQLITE_NAME];
     _queue = [FMDatabaseQueue databaseQueueWithPath:filename];
     return _queue;
 }
@@ -565,9 +565,23 @@ static BGFMDB* BGFmdb = nil;
 -(void)updateWithTableName:(NSString* _Nonnull)name valueDict:(NSDictionary* _Nullable)valueDict conditions:(NSString* _Nonnull)conditions complete:(Complete_B)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    //自动判断是否有字段改变,自动刷新数据库.
-    [self ifIvarChangeForClass:NSClassFromString(name)];
-    [self updateQueueWithTableName:name valueDict:valueDict conditions:conditions complete:complete];
+        //自动判断是否有字段改变,自动刷新数据库.
+        [self ifIvarChangeForClass:NSClassFromString(name) ignoredKeys:nil];
+        [self updateQueueWithTableName:name valueDict:valueDict conditions:conditions complete:complete];
+    }
+    dispatch_semaphore_signal(self.semaphore);
+}
+/**
+ 直接传入条件sql语句更新对象.
+ */
+-(void)updateObject:(id _Nonnull)object ignoreKeys:(NSArray* const _Nullable)ignoreKeys conditions:(NSString* _Nonnull)conditions complete:(Complete_B)complete{
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    @autoreleasepool {
+        NSString* tableName = NSStringFromClass([object class]);
+        //自动判断是否有字段改变,自动刷新数据库.
+        [self ifIvarChangeForClass:NSClassFromString(tableName) ignoredKeys:ignoreKeys];
+         NSDictionary* valueDict = [BGTool getUpdateDictWithObject:self ignoredKeys:ignoreKeys];
+        [self updateQueueWithTableName:tableName valueDict:valueDict conditions:conditions complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
 }
@@ -1072,7 +1086,7 @@ static BGFMDB* BGFmdb = nil;
 /**
  判断类属性是否有改变,智能刷新.
  */
--(void)ifIvarChangeForClass:(Class)cla{
+-(void)ifIvarChangeForClass:(Class)cla ignoredKeys:(NSArray*)ignoredkeys{
     @autoreleasepool {
         NSString* tableName = NSStringFromClass(cla);
         NSMutableArray* newKeys = [NSMutableArray array];
@@ -1084,15 +1098,20 @@ static BGFMDB* BGFmdb = nil;
             if(rs.next){
                 NSArray* columNames = [rs columnNames];
                 NSArray* keyAndtypes = [BGTool getClassIvarList:cla onlyKey:NO];
-                [keyAndtypes enumerateObjectsUsingBlock:^(NSString*  _Nonnull keyAndtype, NSUInteger idx, BOOL * _Nonnull stop) {
+                for(NSString* keyAndtype in keyAndtypes){
                     NSString* key = [[keyAndtype componentsSeparatedByString:@"*"] firstObject];
+                    if (ignoredkeys && [ignoredkeys containsObject:key])continue;
+                        
                     key = [NSString stringWithFormat:@"%@%@",BG,key];
                     if (![columNames containsObject:key]) {
                         [newKeys addObject:keyAndtype];
                     }
-                }];
+                }
                 
-                NSArray* keys = [BGTool getClassIvarList:cla onlyKey:YES];
+                NSMutableArray* keys = [NSMutableArray arrayWithArray:[BGTool getClassIvarList:cla onlyKey:YES]];
+                if (ignoredkeys) {
+                    [keys removeObjectsInArray:ignoredkeys];
+                }
                 [columNames enumerateObjectsUsingBlock:^(NSString* _Nonnull columName, NSUInteger idx, BOOL * _Nonnull stop) {
                     NSString* propertyName = [columName stringByReplacingOccurrencesOfString:BG withString:@""];
                     if(![keys containsObject:propertyName]){
@@ -1137,7 +1156,7 @@ static BGFMDB* BGFmdb = nil;
         }
     }
     //自动判断是否有字段改变,自动刷新数据库.
-    [self ifIvarChangeForClass:[object class]];
+    [self ifIvarChangeForClass:[object class] ignoredKeys:ignoredKeys];
     NSString* tableName = [NSString stringWithFormat:@"%@",[object class]];
     [self insertIntoTableName:tableName Dict:dictM complete:complete];
 
@@ -1165,7 +1184,7 @@ static BGFMDB* BGFmdb = nil;
         [dictArray addObject:dictM];
     }];
     //自动判断是否有字段改变,自动刷新数据库.
-    [self ifIvarChangeForClass:[array.firstObject class]];
+    [self ifIvarChangeForClass:[array.firstObject class] ignoredKeys:ignoredKeys];
     NSString* tableName = [NSString stringWithFormat:@"%@",[array.firstObject class]];
     [self insertIntoTableName:tableName DictArray:dictArray complete:complete];
 }
@@ -1289,8 +1308,8 @@ static BGFMDB* BGFmdb = nil;
     dispatch_semaphore_signal(self.semaphore);
 }
 
--(void)updateQueueWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where complete:(Complete_B)complete{
-    NSDictionary* valueDict = [BGTool getUpdateDictWithObject:object];
+-(void)updateQueueWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where ignoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(Complete_B)complete{
+    NSDictionary* valueDict = [BGTool getUpdateDictWithObject:object ignoredKeys:ignoreKeys];
     NSString* tableName = NSStringFromClass([object class]);
     __block BOOL result = NO;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){
@@ -1302,7 +1321,7 @@ static BGFMDB* BGFmdb = nil;
         !complete?:complete(NO);
     }else{
         //自动判断是否有字段改变,自动刷新数据库.
-        [self ifIvarChangeForClass:[object class]];
+        [self ifIvarChangeForClass:[object class] ignoredKeys:ignoreKeys];
         [self updateWithTableName:tableName valueDict:valueDict where:where complete:complete];
     }
 
@@ -1311,16 +1330,16 @@ static BGFMDB* BGFmdb = nil;
 /**
  根据条件改变对象数据.
  */
--(void)updateWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where complete:(Complete_B)complete{
+-(void)updateWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where ignoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(Complete_B)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    [self updateQueueWithObject:object where:where complete:complete];
+    [self updateQueueWithObject:object where:where ignoreKeys:ignoreKeys complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
 }
 
--(void)updateQueueWithObject:(id _Nonnull)object forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
-    NSDictionary* valueDict = [BGTool getUpdateDictWithObject:object];
+-(void)updateQueueWithObject:(id _Nonnull)object forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues ignoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(Complete_B)complete{
+    NSDictionary* valueDict = [BGTool getUpdateDictWithObject:object ignoredKeys:ignoreKeys];
     NSString* tableName = NSStringFromClass([object class]);
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){
@@ -1338,12 +1357,12 @@ static BGFMDB* BGFmdb = nil;
 /**
  根据keyPath改变对象数据.
  */
--(void)updateWithObject:(id _Nonnull)object forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
+-(void)updateWithObject:(id _Nonnull)object forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues ignoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(Complete_B)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
     //自动判断是否有字段改变,自动刷新数据库.
-    [self ifIvarChangeForClass:[object class]];
-    [self updateQueueWithObject:object forKeyPathAndValues:keyPathValues complete:complete];
+    [self ifIvarChangeForClass:[object class] ignoredKeys:ignoreKeys];
+    [self updateQueueWithObject:object forKeyPathAndValues:keyPathValues ignoreKeys:ignoreKeys complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
 }

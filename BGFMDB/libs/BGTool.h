@@ -128,7 +128,7 @@ extern NSString* _Nonnull keyPathValues(NSArray* _Nonnull keyPathValues);
 /**
  根据对象获取要更新的字典.
  */
-+(NSDictionary* _Nonnull)getUpdateDictWithObject:(id _Nonnull)object;
++(NSDictionary* _Nonnull)getUpdateDictWithObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys;
 /**
  如果表格不存在就新建.
  */
