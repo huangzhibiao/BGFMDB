@@ -35,11 +35,10 @@
     [super viewDidLoad];
     
     People* p = [self people];
-    [p updateWhere:@[@"name",@"=",@"斯巴达"]];
     /**
      存储
      */
-    //[p save];
+    [p save];
     
     /**
      同步存储或更新.
@@ -73,7 +72,7 @@
 //    [NSObject inTransaction:^BOOL{
 //        [p save];//存储
 //        [p save];
-//        [People deleteWhere:@[@"name",@"=",@"标哥"]];//删除
+//        [People clear];//清除全部People的数据.
 //        return YES;
 //    }];
     
