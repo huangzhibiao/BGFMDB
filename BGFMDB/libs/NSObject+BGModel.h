@@ -236,6 +236,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  2.将People类中name等于"马云爸爸"的数据更新为当前对象的数据.
  NSString* conditions = [NSString stringWithFormat:@"where %@=%@",sqlKey(@"name"),sqlValue(@"马云爸爸")])];
  [p updateFormatSqlConditions:conditions IgnoreKeys:nil];
+ @ignoreKeys 忽略哪些key不用更新.
  */
 -(BOOL)updateFormatSqlConditions:(NSString* _Nonnull)conditions IgnoreKeys:(NSArray* const _Nullable)ignoreKeys;
 /**
