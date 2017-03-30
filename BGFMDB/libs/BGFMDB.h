@@ -51,6 +51,10 @@
 -(void)saveObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete;
 -(void)saveQueueObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete;
 /**
+ 批量存储.
+ */
+-(void)saveObjects:(NSArray* _Nonnull)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete;
+/**
  根据条件查询对象.
  @cla 代表对应的类.
  @where 形式 @[@"key",@"=",@"value",@"key",@">=",@"value"] .
@@ -251,5 +255,6 @@
  @keys 新表的数组字段.
  */
 -(void)refreshTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* const _Nonnull)keys complete:(Complete_I)complete;
+-(void)refreshQueueTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* const _Nonnull)keys complete:(Complete_I)complete;
 -(void)refreshTable:(NSString* _Nonnull)name keyDict:(NSDictionary* const _Nonnull)keyDict complete:(Complete_I)complete;
 @end

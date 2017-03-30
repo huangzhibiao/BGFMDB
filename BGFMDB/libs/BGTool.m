@@ -542,7 +542,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
         for(NSString* valueKey in valueDictKeys){
             if ([valueKey isEqualToString:BGArrKT]){
                 id ivarValue = [self getSqlValue:valueDict[valueKey] type:arrKT.lastObject encode:NO];
-                [object setValue:ivarValue forKey:arrKT.firstObject];
+                !ivarValue?:[object setValue:ivarValue forKey:arrKT.firstObject];
                 break;//匹配处理完后跳出内循环.
             }
         }
@@ -790,6 +790,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
     
     return isExistTable;
 }
+
 +(BOOL)getBoolWithKey:(NSString*)key{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     return [defaults boolForKey:key];

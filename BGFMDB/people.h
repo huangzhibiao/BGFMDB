@@ -16,7 +16,10 @@
 @property(nonatomic,copy)NSString* sex;
 @property(nonatomic,copy)NSString* body;
 @property(nonatomic,assign)NSInteger humanAge;
-
+@property(nonatomic,assign)int age;
+@property(nonatomic,assign)int num;
+@property(nonatomic,assign)int counts;
+@property(nonatomic,copy)NSString* food;
 @end
 
 @interface Student : NSObject

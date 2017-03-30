@@ -10,6 +10,7 @@
 #import "stockController.h"
 #import "dictToModelController.h"
 #import "people.h"
+#import "BGFMDB.h"
 
 @interface ViewController ()
 
@@ -29,16 +30,17 @@
 
 @implementation ViewController
 
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
     People* p = [self people];
-
+    [p updateWhere:@[@"name",@"=",@"斯巴达"]];
     /**
      存储
      */
-    [p save];
-
+    //[p save];
+    
     /**
      同步存储或更新.
      当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
@@ -71,6 +73,7 @@
 //    [NSObject inTransaction:^BOOL{
 //        [p save];//存储
 //        [p save];
+//        [People deleteWhere:@[@"name",@"=",@"标哥"]];//删除
 //        return YES;
 //    }];
     

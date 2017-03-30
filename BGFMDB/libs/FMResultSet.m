@@ -77,6 +77,16 @@
     return _columnNameToIndexMap;
 }
 
+-(NSArray *)columnNames{
+    int columnCount = sqlite3_column_count([_statement statement]);
+    int columnIdx = 0;
+    NSMutableArray* tempArrayM = [NSMutableArray array];
+    for (columnIdx = 0; columnIdx < columnCount; columnIdx++){
+        [tempArrayM addObject:[NSString stringWithUTF8String:sqlite3_column_name([_statement statement], columnIdx)]];
+    }
+    return tempArrayM.count?tempArrayM:nil;
+}
+
 - (void)kvcMagic:(id)object {
     
     int columnCount = sqlite3_column_count([_statement statement]);

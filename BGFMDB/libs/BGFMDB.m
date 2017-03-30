@@ -16,6 +16,7 @@ static const void * const BGFMDBDispatchQueueSpecificKey = &BGFMDBDispatchQueueS
 //数据库队列
 @property (nonatomic, strong) FMDatabaseQueue *queue;
 @property (nonatomic, strong) FMDatabase* db;
+@property (nonatomic, assign) BOOL inTransaction;
 //递归锁.
 //@property (nonatomic, strong) NSRecursiveLock *threadLock;
 
@@ -40,10 +41,7 @@ static BGFMDB* BGFmdb = nil;
     if (_semaphore) {
         _semaphore = 0x00;
     }
-    if(_queue) {
-        [_queue close];//关闭数据库.
-        _queue = nil;
-    }
+    [self closeDB];
     if (BGFmdb) {
         BGFmdb = nil;
     }
@@ -53,7 +51,7 @@ static BGFMDB* BGFmdb = nil;
  关闭数据库.
  */
 -(void)closeDB{
-    if(_queue) {
+    if(!_inTransaction && _queue) {//没有事务的情况下就关闭数据库.
         [_queue close];//关闭数据库.
         _queue = nil;
     }
@@ -93,19 +91,19 @@ static BGFMDB* BGFmdb = nil;
 -(void)inTransaction:(BOOL (^_Nonnull)())block{
     NSAssert(block, @"block is nil!");
     [self executeDB:^(FMDatabase * _Nonnull db) {
-        BOOL inTransacttion = db.inTransaction;
-        if (!inTransacttion) {
-            [db beginTransaction];
+        _inTransaction = db.inTransaction;
+        if (!_inTransaction) {
+           _inTransaction = [db beginTransaction];
         }
         BOOL isCommit = NO;
         isCommit = block();
-        if (!inTransacttion) {
+        if (_inTransaction){
             if (isCommit) {
                 [db commit];
-            }
-            else {
+            }else {
                 [db rollback];
             }
+            _inTransaction = NO;
         }
     }];
 }
@@ -280,6 +278,52 @@ static BGFMDB* BGFmdb = nil;
         complete(result);
     }
 }
+/**
+ 批量插入
+ */
+-(void)insertIntoTableName:(NSString* _Nonnull)name DictArray:(NSArray<NSDictionary*>* _Nonnull)dictArray complete:(Complete_B)complete{
+    NSAssert(name,@"表名不能为空!");
+    NSAssert(dictArray,@"字典数组不能为空!");
+    __block BOOL result;
+    [self executeDB:^(FMDatabase * _Nonnull db) {
+        [db beginTransaction];
+        [dictArray enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull dict, NSUInteger idx, BOOL * _Nonnull stop) {
+            @autoreleasepool {
+                NSArray* keys = dict.allKeys;
+                NSArray* values = dict.allValues;
+                NSMutableString* SQL = [[NSMutableString alloc] init];
+                [SQL appendFormat:@"insert into %@(",name];
+                for(int i=0;i<keys.count;i++){
+                    [SQL appendFormat:@"%@",keys[i]];
+                    if(i == (keys.count-1)){
+                        [SQL appendString:@") "];
+                    }else{
+                        [SQL appendString:@","];
+                    }
+                }
+                [SQL appendString:@"values("];
+                for(int i=0;i<values.count;i++){
+                    [SQL appendString:@"?"];
+                    if(i == (keys.count-1)){
+                        [SQL appendString:@");"];
+                    }else{
+                        [SQL appendString:@","];
+                    }
+                }
+                debug(SQL);
+                result = [db executeUpdate:SQL withArgumentsInArray:values];
+                if(!result)*stop=YES;
+            }
+        }];
+        [db commit];
+    }];
+    //数据监听执行函数
+    [self doChangeWithName:name flag:result state:Insert];
+    if (complete) {
+        complete(result);
+    }
+}
+
 
 -(void)queryQueueWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(Complete_A)complete{
     NSAssert(name,@"表名不能为空!");
@@ -301,6 +345,8 @@ static BGFMDB* BGFmdb = nil;
             }
             [arrM addObject:dictM];
         }
+        //查询完后要关闭rs，不然会报@"Warning: there is at least one open result set around after performing
+        [rs close];
     }];
 
     if (complete) {
@@ -361,6 +407,8 @@ static BGFMDB* BGFmdb = nil;
             }
             [arrM addObject:dictM];
         }
+        //查询完后要关闭rs，不然会报@"Warning: there is at least one open result set around after performing
+        [rs close];
     }];
     
     if (complete) {
@@ -402,6 +450,8 @@ static BGFMDB* BGFmdb = nil;
             }
             [arrM addObject:dictM];
         }
+        //查询完后要关闭rs，不然会报@"Warning: there is at least one open result set around after performing
+        [rs close];
     }];
     
     if (complete) {
@@ -419,6 +469,9 @@ static BGFMDB* BGFmdb = nil;
         debug(SQL);
         // 1.查询数据
         FMResultSet *rs = [db executeQuery:SQL];
+        if (rs == nil) {
+            debug(@"查询错误,数据不存在,请存储后再读取!");
+        }
         // 2.遍历结果集
         while (rs.next) {
             NSMutableDictionary* dictM = [[NSMutableDictionary alloc] init];
@@ -427,6 +480,8 @@ static BGFMDB* BGFmdb = nil;
             }
             [arrM addObject:dictM];
         }
+        //查询完后要关闭rs，不然会报@"Warning: there is at least one open result set around after performing
+        [rs close];
     }];
 
     if (complete) {
@@ -510,6 +565,8 @@ static BGFMDB* BGFmdb = nil;
 -(void)updateWithTableName:(NSString* _Nonnull)name valueDict:(NSDictionary* _Nullable)valueDict conditions:(NSString* _Nonnull)conditions complete:(Complete_B)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
+    //自动判断是否有字段改变,自动刷新数据库.
+    [self ifIvarChangeForClass:NSClassFromString(name)];
     [self updateQueueWithTableName:name valueDict:valueDict conditions:conditions complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
@@ -662,7 +719,7 @@ static BGFMDB* BGFmdb = nil;
     NSAssert(name,@"表名不能为空!");
     __block BOOL result;
     [self executeDB:^(FMDatabase * _Nonnull db) {
-        NSString* SQL = [NSString stringWithFormat:@"alter table %@ add %@",name,[BGTool keyAndType:key]];
+        NSString* SQL = [NSString stringWithFormat:@"alter table %@ add %@;",name,[BGTool keyAndType:key]];
         debug(SQL);
         result = [db executeUpdate:SQL];
     }];
@@ -1013,6 +1070,56 @@ static BGFMDB* BGFmdb = nil;
 }
 
 /**
+ 判断类属性是否有改变,智能刷新.
+ */
+-(void)ifIvarChangeForClass:(Class)cla{
+    @autoreleasepool {
+        NSString* tableName = NSStringFromClass(cla);
+        NSMutableArray* newKeys = [NSMutableArray array];
+        NSMutableArray* sqlKeys = [NSMutableArray array];
+        [self executeDB:^(FMDatabase * _Nonnull db){
+            NSString* SQL = [NSString stringWithFormat:@"select * from %@ limit 0,1;",tableName];
+            FMResultSet* rs = [db executeQuery:SQL];
+            // 2.遍历结果集
+            if(rs.next){
+                NSArray* columNames = [rs columnNames];
+                NSArray* keyAndtypes = [BGTool getClassIvarList:cla onlyKey:NO];
+                [keyAndtypes enumerateObjectsUsingBlock:^(NSString*  _Nonnull keyAndtype, NSUInteger idx, BOOL * _Nonnull stop) {
+                    NSString* key = [[keyAndtype componentsSeparatedByString:@"*"] firstObject];
+                    key = [NSString stringWithFormat:@"%@%@",BG,key];
+                    if (![columNames containsObject:key]) {
+                        [newKeys addObject:keyAndtype];
+                    }
+                }];
+                
+                NSArray* keys = [BGTool getClassIvarList:cla onlyKey:YES];
+                [columNames enumerateObjectsUsingBlock:^(NSString* _Nonnull columName, NSUInteger idx, BOOL * _Nonnull stop) {
+                    NSString* propertyName = [columName stringByReplacingOccurrencesOfString:BG withString:@""];
+                    if(![keys containsObject:propertyName]){
+                        [sqlKeys addObject:columName];
+                    }
+                }];
+            }
+            //查询完后要关闭rs，不然会报@"Warning: there is at least one open result set around after performing
+            !rs?:[rs close];
+            
+        }];
+        
+        if((sqlKeys.count==0) && (newKeys.count>0)){
+            //此处只是增加了新的列.
+            for(NSString* key in newKeys){
+                //添加新字段
+                [self addTable:tableName key:key complete:^(BOOL isSuccess){}];
+            }
+        }else if (sqlKeys.count>0){
+            //字段发生改变,减少或名称变化,实行刷新数据库.
+            [self refreshQueueTable:tableName keys:[BGTool getClassIvarList:cla onlyKey:NO] complete:nil];
+        }else;
+    }
+}
+
+
+/**
  处理插入的字典数据并返回
  */
 -(void)insertDictWithObject:(id)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete{
@@ -1029,31 +1136,59 @@ static BGFMDB* BGFmdb = nil;
             dictM[info.sqlColumnName] = info.sqlColumnValue;
         }
     }
+    //自动判断是否有字段改变,自动刷新数据库.
+    [self ifIvarChangeForClass:[object class]];
     NSString* tableName = [NSString stringWithFormat:@"%@",[object class]];
-    __weak typeof(self) BGSelf = self;
-    [self insertIntoTableName:tableName Dict:dictM complete:^(BOOL isSuccess){
-        __strong typeof(BGSelf) strongSelf = BGSelf;
-        if (isSuccess){
-            !complete?:complete(isSuccess);
-        }else{
-            //检查表字段是否有改变
-            //[strongSelf changeTableWhenClassIvarChange:[object class]];
-            //刷新表数据库.
-            [strongSelf refreshQueueTable:tableName keys:[BGTool getClassIvarList:[object class] onlyKey:NO] complete:nil];
-            [strongSelf insertIntoTableName:tableName Dict:dictM complete:complete];
-        }
-    }];
+    [self insertIntoTableName:tableName Dict:dictM complete:complete];
 
 }
 
 /**
- 存储一个对象.
+批量插入数据并返回
  */
+-(void)insertDictWithObjects:(NSArray*)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete{
+    NSMutableArray* dictArray = [NSMutableArray array];
+    [array enumerateObjectsUsingBlock:^(id  _Nonnull object, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:object];
+        NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
+        if (ignoredKeys) {
+            for(BGModelInfo* info in infos){
+                if(![ignoredKeys containsObject:info.propertyName]){
+                    dictM[info.sqlColumnName] = info.sqlColumnValue;
+                }
+            }
+        }else{
+            for(BGModelInfo* info in infos){
+                dictM[info.sqlColumnName] = info.sqlColumnValue;
+            }
+        }
+        [dictArray addObject:dictM];
+    }];
+    //自动判断是否有字段改变,自动刷新数据库.
+    [self ifIvarChangeForClass:[array.firstObject class]];
+    NSString* tableName = [NSString stringWithFormat:@"%@",[array.firstObject class]];
+    [self insertIntoTableName:tableName DictArray:dictArray complete:complete];
+}
+
+
 -(void)saveQueueObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete{
     //插入数据
     [self insertDictWithObject:object ignoredKeys:ignoredKeys complete:complete];
 
 }
+/**
+ 批量存储.
+ */
+-(void)saveObjects:(NSArray* _Nonnull)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete{
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    @autoreleasepool {
+        [self insertDictWithObjects:array ignoredKeys:ignoredKeys complete:complete];
+    }
+    dispatch_semaphore_signal(self.semaphore);
+}
+/**
+ 存储一个对象.
+ */
 -(void)saveObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
@@ -1166,16 +1301,9 @@ static BGFMDB* BGFmdb = nil;
         //如果不存在就返回NO
         !complete?:complete(NO);
     }else{
-        __block BOOL success = NO;
-        [self updateWithTableName:tableName valueDict:valueDict where:where complete:^(BOOL isSuccess) {
-            success = isSuccess;
-        }];
-        if (success){
-            !complete?:complete(success);
-        }else{
-            [self refreshQueueTable:tableName keys:[BGTool getClassIvarList:[object class] onlyKey:NO] complete:nil];
-            [self updateWithTableName:tableName valueDict:valueDict where:where complete:complete];
-        }
+        //自动判断是否有字段改变,自动刷新数据库.
+        [self ifIvarChangeForClass:[object class]];
+        [self updateWithTableName:tableName valueDict:valueDict where:where complete:complete];
     }
 
 }
@@ -1213,6 +1341,8 @@ static BGFMDB* BGFmdb = nil;
 -(void)updateWithObject:(id _Nonnull)object forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
+    //自动判断是否有字段改变,自动刷新数据库.
+    [self ifIvarChangeForClass:[object class]];
     [self updateQueueWithObject:object forKeyPathAndValues:keyPathValues complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);

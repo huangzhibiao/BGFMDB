@@ -41,6 +41,7 @@
 /** `NSMutableDictionary` mapping column names to numeric index */
 
 @property (readonly) NSMutableDictionary *columnNameToIndexMap;
+@property (readonly) NSArray* columnNames;
 
 /** `FMStatement` used by result set. */
 

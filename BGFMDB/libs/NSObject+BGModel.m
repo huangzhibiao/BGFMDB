@@ -81,31 +81,22 @@
 }
 /**
  同步存入对象数组.
- @array 存放对象的数组.
+ @array 存放对象的数组.(数组中存放的是同一种类型的数据)
  */
 +(BOOL)saveArray:(NSArray*)array{
     NSAssert(array||array.count,@"数组没有元素!");
     __block BOOL result = YES;
-    dispatch_semaphore_wait([BGFMDB shareManager].semaphore, DISPATCH_TIME_FOREVER);
-    @autoreleasepool {
     [BGTool ifNotExistWillCreateTableWithObject:array.firstObject ignoredKeys:nil];
-    [array enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        [[BGFMDB shareManager] saveQueueObject:obj ignoredKeys:nil complete:^(BOOL isSuccess) {
-            if (!isSuccess) {
-                result = NO;
-                *stop = YES;
-            }
+        [[BGFMDB shareManager] saveObjects:array ignoredKeys:nil complete:^(BOOL isSuccess) {
+            result = isSuccess;
         }];
-    }];
-    }
-    dispatch_semaphore_signal([BGFMDB shareManager].semaphore);
     //关闭数据库
     [[BGFMDB shareManager] closeDB];
     return result;
 }
 /**
  异步存入对象数组.
- @array 存放对象的数组.
+ @array 存放对象的数组.(数组中存放的是同一种类型的数据)
  */
 +(void)saveArrayAsync:(NSArray*)array complete:(Complete_B)complete{
     NSAssert(array||array.count,@"数组没有元素!");

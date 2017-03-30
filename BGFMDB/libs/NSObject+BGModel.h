@@ -62,12 +62,12 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 -(void)saveAsync:(Complete_B)complete;
 /**
  同步存入对象数组.
- @array 存放对象的数组.
+ @array 存放对象的数组.(数组中存放的是同一种类型的数据)
  */
 +(BOOL)saveArray:(NSArray* _Nonnull)array;
 /**
  异步存入对象数组.
- @array 存放对象的数组.
+ @array 存放对象的数组.(数组中存放的是同一种类型的数据)
  */
 +(void)saveArrayAsync:(NSArray* _Nonnull)array complete:(Complete_B)complete;
 /**
