@@ -33,17 +33,13 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    //想测试更多功能,打开以下注释掉的代码即可.
     
     People* p = [self people];
     /**
      存储
      */
     [p save];
-
-    /**
-     忽略age不用更新.
-     */
-//    [p updateWhere:@[@"age",@"=",@(50)]];
     
     /**
      同步存储或更新.
@@ -85,7 +81,11 @@
      将People类数据中name=@"标哥"，num=220.88的数据更新为当前对象的数据.
      */
     //[p updateWhere:@[@"name",@"=",@"标哥",@"num",@"=",@(220.88)]];
-
+    
+    /**
+     更新age=5的数据成当前对象数据,忽略name不用更新.
+     */
+    //[p updateWhere:@[@"age",@"=",@(50)] ignoreKeys:@[@"name"]];
     
     /**
      清除People表的所有数据
