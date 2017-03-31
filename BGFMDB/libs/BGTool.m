@@ -553,24 +553,6 @@ NSString* keyPathValues(NSArray* keyPathValues){
         }
     }];
     
-    
-//    for(NSString* keyAndType in keyAndTypes){
-//        NSArray* arrKT = [keyAndType componentsSeparatedByString:@"*"];
-//        NSString* BGArrKT;
-//        for(NSString* valueKey in valueDictKeys){
-//            if([valueKey containsString:BG]){
-//                BGArrKT = [NSString stringWithFormat:@"%@%@",BG,[arrKT firstObject]];
-//            }else{
-//                BGArrKT = [arrKT firstObject];
-//            }
-//            if ([valueKey isEqualToString:BGArrKT]){
-//                id ivarValue = [self getSqlValue:valueDict[valueKey] type:arrKT.lastObject encode:NO];
-//                !ivarValue?:[object setValue:ivarValue forKey:arrKT.firstObject];
-//                break;//匹配处理完后跳出内循环.
-//            }
-//        }
-//    }
-    
     return object;
 }
 
