@@ -336,21 +336,21 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 /**
  获取本类数据表当前版本号.
  */
-+(NSInteger)version;
++(NSInteger)version BGFMDBDeprecated("此方法已经废弃,现在全智能检测升级");
 /**
  刷新,当类变量名称或"唯一约束"改变时,调用此接口刷新一下.
  同步刷新.
  @version 版本号,从1开始,依次往后递增.
  说明: 本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
  */
-+(dealState)updateVersion:(NSInteger)version;
++(dealState)updateVersion:(NSInteger)version BGFMDBDeprecated("此方法已经废弃,现在全智能检测升级");
 /**
  刷新,当类变量名称或"唯一约束"改变时,调用此接口刷新一下.
  异步刷新.
  @version 版本号,从1开始,依次往后递增.
  说明: 本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
  */
-+(void)updateVersionAsync:(NSInteger)version complete:(Complete_I)complete;
++(void)updateVersionAsync:(NSInteger)version complete:(Complete_I)complete BGFMDBDeprecated("此方法已经废弃,现在全智能检测升级");
 /**
  刷新,当类变量名称或"唯一约束"改变时,调用此接口刷新一下.
  同步刷新.
