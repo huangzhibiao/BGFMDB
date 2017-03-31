@@ -293,7 +293,7 @@
     human.body = @"小芳";
     student.human = human;
     user.student = student;
-    p.students = @[@(1),@"呵呵",@[@"数组元素1",@"数组元素2"],@{@"集合key":@"集合value"},student,data];
+    p.students = @[@(1),@"呵呵",@[@"数组元素1",@"数组元素2"],@{@"集合key":@"集合value"},student,data,student];
     p.infoDic = @{@"name":@"标哥",@"年龄":@(1),@"数组":@[@"数组1",@"数组2"],@"集合":@{@"集合1":@"集合2"},@"user":user,@"data":data};
     
     NSHashTable* hashTable = [NSHashTable hashTableWithOptions:NSPointerFunctionsWeakMemory];

@@ -1100,7 +1100,7 @@ static BGFMDB* BGFmdb = nil;
                 NSArray* keyAndtypes = [BGTool getClassIvarList:cla onlyKey:NO];
                 for(NSString* keyAndtype in keyAndtypes){
                     NSString* key = [[keyAndtype componentsSeparatedByString:@"*"] firstObject];
-                    if (ignoredkeys && [ignoredkeys containsObject:key])continue;
+                    if(ignoredkeys && [ignoredkeys containsObject:key])continue;
                         
                     key = [NSString stringWithFormat:@"%@%@",BG,key];
                     if (![columNames containsObject:key]) {

@@ -37,6 +37,6 @@
 
 @property(nonatomic,copy)NSString* name;
 @property(nonatomic,strong)NSArray* dogs;
-@property(nonatomic,strong)NSString* bodys;
+@property(nonatomic,strong)NSArray* bodys;
 @property(nonatomic,strong)NSArray* foods;
 @end

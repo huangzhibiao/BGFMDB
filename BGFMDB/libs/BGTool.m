@@ -536,17 +536,40 @@ NSString* keyPathValues(NSArray* keyPathValues){
     id object = [cla new];
     NSArray* valueDictKeys = valueDict.allKeys;
     NSArray* keyAndTypes = [self getClassIvarList:cla onlyKey:NO];
-    for(NSString* keyAndType in keyAndTypes){
-        NSArray* arrKT = [keyAndType componentsSeparatedByString:@"*"];
-        NSString* BGArrKT = [NSString stringWithFormat:@"%@%@",BG,[arrKT firstObject]];
-        for(NSString* valueKey in valueDictKeys){
-            if ([valueKey isEqualToString:BGArrKT]){
-                id ivarValue = [self getSqlValue:valueDict[valueKey] type:arrKT.lastObject encode:NO];
-                !ivarValue?:[object setValue:ivarValue forKey:arrKT.firstObject];
+    
+    [valueDictKeys enumerateObjectsUsingBlock:^(NSString*  _Nonnull sqlKey, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSString* tempSqlKey = sqlKey;
+        if([sqlKey containsString:BG]){
+            tempSqlKey = [sqlKey stringByReplacingOccurrencesOfString:BG withString:@""];
+        }
+        for(NSString* keyAndType in keyAndTypes){
+            NSArray* arrKT = [keyAndType componentsSeparatedByString:@"*"];
+            NSString* key = [arrKT firstObject];
+            if ([tempSqlKey isEqualToString:key]){
+                id ivarValue = [self getSqlValue:valueDict[sqlKey] type:arrKT.lastObject encode:NO];
+                !ivarValue?:[object setValue:ivarValue forKey:key];
                 break;//匹配处理完后跳出内循环.
             }
         }
-    }
+    }];
+    
+    
+//    for(NSString* keyAndType in keyAndTypes){
+//        NSArray* arrKT = [keyAndType componentsSeparatedByString:@"*"];
+//        NSString* BGArrKT;
+//        for(NSString* valueKey in valueDictKeys){
+//            if([valueKey containsString:BG]){
+//                BGArrKT = [NSString stringWithFormat:@"%@%@",BG,[arrKT firstObject]];
+//            }else{
+//                BGArrKT = [arrKT firstObject];
+//            }
+//            if ([valueKey isEqualToString:BGArrKT]){
+//                id ivarValue = [self getSqlValue:valueDict[valueKey] type:arrKT.lastObject encode:NO];
+//                !ivarValue?:[object setValue:ivarValue forKey:arrKT.firstObject];
+//                break;//匹配处理完后跳出内循环.
+//            }
+//        }
+//    }
     
     return object;
 }
