@@ -2,9 +2,9 @@
 ## 最新重大更新:    
 1.当类属性改变时,自动检测更新数据库,全程智能处理,开发者只管怎么存怎么取,其他的交给我处理.   
 ## 广而告知
-![BGDB_OC](https://github.com/huangzhibiao/BGDB_OC "简约时尚强悍版")    
-BGFMDB是多功能版,同时也由于BGFMDB是在FMDB的基础上进行封装,由于多了中间一层的转化,所以性能有所下降,为了能满足更高性能需求的app,所以我特意重构sqlite API层逻辑,打造这款‘简约时尚强悍版’存储框架,名为BGDB,此款是OC版,欢迎老鸟新鸟们测试使用,找出bug跟我交流😊.     
-Swift版正在赶来的路上,请使用Swift的同学们拭目以待吧😊.
+'简约时尚强悍版'震撼出世,点击此处跳转-> ![BGDB_OC](https://github.com/huangzhibiao/BGDB_OC "简约时尚强悍版")       
+1.BGFMDB是多功能版,同时也由于BGFMDB是在FMDB的基础上进行封装,由于多了中间一层的转化,所以性能有所下降,为了能满足更高性能需求的app,所以我特意重构sqlite API层逻辑,打造这款‘简约时尚强悍版’存储框架,名为BGDB,此款是OC版,欢迎老鸟新鸟们测试使用,找出bug跟我交流😊.     
+2.Swift版正在赶来的路上,请使用Swift的同学们拭目以待吧😊.
 ## 小伙伴们的使用反馈   
 ![BGFMDB](http://o7pq80nc2.bkt.clouddn.com/showUse_meitu.jpg "小伙伴们的使用反馈")
 ## 作者联系方式:       
