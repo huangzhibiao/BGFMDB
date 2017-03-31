@@ -745,7 +745,7 @@ static BGFMDB* BGFmdb = nil;
 /**
  查询该表中有多少条数据
  */
--(NSInteger)countForTable:(NSString* _Nonnull)name where:(NSArray* _Nullable)where{
+-(NSInteger)countQueueForTable:(NSString* _Nonnull)name where:(NSArray* _Nullable)where{
     NSAssert(name,@"表名不能为空!");
     NSAssert(!(where.count%3),@"条件数组错误!");
     NSMutableString* strM = [NSMutableString string];
@@ -773,9 +773,21 @@ static BGFMDB* BGFmdb = nil;
     return count;
 }
 /**
+ 查询该表中有多少条数据
+ */
+-(NSInteger)countForTable:(NSString* _Nonnull)name where:(NSArray* _Nullable)where{
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    NSInteger count = 0;
+    @autoreleasepool {
+        count = [self countQueueForTable:name where:where];
+    }
+    dispatch_semaphore_signal(self.semaphore);
+    return count;
+}
+/**
  直接传入条件sql语句查询数据条数.
  */
--(NSInteger)countForTable:(NSString* _Nonnull)name conditions:(NSString* _Nullable)conditions{
+-(NSInteger)countQueueForTable:(NSString* _Nonnull)name conditions:(NSString* _Nullable)conditions{
     NSAssert(name,@"表名不能为空!");
     NSAssert(conditions||conditions.length,@"查询条件不能为空!");
     __block NSUInteger count=0;
@@ -790,9 +802,21 @@ static BGFMDB* BGFmdb = nil;
     return count;
 }
 /**
+ 直接传入条件sql语句查询数据条数.
+ */
+-(NSInteger)countForTable:(NSString* _Nonnull)name conditions:(NSString* _Nullable)conditions{
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    NSInteger count = 0;
+    @autoreleasepool {
+        count = [self countQueueForTable:name conditions:conditions];
+    }
+    dispatch_semaphore_signal(self.semaphore);
+    return count;
+}
+/**
  keyPath查询数据条数.
  */
--(NSInteger)countForTable:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
+-(NSInteger)countQueueForTable:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
     NSString* like = [BGTool getLikeWithKeyPathAndValues:keyPathValues where:YES];
     __block NSUInteger count=0;
     [self executeDB:^(FMDatabase * _Nonnull db) {
@@ -803,6 +827,19 @@ static BGFMDB* BGFmdb = nil;
             return 0;
         }];
     }];
+    return count;
+}
+
+/**
+ keyPath查询数据条数.
+ */
+-(NSInteger)countForTable:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    NSInteger count = 0;
+    @autoreleasepool {
+        count = [self countQueueForTable:name forKeyPathAndValues:keyPathValues];
+    }
+    dispatch_semaphore_signal(self.semaphore);
     return count;
 }
 
@@ -823,7 +860,7 @@ static BGFMDB* BGFmdb = nil;
     __block BOOL recordError = NO;
     __block BOOL recordSuccess = NO;
     __weak typeof(self) BGSelf = self;
-    NSInteger count = [self countForTable:A where:nil];
+    NSInteger count = [self countQueueForTable:A where:nil];
     for(NSInteger i=0;i<count;i+=MaxQueryPageNum){
         @autoreleasepool{//由于查询出来的数据量可能巨大,所以加入自动释放池.
             NSString* param = [NSString stringWithFormat:@"limit %@,%@",@(i),@(MaxQueryPageNum)];
@@ -947,7 +984,7 @@ static BGFMDB* BGFmdb = nil;
     __block BOOL recordError = NO;
     __block BOOL recordSuccess = NO;
     __weak typeof(self) BGSelf = self;
-    NSInteger count = [self countForTable:A where:nil];
+    NSInteger count = [self countQueueForTable:A where:nil];
     for(NSInteger i=0;i<count;i+=MaxQueryPageNum){
         @autoreleasepool{//由于查询出来的数据量可能巨大,所以加入自动释放池.
             NSString* param = [NSString stringWithFormat:@"limit %@,%@",@(i),@(MaxQueryPageNum)];
@@ -1493,7 +1530,7 @@ static BGFMDB* BGFmdb = nil;
     __block dealState copystate = Error;
     __block BOOL recordError = NO;
     __block BOOL recordSuccess = NO;
-    NSInteger srcCount = [self countForTable:srcTable where:nil];
+    NSInteger srcCount = [self countQueueForTable:srcTable where:nil];
     for(NSInteger i=0;i<srcCount;i+=MaxQueryPageNum){
     @autoreleasepool{//由于查询出来的数据量可能巨大,所以加入自动释放池.
         NSString* param = [NSString stringWithFormat:@"limit %@,%@",@(i),@(MaxQueryPageNum)];
