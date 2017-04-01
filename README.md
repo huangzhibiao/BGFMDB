@@ -254,16 +254,16 @@ NSArray* arrayConds3 = [People findFormatSqlConditions:@"where %@ and %@=%@",key
 */
 NSInteger version = [People version];
 ```
-### 类数据库版本升级(已废弃,现在智能检测升级)
+### 类数据库版本手动升级('唯一约束'发生改变时调用)
 ```Objective-C
 //注: 版本号从1开始,依次往后递增,本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
 /**
- 如果类'变量名'或'唯一约束'发生改变,则调用此API刷新该类数据库,不需要新旧映射的情况下使用此API.
+ 如果类'唯一约束'发生改变,则调用此API刷新该类数据库,不需要新旧映射的情况下使用此API.
 */
 [People updateVersion:version];
 
 /**
-如果类'变量名'或'唯一约束'发生改变,则调用此API刷新该类数据库.data2是新变量名,data是旧变量名,即将旧的值映射到新的变量名,其他不变的变量名会自动复制,只管写出变化的对应映射即可.
+如果类'唯一约束'发生改变,则调用此API刷新该类数据库.data2是新变量名,data是旧变量名,即将旧的值映射到新的变量名,其他不变的变量名会自动复制,只管写出变化的对应映射即可.
 */
 [People updateVersion:version keyDict:@{@"data2":@"data"}];
 ```
