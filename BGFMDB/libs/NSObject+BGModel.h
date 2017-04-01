@@ -336,23 +336,23 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 /**
  获取本类数据表当前版本号.
  */
-+(NSInteger)version BGFMDBDeprecated("此方法已经废弃,现在全智能检测升级");
++(NSInteger)version;
 /**
- 刷新,当类变量名称或"唯一约束"改变时,调用此接口刷新一下.
+ 刷新,当类"唯一约束"改变时,调用此接口刷新一下.
  同步刷新.
  @version 版本号,从1开始,依次往后递增.
  说明: 本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
  */
-+(dealState)updateVersion:(NSInteger)version BGFMDBDeprecated("此方法已经废弃,现在全智能检测升级");
++(dealState)updateVersion:(NSInteger)version;
 /**
- 刷新,当类变量名称或"唯一约束"改变时,调用此接口刷新一下.
+ 刷新,当类"唯一约束"改变时,调用此接口刷新一下.
  异步刷新.
  @version 版本号,从1开始,依次往后递增.
  说明: 本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
  */
-+(void)updateVersionAsync:(NSInteger)version complete:(Complete_I)complete BGFMDBDeprecated("此方法已经废弃,现在全智能检测升级");
++(void)updateVersionAsync:(NSInteger)version complete:(Complete_I)complete;
 /**
- 刷新,当类变量名称或"唯一约束"改变时,调用此接口刷新一下.
+ 刷新,当类"唯一约束"改变时,调用此接口刷新一下.
  同步刷新.
  @version 版本号,从1开始,依次往后递增.
  @keyDict 拷贝的对应key集合,形式@{@"新Key1":@"旧Key1",@"新Key2":@"旧Key2"},即将本类以前的变量 “旧Key1” 的数据拷贝给现在本类的变量“新Key1”，其他依此推类.
@@ -361,7 +361,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  */
 +(dealState)updateVersion:(NSInteger)version keyDict:(NSDictionary* const _Nonnull)keydict;
 /**
- 刷新,当类变量名称或"唯一约束"改变时,调用此接口刷新一下.
+ 刷新,当类"唯一约束"改变时,调用此接口刷新一下.
  异步刷新.
  @version 版本号,从1开始,依次往后递增.
  @keyDict 拷贝的对应key集合,形式@{@"新Key1":@"旧Key1",@"新Key2":@"旧Key2"},即将本类以前的变量 “旧Key1” 的数据拷贝给现在本类的变量“新Key1”，其他依此推类.

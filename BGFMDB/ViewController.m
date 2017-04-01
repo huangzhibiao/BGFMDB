@@ -15,6 +15,9 @@
 @interface ViewController ()
 
 @property (weak, nonatomic) IBOutlet UIImageView *showImage;
+@property (weak, nonatomic) IBOutlet UILabel *showLab;
+
+
 - (IBAction)insertAction:(id)sender;
 - (IBAction)deleteAction:(id)sender;
 - (IBAction)updateAction:(id)sender;
@@ -34,8 +37,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     //想测试更多功能,打开以下注释掉的代码即可.
-    
     People* p = [self people];
+    
     /**
      存储
      */
@@ -168,6 +171,12 @@
             for(People* pp in arr)
             //库新增两个自带字段createTime和updateTime方便开发者使用和做参考对比.
             NSLog(@"主键 = %@ , 创建时间 = %@ , 更新时间 = %@",pp.ID,pp.createTime,pp.updateTime);
+        
+        if(i==0){
+            People* p = arr.lastObject;
+            _showImage.image = p.image;
+            _showLab.attributedText = p.attriStr;
+        }
     }
     
     /**
@@ -270,6 +279,9 @@
     p.size = CGSizeMake(50,50);
     p.point = CGPointMake(2.55,3.14);
     p.color = [UIColor colorWithRed:245 green:245 blue:245 alpha:1.0];
+    NSMutableAttributedString* attStrM = [[NSMutableAttributedString alloc] initWithString:@"BGFMDB"];
+    [attStrM addAttribute:NSForegroundColorAttributeName value:[UIColor redColor] range:NSMakeRange(0, 2)];
+    p.attriStr = attStrM;
     p.image = [UIImage imageNamed:@"MarkMan"];
     NSData* data = UIImageJPEGRepresentation(p.image, 1);
     p.data2 = data;

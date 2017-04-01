@@ -88,6 +88,7 @@
 //@property(nonatomic,strong)NSMutableData* dataM;
 @property(nonatomic,strong)UIImage* image;
 @property(nonatomic,strong)UIColor* color;
+@property(nonatomic,strong)NSAttributedString* attriStr;
 
 @property(nonatomic,strong)NSURL* Url;
 @end

@@ -407,7 +407,16 @@ NSString* keyPathValues(NSArray* keyPathValues){
     if(!value || [value isKindOfClass:[NSNull class]])return nil;
     
     if([type containsString:@"String"]){
-        return value;
+        if([type containsString:@"AttributedString"]){//处理富文本.
+            if(encode) {
+                return [[NSKeyedArchiver archivedDataWithRootObject:value] base64EncodedDataWithOptions:NSDataBase64Encoding64CharacterLineLength];
+            }else{
+               NSData* data = [[NSData alloc] initWithBase64EncodedString:value options:NSDataBase64DecodingIgnoreUnknownCharacters];
+                return [NSKeyedUnarchiver unarchiveObjectWithData:data];
+            }
+        }else{
+            return value;
+        }
     }else if([type containsString:@"Number"]){
         if(encode) {
             return [NSString stringWithFormat:@"%@",value];

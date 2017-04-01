@@ -23,10 +23,6 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kjQ-qo-XuF">
-                                <frame key="frameInset" minX="111" minY="370" width="155" height="222"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            </imageView>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GCP-5N-Jqa">
                                 <frame key="frameInset" minX="28" minY="42" width="46" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -89,15 +85,20 @@
                                     <action selector="stockAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="KSr-gx-0Fx"/>
                                 </connections>
                             </button>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kjQ-qo-XuF">
+                                <frame key="frameInset" minX="32" minY="222" width="155" height="222"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="5DX-IJ-XGA" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="E5Z-NF-VZN"/>
-                            <constraint firstItem="5DX-IJ-XGA" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="gB8-1N-Azd"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="5DX-IJ-XGA" secondAttribute="bottom" constant="1" id="7Hl-2Q-D0R"/>
+                            <constraint firstItem="5DX-IJ-XGA" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="nMV-jj-ZWB"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="showImage" destination="kjQ-qo-XuF" id="aKP-dO-T3b"/>
+                        <outlet property="showLab" destination="5DX-IJ-XGA" id="ITs-Ft-sp6"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
