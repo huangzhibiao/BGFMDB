@@ -22,14 +22,16 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  自定义 “唯一约束” 函数,如果需要 “唯一约束”字段,则在自定类中自己实现该函数.
  @return 返回值是 “唯一约束” 的字段名(即相对应的变量名).
  */
--(NSString* _Nonnull)uniqueKey;
++(NSString* _Nonnull)bg_uniqueKey;
 /**
- *  数组中需要转换的模型类
- *
+ *  数组中需要转换的模型类(‘字典转模型’ 或 ’模型转字典‘ 都需要实现该函数)
  *  @return 字典中的key是数组属性名，value是数组中存放模型的Class
  */
-- (NSDictionary *_Nonnull)objectClassInArray;
-
++(NSDictionary *_Nonnull)bg_objectClassInArray;
+/**
+ 如果模型中有自定义类变量,则实现该函数对应进行集合到模型的转换.
+ */
++(NSDictionary *_Nonnull)bg_objectClassForCustom;
 @end
 
 @interface NSObject (BGModel)<BGProtocol>
@@ -415,5 +417,5 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  模型转字典.
  @ignoredKeys 忽略掉模型中的哪些key(即模型变量)不要转,nil时全部转成字典.
  */
--(NSMutableDictionary* _Nonnull)bj_keyValuesIgnoredKeys:(NSArray* _Nullable)ignoredKeys;
+-(NSMutableDictionary* _Nonnull)bg_keyValuesIgnoredKeys:(NSArray* _Nullable)ignoredKeys;
 @end

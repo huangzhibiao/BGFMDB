@@ -35,9 +35,9 @@
     body.hand = @"手";
     body.leg = @"脚";
     //一句代码搞定模型转字典.
-    NSDictionary* dictBodyAll = [body bj_keyValuesIgnoredKeys:nil];
+    NSDictionary* dictBodyAll = [my bg_keyValuesIgnoredKeys:nil];
     //忽略掉hand不转.
-    NSDictionary* dictBody = [body bj_keyValuesIgnoredKeys:@[@"hand"]];
+    NSDictionary* dictBody = [my bg_keyValuesIgnoredKeys:@[@"foods"]];
     [my save];
     NSArray* myArr = [My findAll];
     NSLog(@"断点察看结果");
@@ -68,6 +68,7 @@
     dictM[@"dogs"] = @[[self getDogDict],[self getDogDict],[self getDogDict]];
     dictM[@"bodys"] = @[[self getBodyDict],[self getBodyDict]];
     dictM[@"foods"] = @[@"米饭",@"水果",@"蔬菜"];
+    dictM[@"body"] = [self getBodyDict];
     return dictM;
 }
 @end

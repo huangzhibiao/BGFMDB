@@ -110,7 +110,7 @@
  当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
  */
 -(BOOL)saveOrUpdate{
-    NSString* uniqueKey = [BGTool getUnique:self];
+    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_uniqueKey") forClass:[self class]];//[BGTool getUnique:self];
     if (uniqueKey) {
         id uniqueKeyVlaue = [self valueForKey:uniqueKey];
         NSInteger count = [[self class] countWhere:@[uniqueKey,@"=",uniqueKeyVlaue]];
@@ -859,30 +859,16 @@
  说明:如果模型中有数组且存放的是自定义的类(NSString等系统自带的类型就不必要了),那就实现objectClassInArray这个函数返回一个字典,key是数组名称,value是自定的类Class,用法跟MJExtension一样.
  */
 +(id)bg_objectWithKeyValues:(id)keyValues{
-    return [BGTool objectWithClass:[self class] value:keyValues];
+    return [BGTool bg_objectWithClass:[self class] value:keyValues];
 }
 +(id)bg_objectWithDictionary:(NSDictionary *)dictionary{
-    return [BGTool objectWithClass:[self class] value:dictionary];
+    return [BGTool bg_objectWithClass:[self class] value:dictionary];
 }
 /**
  模型转字典.
  @ignoredKeys 忽略掉模型中的哪些key(即模型变量)不要转,nil时全部转成字典.
  */
--(NSMutableDictionary*)bj_keyValuesIgnoredKeys:(NSArray*)ignoredKeys{
-    NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:self];
-    NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
-    if (ignoredKeys) {
-        for(BGModelInfo* info in infos){
-            if(![ignoredKeys containsObject:info.propertyName]){
-                dictM[info.propertyName] = info.sqlColumnValue;
-            }
-        }
-    }else{
-        for(BGModelInfo* info in infos){
-            dictM[info.propertyName] = info.sqlColumnValue;
-        }
-    }
-    
-    return dictM;
+-(NSMutableDictionary*)bg_keyValuesIgnoredKeys:(NSArray*)ignoredKeys{
+    return [BGTool bg_keyValuesWithObject:self ignoredKeys:ignoredKeys];
 }
 @end

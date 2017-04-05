@@ -39,4 +39,5 @@
 @property(nonatomic,strong)NSArray* dogs;
 @property(nonatomic,strong)NSArray* bodys;
 @property(nonatomic,strong)NSArray* foods;
+@property(nonatomic,strong)Body* body;
 @end

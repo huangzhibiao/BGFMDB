@@ -845,7 +845,7 @@ static BGFMDB* BGFmdb = nil;
 
 -(void)copyA:(NSString* _Nonnull)A toB:(NSString* _Nonnull)B keys:(NSArray<NSString*>* const _Nonnull)keys complete:(Complete_I)complete{
     //获取"唯一约束"字段名
-    NSString* uniqueKey = [BGTool getUnique:[NSClassFromString(A) new]];
+    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_uniqueKey") forClass:NSClassFromString(A)];//[BGTool getUnique:[NSClassFromString(A) new]];
     //建立一张临时表
     __block BOOL createFlag;
     [self createTableWithTableName:B keys:keys uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
@@ -965,7 +965,7 @@ static BGFMDB* BGFmdb = nil;
 
 -(void)copyA:(NSString* _Nonnull)A toB:(NSString* _Nonnull)B keyDict:(NSDictionary* const _Nullable)keyDict complete:(Complete_I)complete{
     //获取"唯一约束"字段名
-    NSString* uniqueKey = [BGTool getUnique:[NSClassFromString(A) new]];
+    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_uniqueKey") forClass:NSClassFromString(A)];//[BGTool getUnique:[NSClassFromString(A) new]];
     __block NSArray* keys = [BGTool getClassIvarList:NSClassFromString(A) onlyKey:NO];
     NSArray* newKeys = keyDict.allKeys;
     NSArray* oldKeys = keyDict.allValues;
@@ -1238,6 +1238,7 @@ static BGFMDB* BGFmdb = nil;
 -(void)saveObjects:(NSArray* _Nonnull)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
+        [BGTool ifNotExistWillCreateTableWithObject:array.firstObject ignoredKeys:ignoredKeys];
         [self insertDictWithObjects:array ignoredKeys:ignoredKeys complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
@@ -1517,7 +1518,7 @@ static BGFMDB* BGFmdb = nil;
                 }
             }
             //获取"唯一约束"字段名
-            NSString* uniqueKey = [BGTool getUnique:[destCla new]];
+            NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_uniqueKey") forClass:destCla];//[BGTool getUnique:[destCla new]];
             [BGSelf createTableWithTableName:destTable keys:destKeyAndTypes uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
                 NSAssert(isSuccess,@"目标表创建失败,复制失败!");
             }];

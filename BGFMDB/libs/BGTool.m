@@ -568,7 +568,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
 /**
  字典或json格式字符转模型用的处理函数.
  */
-+(id)objectWithClass:(__unsafe_unretained _Nonnull Class)cla value:(id)value{
++(id)bg_objectWithClass:(__unsafe_unretained _Nonnull Class)cla value:(id)value{
     if(value == nil)return nil;
     
     NSDictionary* dataDict;
@@ -581,17 +581,19 @@ NSString* keyPathValues(NSArray* keyPathValues){
     }else{
         NSAssert(NO,@"数据格式错误!, 只能转换字典或json格式数据.");
     }
-    NSDictionary* const objectClaInArr = [self getClassInArrayType:object];
+    NSDictionary* const objectClaInArr = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_objectClassInArray") forClass:[object class]];//[self getClassInArrayType:object];
+    NSDictionary* const objectClaForCustom = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_objectClassForCustom") forClass:[object class]];
     NSArray* const claKeys = [self getClassIvarList:cla onlyKey:YES];
-    [dataDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+    [dataDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull dataDictObj, BOOL * _Nonnull stop) {
         for(NSString* claKey in claKeys){
             if ([key isEqualToString:claKey]){
-                __block id ArrObject = dataDict[key];
+                __block id ArrObject = dataDictObj;
+                //遍历自定义变量数组集合信息.
                 !objectClaInArr?:[objectClaInArr enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull Arrkey, id  _Nonnull ArrObjCla, BOOL * _Nonnull stop){
                     if([key isEqualToString:Arrkey]){
                         NSMutableArray* ArrObjects = [NSMutableArray array];
-                        for(NSDictionary* ArrObject in dataDict[key]){
-                            id obj = [self objectWithClass:ArrObjCla value:ArrObject];
+                        for(NSDictionary* ArrObj in dataDictObj){
+                            id obj = [self bg_objectWithClass:ArrObjCla value:ArrObj];
                             [ArrObjects addObject:obj];
                         }
                         ArrObject = ArrObjects;
@@ -599,6 +601,13 @@ NSString* keyPathValues(NSArray* keyPathValues){
                     }
                 }];
                 
+                //遍历自定义变量集合信息.
+                !objectClaForCustom?:[objectClaForCustom enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull customKey, id  _Nonnull customObj, BOOL * _Nonnull stop) {
+                    if([key isEqualToString:customKey]){
+                        ArrObject = [self bg_objectWithClass:customObj value:dataDictObj];
+                        *stop = YES;
+                    }
+                }];
                 
                 [object setValue:ArrObject forKey:key];
                 break;//匹配到了就跳出循环.
@@ -608,6 +617,50 @@ NSString* keyPathValues(NSArray* keyPathValues){
     
     return object;
 }
+
+/**
+ 模型转字典.
+ */
++(NSMutableDictionary*)bg_keyValuesWithObject:(id)object ignoredKeys:(NSArray*)ignoredKeys{
+    NSMutableArray<NSString*>* keys = [[NSMutableArray alloc] initWithArray:[self getClassIvarList:[object class] onlyKey:YES]];
+    if (ignoredKeys) {
+        [keys removeObjectsInArray:ignoredKeys];
+    }
+    NSDictionary* const objectClaInArr = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_objectClassInArray") forClass:[object class]];//[self getClassInArrayType:object];
+    NSDictionary* const objectClaForCustom = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_objectClassForCustom") forClass:[object class]];
+    NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
+    
+    [keys enumerateObjectsUsingBlock:^(NSString * _Nonnull key, NSUInteger idx, BOOL * _Nonnull stop) {
+        __block id value = [object valueForKey:key];
+        //遍历自定义变量数组集合信息.
+        !objectClaInArr?:[objectClaInArr enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull Arrkey, id  _Nonnull ArrObjCla, BOOL * _Nonnull stop){
+            if([key isEqualToString:Arrkey]){
+                NSMutableArray* ArrObjects = [NSMutableArray array];
+                for(id arrObj in value){
+                    id dictObj = [self bg_keyValuesWithObject:arrObj ignoredKeys:nil];
+                    [ArrObjects addObject:dictObj];
+                }
+                value = ArrObjects;
+                *stop = YES;
+            }
+        }];
+        
+        //遍历自定义变量集合信息.
+        !objectClaForCustom?:[objectClaForCustom enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull customKey, id  _Nonnull customObj, BOOL * _Nonnull stop) {
+            if([key isEqualToString:customKey]){
+                value = [self bg_keyValuesWithObject:value ignoredKeys:nil];
+                *stop = YES;
+            }
+        }];
+
+        //存到集合里.
+        !value?:[dictM setValue:value forKey:key];
+    }];
+    
+    
+    return dictM;
+}
+
 //根据NSDictionary转换从数据库读取回来的数组数据
 +(id)valueForArrayRead:(NSDictionary*)dictionary{
     
@@ -730,33 +783,59 @@ NSString* keyPathValues(NSArray* keyPathValues){
     }
     return arrM;
 }
-/**
- 获取"唯一约束"
- */
-+(NSString*)getUnique:(id)object{
-    NSString* uniqueKey = nil;
-    SEL uniqueKeySeltor = NSSelectorFromString(@"uniqueKey");
-    if([object respondsToSelector:uniqueKeySeltor]){
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        uniqueKey = [object performSelector:uniqueKeySeltor];
-#pragma clang diagnostic pop
-    }
-    return uniqueKey;
-}
+///**
+// 获取"唯一约束"
+// */
+//+(NSString*)getUnique:(id)object{
+//    NSString* uniqueKey = nil;
+//    SEL uniqueKeySeltor = NSSelectorFromString(@"uniqueKey");
+//    if([object respondsToSelector:uniqueKeySeltor]){
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+//        uniqueKey = [object performSelector:uniqueKeySeltor];
+//#pragma clang diagnostic pop
+//    }
+//    return uniqueKey;
+//}
 /**
  获取字典转模型部分的数组数据类型
  */
-+(NSDictionary*)getClassInArrayType:(id)object{
-    NSDictionary* dict = nil;
-    SEL objectClassInArraySeltor = NSSelectorFromString(@"objectClassInArray");
-    if([object respondsToSelector:objectClassInArraySeltor]){
+//+(NSDictionary*)getClassInArrayType:(id)object{
+//    NSDictionary* dict = nil;
+//    SEL objectClassInArraySeltor = NSSelectorFromString(@"objectClassInArray");
+//    if([object respondsToSelector:objectClassInArraySeltor]){
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+//        dict = [object performSelector:objectClassInArraySeltor];
+//#pragma clang diagnostic pop
+//    }
+//    return dict;
+//}
+/**
+判断类是否实现了某个类方法.
+ */
++(id)isRespondsToSelector:(SEL)selector forClass:(Class)cla{
+    id obj = nil;
+    if([cla respondsToSelector:selector]){
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        dict = [object performSelector:objectClassInArraySeltor];
+        obj = [cla performSelector:selector];
 #pragma clang diagnostic pop
     }
-    return dict;
+    return obj;
+}
+/**
+ 判断对象是否实现了某个方法.
+ */
++(id)isRespondsToSelector:(SEL)selector forObject:(id)object{
+    id obj = nil;
+    if([object respondsToSelector:selector]){
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        obj = [object performSelector:selector];
+#pragma clang diagnostic pop
+    }
+    return obj;
 }
 /**
  根据对象获取要更新的字典.
@@ -786,7 +865,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
     //检查是否建立了跟对象相对应的数据表
     NSString* tableName = NSStringFromClass([object class]);
     //获取"唯一约束"字段名
-    NSString* uniqueKey = [BGTool getUnique:object];
+    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_uniqueKey") forClass:[object class]];//[BGTool getUnique:object];
     __block BOOL isExistTable;
     [[BGFMDB shareManager] isExistWithTableName:tableName complete:^(BOOL isExist) {
         if (!isExist){//如果不存在就新建
