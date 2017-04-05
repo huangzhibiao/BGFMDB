@@ -35,7 +35,7 @@ LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo
 platform :ios, '8.0'
 
 target '工程名称' do
-pod ‘BGFMDB’, '~> 1.26’
+pod ‘BGFMDB’, '~> 1.29’
 end
 ```
 ## 直接下载库代码使用方式.
@@ -72,7 +72,7 @@ libsqlite3
 /**
 如果需要指定“唯一约束”字段,就复写该函数,这里指定 name 为“唯一约束”.
 */
--(NSString *)uniqueKey{
++(NSString *)bg_uniqueKey{
     return @"name";
 }
 ```
@@ -366,20 +366,29 @@ My* my = [My bg_objectWithDictionary:dictMy];
 /**
 一句代码搞定模型转字典.
 */
- NSDictionary* dictBodyAll = [body bj_keyValuesIgnoredKeys:nil];
+ NSDictionary* dictBodyAll = [body bg_keyValuesIgnoredKeys:nil];
  
 /**
 忽略掉hand这个变量不转.
 */
-NSDictionary* dictBody = [body bj_keyValuesIgnoredKeys:@[@"hand"]];
+NSDictionary* dictBody = [body bg_keyValuesIgnoredKeys:@[@"hand"]];
 ```
 ### 如果模型中的数组变量存储的是自定义类,则需要实现下面的这个函数:
 ```Objective-C
 /**
 如果模型中有数组且存放的是自定义的类(NSString等系统自带的类型就不必要了),那就实现该函数,key是数组名称,value是自定的类Class,用法跟MJExtension一样.
+(‘字典转模型’ 或 ’模型转字典‘ 都需要实现该函数)
 */
--(NSDictionary *)objectClassInArray{
++(NSDictionary *)bg_objectClassInArray{
     return @{@"dogs":[Dog class],@"bodys":[Body class]};
+}
+
+/**
+ 如果模型中有自定义类变量,则实现该函数对应进行集合到模型的转换.
+ 将json数据中body这个key对应的值转化为Body类变量body对象.
+ */
++(NSDictionary *)bg_objectClassForCustom{
+    return @{@"body":[Body class]};
 }
 ```
 ### 基本的使用
