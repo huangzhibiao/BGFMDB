@@ -126,10 +126,6 @@ extern NSString* _Nonnull keyPathValues(NSArray* _Nonnull keyPathValues);
  */
 +(NSMutableDictionary* _Nonnull)bg_keyValuesWithObject:(id _Nonnull)object ignoredKeys:(NSArray* _Nullable)ignoredKeys;
 /**
- 获取"唯一约束"
- */
-//+(NSString* _Nonnull)getUnique:(id _Nonnull)object;
-/**
  判断类是否实现了某个类方法.
  */
 +(id _Nonnull)isRespondsToSelector:(SEL _Nonnull)selector forClass:(__unsafe_unretained _Nonnull Class)cla;
@@ -138,9 +134,9 @@ extern NSString* _Nonnull keyPathValues(NSArray* _Nonnull keyPathValues);
  */
 +(id _Nonnull)isRespondsToSelector:(SEL _Nonnull)selector forObject:(id _Nonnull)object;
 /**
- 根据对象获取要更新的字典.
+ 根据对象获取要更新或插入的字典.
  */
-+(NSDictionary* _Nonnull)getUpdateDictWithObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys;
++(NSDictionary* _Nonnull)getDictWithObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys isUpdate:(BOOL)update;
 /**
  如果表格不存在就新建.
  */

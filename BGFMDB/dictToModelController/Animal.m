@@ -33,9 +33,16 @@
 }
 /**
  如果模型中有自定义类变量,则实现该函数对应进行集合到模型的转换.
- 将json数据中body这个key对应的值转化为Body类变量body对象.
+ 注:字典转模型用.
  */
 +(NSDictionary *)bg_objectClassForCustom{
-    return @{@"body":[Body class]};
+    return @{@"body":[Body class],@"body.dog":[Dog class]};
+}
+/**
+ 将模型中对应的自定义类变量转换为字典.
+ 模型转字典用.
+ */
++(NSDictionary *)bg_dictForCustomClass{
+    return @{@"body":[Body class],@"dog":[Dog class]};
 }
 @end

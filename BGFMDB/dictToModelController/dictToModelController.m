@@ -24,9 +24,9 @@
 }
 
 - (IBAction)beginTransformAction:(id)sender{
-    NSDictionary* dictAni = [self getDogDict];
+    NSDictionary* dictDog = [self getDogDict];
     //一代码搞定字典转模型.
-    Dog* dog = [Dog bg_objectWithKeyValues:dictAni];
+    Dog* dog = [Dog bg_objectWithKeyValues:dictDog];
     NSDictionary* dictMy = [self getMyDict];
     //一代码搞定字典转模型.
     My* my = [My bg_objectWithDictionary:dictMy];
@@ -60,6 +60,7 @@
     NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
     dictM[@"hand"] = @"手";
     dictM[@"leg"] = @"脚";
+    dictM[@"dog"] = [self getDogDict];
     return dictM;
 }
 -(NSDictionary*)getMyDict{

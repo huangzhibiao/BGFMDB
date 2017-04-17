@@ -83,11 +83,10 @@
  同步存入对象数组.
  @array 存放对象的数组.(数组中存放的是同一种类型的数据)
  */
-+(BOOL)saveArray:(NSArray*)array{
++(BOOL)saveArray:(NSArray*)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys{
     NSAssert(array||array.count,@"数组没有元素!");
     __block BOOL result = YES;
-    [BGTool ifNotExistWillCreateTableWithObject:array.firstObject ignoredKeys:nil];
-        [[BGFMDB shareManager] saveObjects:array ignoredKeys:nil complete:^(BOOL isSuccess) {
+        [[BGFMDB shareManager] saveObjects:array ignoredKeys:ignoreKeys complete:^(BOOL isSuccess) {
             result = isSuccess;
         }];
     //关闭数据库
@@ -98,11 +97,40 @@
  异步存入对象数组.
  @array 存放对象的数组.(数组中存放的是同一种类型的数据)
  */
-+(void)saveArrayAsync:(NSArray*)array complete:(Complete_B)complete{
++(void)saveArrayAsync:(NSArray*)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(Complete_B)complete{
     NSAssert(array||array.count,@"数组没有元素!");
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL flag = [self saveArray:array];
+        BOOL flag = [self saveArray:array IgnoreKeys:ignoreKeys];
         BGComplete(flag);
+    });
+}
+/**
+ 同步存储或更新数组.
+ 当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
+ */
++(void)saveOrUpdateArray:(NSArray*)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys{
+    NSAssert(array||array.count,@"数组没有元素!");
+    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_uniqueKey") forClass:[self class]];
+    if (uniqueKey) {
+        id uniqueKeyVlaue = [array.lastObject valueForKey:uniqueKey];
+        NSInteger count = [[array.lastObject class] countWhere:@[uniqueKey,@"=",uniqueKeyVlaue]];
+        if (count){//有数据存在就更新.
+            //此处更新数据.
+            [[BGFMDB shareManager] updateObjects:array ignoredKeys:ignoreKeys complete:nil];
+        }else{//没有就存储.
+            [self saveArray:array IgnoreKeys:ignoreKeys];
+        }
+    }else{
+        [self saveArray:array IgnoreKeys:ignoreKeys];
+    }
+}
+/**
+ 异步存储或更新数组.
+ 当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
+ */
++(void)saveOrUpdateAsyncArray:(NSArray*)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+        [self saveOrUpdateArray:array IgnoreKeys:ignoreKeys];
     });
 }
 /**
@@ -464,7 +492,7 @@
     NSString *conditions = [[NSString alloc] initWithFormat:format arguments:ap];
     va_end (ap);
     NSString* tableName = NSStringFromClass([self class]);
-    NSDictionary* valueDict = [BGTool getUpdateDictWithObject:self ignoredKeys:nil];
+    NSDictionary* valueDict = [BGTool getDictWithObject:self ignoredKeys:nil isUpdate:YES];
     __block BOOL result;
     [[BGFMDB shareManager] updateWithTableName:tableName valueDict:valueDict conditions:conditions complete:^(BOOL isSuccess) {
         result = isSuccess;

@@ -30,8 +30,14 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 +(NSDictionary *_Nonnull)bg_objectClassInArray;
 /**
  如果模型中有自定义类变量,则实现该函数对应进行集合到模型的转换.
+ 字典转模型用.
  */
 +(NSDictionary *_Nonnull)bg_objectClassForCustom;
+/**
+ 将模型中对应的自定义类变量转换为字典.
+ 模型转字典用.
+ */
++(NSDictionary *_Nonnull)bg_dictForCustomClass;
 @end
 
 @interface NSObject (BGModel)<BGProtocol>
@@ -66,17 +72,27 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  同步存入对象数组.
  @array 存放对象的数组.(数组中存放的是同一种类型的数据)
  */
-+(BOOL)saveArray:(NSArray* _Nonnull)array;
++(BOOL)saveArray:(NSArray* _Nonnull)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys;
 /**
  异步存入对象数组.
  @array 存放对象的数组.(数组中存放的是同一种类型的数据)
  */
-+(void)saveArrayAsync:(NSArray* _Nonnull)array complete:(Complete_B)complete;
++(void)saveArrayAsync:(NSArray* _Nonnull)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(Complete_B)complete;
 /**
  同步存储或更新.
  当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
  */
 -(BOOL)saveOrUpdate;
+/**
+ 同步存储或更新数组.
+ 当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
+ */
++(void)saveOrUpdateArray:(NSArray* _Nonnull)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys;
+/**
+ 异步存储或更新数组.
+ 当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
+ */
++(void)saveOrUpdateAsyncArray:(NSArray* _Nonnull)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys;
 /**
  异步存储或更新.
  当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.

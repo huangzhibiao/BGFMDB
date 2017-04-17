@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "BGFMDB"
-  s.version      = "1.28"
+  s.version      = "1.29"
   s.summary      = "完美支持iOS大部分类型数据的存储,同时带有 字典转模型 功能模块."
 
   # This description is used to generate tags and improve search results.

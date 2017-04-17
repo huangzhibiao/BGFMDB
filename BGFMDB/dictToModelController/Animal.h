@@ -30,6 +30,7 @@
 
 @property(nonatomic,copy)NSString* hand;
 @property(nonatomic,copy)NSString* leg;
+@property(nonatomic,strong)Dog* dog;
 
 @end
 
@@ -40,4 +41,5 @@
 @property(nonatomic,strong)NSArray* bodys;
 @property(nonatomic,strong)NSArray* foods;
 @property(nonatomic,strong)Body* body;
+@property(nonatomic,strong)Dog* dog;
 @end

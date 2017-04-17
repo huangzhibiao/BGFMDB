@@ -55,6 +55,10 @@
  */
 -(void)saveObjects:(NSArray* _Nonnull)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete;
 /**
+ 批量更新.
+ */
+-(void)updateObjects:(NSArray* _Nonnull)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(Complete_B)complete;
+/**
  根据条件查询对象.
  @cla 代表对应的类.
  @where 形式 @[@"key",@"=",@"value",@"key",@">=",@"value"] .

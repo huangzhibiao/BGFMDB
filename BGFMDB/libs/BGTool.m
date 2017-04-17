@@ -571,19 +571,30 @@ NSString* keyPathValues(NSArray* keyPathValues){
 +(id)bg_objectWithClass:(__unsafe_unretained _Nonnull Class)cla value:(id)value{
     if(value == nil)return nil;
     
-    NSDictionary* dataDict;
+    NSMutableDictionary* dataDict;
     id object = [cla new];
     if ([value isKindOfClass:[NSString class]]){
         NSAssert([NSJSONSerialization isValidJSONObject:value],@"json数据格式错误!");
-        dataDict = [self jsonWithString:value];
+        dataDict = [[NSMutableDictionary alloc] initWithDictionary:[self jsonWithString:value] copyItems:YES];
     }else if ([value isKindOfClass:[NSDictionary class]]){
-        dataDict = value;
+        dataDict = [[NSMutableDictionary alloc] initWithDictionary:value copyItems:YES];
     }else{
         NSAssert(NO,@"数据格式错误!, 只能转换字典或json格式数据.");
     }
     NSDictionary* const objectClaInArr = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_objectClassInArray") forClass:[object class]];//[self getClassInArrayType:object];
     NSDictionary* const objectClaForCustom = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_objectClassForCustom") forClass:[object class]];
     NSArray* const claKeys = [self getClassIvarList:cla onlyKey:YES];
+    //遍历自定义变量集合信息.
+    !objectClaForCustom?:[objectClaForCustom enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull customKey, id  _Nonnull customObj, BOOL * _Nonnull stop) {
+        if ([customKey containsString:@"."]){
+            NSArray* keyPaths = [customKey componentsSeparatedByString:@"."];
+            id value = [dataDict valueForKeyPath:customKey];
+            dataDict[keyPaths.lastObject] = value;
+            if(![objectClaForCustom.allKeys containsObject:keyPaths.firstObject]){
+                [dataDict removeObjectForKey:keyPaths.firstObject];
+            }
+        }
+    }];
     [dataDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull dataDictObj, BOOL * _Nonnull stop) {
         for(NSString* claKey in claKeys){
             if ([key isEqualToString:claKey]){
@@ -603,8 +614,13 @@ NSString* keyPathValues(NSArray* keyPathValues){
                 
                 //遍历自定义变量集合信息.
                 !objectClaForCustom?:[objectClaForCustom enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull customKey, id  _Nonnull customObj, BOOL * _Nonnull stop) {
-                    if([key isEqualToString:customKey]){
-                        ArrObject = [self bg_objectWithClass:customObj value:dataDictObj];
+                    NSString* tempKey = customKey;
+                    if ([customKey containsString:@"."]){
+                        tempKey = [customKey componentsSeparatedByString:@"."].lastObject;
+                    }
+                    
+                    if([key isEqualToString:tempKey]){
+                        ArrObject = [self bg_objectWithClass:customObj value:[dataDict valueForKey:tempKey]];
                         *stop = YES;
                     }
                 }];
@@ -626,8 +642,8 @@ NSString* keyPathValues(NSArray* keyPathValues){
     if (ignoredKeys) {
         [keys removeObjectsInArray:ignoredKeys];
     }
-    NSDictionary* const objectClaInArr = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_objectClassInArray") forClass:[object class]];//[self getClassInArrayType:object];
-    NSDictionary* const objectClaForCustom = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_objectClassForCustom") forClass:[object class]];
+    NSDictionary* const objectClaInArr = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_objectClassInArray") forClass:[object class]];
+    NSDictionary* const objectClaForCustom = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_dictForCustomClass") forClass:[object class]];
     NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
     
     [keys enumerateObjectsUsingBlock:^(NSString * _Nonnull key, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -646,9 +662,9 @@ NSString* keyPathValues(NSArray* keyPathValues){
         }];
         
         //遍历自定义变量集合信息.
-        !objectClaForCustom?:[objectClaForCustom enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull customKey, id  _Nonnull customObj, BOOL * _Nonnull stop) {
+        !objectClaForCustom?:[objectClaForCustom enumerateKeysAndObjectsUsingBlock:^(NSString*  _Nonnull customKey, id  _Nonnull customObj, BOOL * _Nonnull stop) {
             if([key isEqualToString:customKey]){
-                value = [self bg_keyValuesWithObject:value ignoredKeys:nil];
+                value = [self bg_keyValuesWithObject:[object valueForKey:customKey] ignoredKeys:nil];
                 *stop = YES;
             }
         }];
@@ -783,34 +799,6 @@ NSString* keyPathValues(NSArray* keyPathValues){
     }
     return arrM;
 }
-///**
-// 获取"唯一约束"
-// */
-//+(NSString*)getUnique:(id)object{
-//    NSString* uniqueKey = nil;
-//    SEL uniqueKeySeltor = NSSelectorFromString(@"uniqueKey");
-//    if([object respondsToSelector:uniqueKeySeltor]){
-//#pragma clang diagnostic push
-//#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-//        uniqueKey = [object performSelector:uniqueKeySeltor];
-//#pragma clang diagnostic pop
-//    }
-//    return uniqueKey;
-//}
-/**
- 获取字典转模型部分的数组数据类型
- */
-//+(NSDictionary*)getClassInArrayType:(id)object{
-//    NSDictionary* dict = nil;
-//    SEL objectClassInArraySeltor = NSSelectorFromString(@"objectClassInArray");
-//    if([object respondsToSelector:objectClassInArraySeltor]){
-//#pragma clang diagnostic push
-//#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-//        dict = [object performSelector:objectClassInArraySeltor];
-//#pragma clang diagnostic pop
-//    }
-//    return dict;
-//}
 /**
 判断类是否实现了某个类方法.
  */
@@ -838,9 +826,9 @@ NSString* keyPathValues(NSArray* keyPathValues){
     return obj;
 }
 /**
- 根据对象获取要更新的字典.
+ 根据对象获取要更新或插入的字典.
  */
-+(NSDictionary*)getUpdateDictWithObject:(id)object ignoredKeys:(NSArray* const)ignoredKeys{
++(NSDictionary* _Nonnull)getDictWithObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys isUpdate:(BOOL)update{
     NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:object];
     NSMutableDictionary* valueDict = [NSMutableDictionary dictionary];
     if (ignoredKeys) {
@@ -855,7 +843,9 @@ NSString* keyPathValues(NSArray* keyPathValues){
         }
     }
     //移除创建时间字段不做更新.
-    [valueDict removeObjectForKey:[NSString stringWithFormat:@"%@%@",BG,BGCreateTime]];
+    if (update) {
+         [valueDict removeObjectForKey:[NSString stringWithFormat:@"%@%@",BG,BGCreateTime]];
+    }
     return valueDict;
 }
 /**
