@@ -900,3 +900,170 @@
     return [BGTool bg_keyValuesWithObject:self ignoredKeys:ignoredKeys];
 }
 @end
+
+#pragma mark 直接存储数组.
+@implementation NSArray (BGModel)
+/**
+ 存储数组.
+ @name 唯一标识名称.
+ **/
+-(BOOL)bg_saveArrayWithName:(NSString* const _Nonnull)name{
+    if([self isKindOfClass:[NSArray class]]) {
+        __block BOOL result;
+        [[BGFMDB shareManager] saveArray:self name:name complete:^(BOOL isSuccess) {
+            result = isSuccess;
+        }];
+        //关闭数据库
+        [[BGFMDB shareManager] closeDB];
+        return result;
+    }else{
+        return NO;
+    }
+}
+/**
+ 添加数组元素.
+ @name 唯一标识名称.
+ @object 要添加的元素.
+ */
++(BOOL)bg_addObjectWithName:(NSString* const _Nonnull)name object:(id const _Nonnull)object{
+    NSAssert(object,@"元素不能为空!");
+    __block BOOL result;
+    [[BGFMDB shareManager] saveArray:@[object] name:name complete:^(BOOL isSuccess) {
+        result = isSuccess;
+    }];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return result;
+}
+/**
+ 获取数组元素数量.
+ @name 唯一标识名称.
+ */
++(NSInteger)bg_countWithName:(NSString* const _Nonnull)name{
+    NSUInteger count = [[BGFMDB shareManager] countForTable:name where:nil];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return count;
+
+}
+/**
+ 查询整个数组
+ */
++(NSArray*)bg_arrayWithName:(NSString* const _Nonnull)name{
+    __block NSMutableArray* results;
+    [[BGFMDB shareManager] queryArrayWithName:name complete:^(NSArray * _Nullable array) {
+        if(array&&array.count){
+            results = [NSMutableArray arrayWithArray:array];
+        }
+    }];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return results;
+}
+/**
+ 获取数组某个位置的元素.
+ @name 唯一标识名称.
+ @index 数组元素位置.
+ */
++(id _Nullable)bg_objectWithName:(NSString* const _Nonnull)name Index:(NSInteger)index{
+    __block id resultValue;
+    resultValue = [[BGFMDB shareManager] queryArrayWithName:name index:index];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return resultValue;
+}
+/**
+ 删除数组的某个元素.
+ @name 唯一标识名称.
+ @index 数组元素位置.
+ */
++(BOOL)bg_deleteObjectWithName:(NSString* const _Nonnull)name Index:(NSInteger)index{
+    __block BOOL result;
+    result = [[BGFMDB shareManager] deleteObjectWithName:name index:index];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return result;
+}
+/**
+ 清空数组元素.
+ @name 唯一标识名称.
+ */
++(BOOL)bg_clearArrayWithName:(NSString* const _Nonnull)name{
+    __block BOOL result;
+    [[BGFMDB shareManager] dropSafeTable:name complete:^(BOOL isSuccess) {
+        result = isSuccess;
+    }];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return result;
+}
+@end
+
+#pragma mark 直接存储字典.
+@implementation NSDictionary (BGModel)
+/**
+ 存储字典.
+ */
+-(BOOL)bg_saveDictionary{
+    if([self isKindOfClass:[NSDictionary class]]) {
+        __block BOOL result;
+        [[BGFMDB shareManager] saveDictionary:self complete:^(BOOL isSuccess) {
+            result = isSuccess;
+        }];
+        //关闭数据库
+        [[BGFMDB shareManager] closeDB];
+        return result;
+    }else{
+        return NO;
+    }
+
+}
+/**
+ 添加字典元素.
+ */
++(BOOL)bg_setValue:(id const _Nonnull)value forKey:(NSString* const _Nonnull)key{
+    BOOL result = [[BGFMDB shareManager] bg_setValue:value forKey:key];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return result;
+}
+/**
+ 遍历字典元素.
+ */
++(void)bg_enumerateKeysAndObjectsUsingBlock:(void (^ _Nonnull)(NSString* _Nonnull key, id _Nonnull value,BOOL *stop))block{
+    [[BGFMDB shareManager] bg_enumerateKeysAndObjectsUsingBlock:block];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+}
+/**
+ 获取字典元素.
+ */
++(id _Nullable)bg_valueForKey:(NSString* const _Nonnull)key{
+    id value = [[BGFMDB shareManager] bg_valueForKey:key];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return value;
+}
+/**
+ 移除字典某个元素.
+ */
++(BOOL)bg_removeValueForKey:(NSString* const _Nonnull)key{
+    BOOL result = [[BGFMDB shareManager] bg_deleteValueForKey:key];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return result;
+}
+/**
+ 清空字典.
+ */
++(BOOL)bg_clearDictionary{
+    __block BOOL result;
+    NSString* const tableName = @"BG_Dictionary";
+    [[BGFMDB shareManager] dropSafeTable:tableName complete:^(BOOL isSuccess) {
+        result = isSuccess;
+    }];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return result;
+}
+@end

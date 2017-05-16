@@ -435,3 +435,72 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  */
 -(NSMutableDictionary* _Nonnull)bg_keyValuesIgnoredKeys:(NSArray* _Nullable)ignoredKeys;
 @end
+
+#pragma mark 直接存储数组.
+@interface NSArray (BGModel)
+/**
+ 存储数组.
+ @name 唯一标识名称.
+ **/
+-(BOOL)bg_saveArrayWithName:(NSString* const _Nonnull)name;
+/**
+ 添加数组元素.
+ @name 唯一标识名称.
+ @object 要添加的元素.
+ */
++(BOOL)bg_addObjectWithName:(NSString* const _Nonnull)name object:(id const _Nonnull)object;
+/**
+ 获取数组元素数量.
+ @name 唯一标识名称.
+ */
++(NSInteger)bg_countWithName:(NSString* const _Nonnull)name;
+/**
+ 查询整个数组
+ */
++(NSArray* _Nullable)bg_arrayWithName:(NSString* const _Nonnull)name;
+/**
+ 获取数组某个位置的元素.
+ @name 唯一标识名称.
+ @index 数组元素位置.
+ */
++(id _Nullable)bg_objectWithName:(NSString* const _Nonnull)name Index:(NSInteger)index;
+/**
+ 删除数组的某个元素.
+ @name 唯一标识名称.
+ @index 数组元素位置.
+ */
++(BOOL)bg_deleteObjectWithName:(NSString* const _Nonnull)name Index:(NSInteger)index;
+/**
+ 清空数组元素.
+ @name 唯一标识名称.
+ */
++(BOOL)bg_clearArrayWithName:(NSString* const _Nonnull)name;
+@end
+
+#pragma mark 直接存储字典.
+@interface NSDictionary (BGModel)
+/**
+ 存储字典.
+ */
+-(BOOL)bg_saveDictionary;
+/**
+ 添加字典元素.
+ */
++(BOOL)bg_setValue:(id const _Nonnull)value forKey:(NSString* const _Nonnull)key;
+/**
+ 获取字典元素.
+ */
++(id _Nullable)bg_valueForKey:(NSString* const _Nonnull)key;
+/**
+ 遍历字典元素.
+ */
++(void)bg_enumerateKeysAndObjectsUsingBlock:(void (^ _Nonnull)(NSString* _Nonnull key, id _Nonnull value,BOOL *stop))block;
+/**
+ 移除字典某个元素.
+ */
++(BOOL)bg_removeValueForKey:(NSString* const _Nonnull)key;
+/**
+ 清空字典.
+ */
++(BOOL)bg_clearDictionary;
+@end

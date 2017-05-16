@@ -882,6 +882,23 @@ NSString* keyPathValues(NSArray* keyPathValues){
     return isExistTable;
 }
 
+/**
+ 整形判断
+ */
++ (BOOL)isPureInt:(NSString *)string{
+    NSScanner* scan = [NSScanner scannerWithString:string];
+    int val;
+    return [scan scanInt:&val] && [scan isAtEnd];
+}
+/**
+ 浮点形判断
+ */
++ (BOOL)isPureFloat:(NSString *)string{
+    NSScanner* scan = [NSScanner scannerWithString:string];
+    float val;
+    return [scan scanFloat:&val] && [scan isAtEnd];
+}
+
 +(BOOL)getBoolWithKey:(NSString*)key{
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     return [defaults boolForKey:key];

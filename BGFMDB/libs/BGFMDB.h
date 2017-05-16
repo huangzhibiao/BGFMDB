@@ -237,6 +237,10 @@
  */
 -(void)dropTable:(NSString* _Nonnull)name complete:(Complete_B)complete;
 /**
+ 删除表(线程安全).
+ */
+-(void)dropSafeTable:(NSString* _Nonnull)name complete:(Complete_B)complete;
+/**
  动态添加表字段.
  @name 表名称.
  @key 将要增加的字段.
@@ -265,4 +269,41 @@
 -(void)refreshTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* const _Nonnull)keys complete:(Complete_I)complete;
 -(void)refreshQueueTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* const _Nonnull)keys complete:(Complete_I)complete;
 -(void)refreshTable:(NSString* _Nonnull)name keyDict:(NSDictionary* const _Nonnull)keyDict complete:(Complete_I)complete;
+
+/**
+ 直接存储数组.
+ */
+-(void)saveArray:(NSArray* _Nonnull)array name:(NSString* _Nonnull)name complete:(Complete_B)complete;
+/**
+ 读取数组.
+ */
+-(void)queryArrayWithName:(NSString* _Nonnull)name complete:(Complete_A)complete;
+/**
+ 读取数组某个元素.
+ */
+-(id _Nullable)queryArrayWithName:(NSString* _Nonnull)name index:(NSInteger)index;
+/**
+ 删除数组某个元素.
+ */
+-(BOOL)deleteObjectWithName:(NSString* _Nonnull)name index:(NSInteger)index;
+/**
+ 直接存储字典.
+ */
+-(void)saveDictionary:(NSDictionary* _Nonnull)dictionary complete:(Complete_B)complete;
+/**
+ 添加字典元素.
+ */
+-(BOOL)bg_setValue:(id _Nonnull)value forKey:(NSString* const _Nonnull)key;
+/**
+ 遍历字典元素.
+ */
+-(void)bg_enumerateKeysAndObjectsUsingBlock:(void (^ _Nonnull)(NSString* _Nonnull key, id _Nonnull value,BOOL *stop))block;
+/**
+ 获取字典元素.
+ */
+-(id _Nullable)bg_valueForKey:(NSString* const _Nonnull)key;
+/**
+ 删除字典元素.
+ */
+-(BOOL)bg_deleteValueForKey:(NSString* const _Nonnull)key;
 @end

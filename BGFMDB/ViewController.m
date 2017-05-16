@@ -10,7 +10,6 @@
 #import "stockController.h"
 #import "dictToModelController.h"
 #import "people.h"
-#import "BGFMDB.h"
 
 @interface ViewController ()
 
@@ -36,7 +35,22 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    //想测试更多功能,打开以下注释掉的代码即可.
+    //想测试更多功能,打开注释掉的代码即可.
+    [NSObject setDebug:YES];//打开调试模式,打印输出调试信息.
+    
+    /**
+     直接存储数组.
+     */
+    //[self testSaveArray];
+    /**
+     直接存储字典.
+    */
+    //[self testSaveDictionary];
+    
+    
+    /**
+     直接存储自定义对象.
+     */
     People* p = [self people];
     
     /**
@@ -263,9 +277,74 @@
 
 }
 
+#pragma mark 直接存储数组
+-(void)testSaveArray{
+    [NSObject setDebug:YES];
+    NSMutableArray* testA = [NSMutableArray array];
+    [testA addObject:@"我是"];
+    [testA addObject:@(10)];
+    [testA addObject:@(9.999)];
+    [testA addObject:@{@"key":@"value"}];
+    /**
+     存储标识名为testA的数组.
+     */
+    [testA bg_saveArrayWithName:@"testA"];
+    /**
+     往标识名为@"testA"的数组中添加元素.
+     */
+    //[NSArray bg_addObjectWithName:@"testA" object:@[@(1),@"哈哈"]];
+    /**
+     删除标识名为testA的数组某个位置上的元素.
+     */
+    //[NSArray bg_deleteObjectWithName:@"testA" Index:3];
+    /**
+     查询标识名为testA的数组全部元素.
+     */
+    NSArray* testResult = [NSArray bg_arrayWithName:@"testA"];
+    /**
+     获取标识名为testA的数组某个位置上的元素.
+     */
+    //id arrObject = [NSArray bg_objectWithName:@"testA" Index:3];
+    /**
+     清除标识名为testA的数组所有元素.
+     */
+    //[NSArray bg_clearArrayWithName:@"testA"];
+    NSLog(@"结果 = %@",testResult);
+}
+
+#pragma mark 直接存储集合
+-(void)testSaveDictionary{
+    NSDictionary* dict = @{@"one":@(1),@"key":@"value",@"array":@[@(1.2),@"哈哈"]};
+    /**
+     存储字典.
+     */
+    [dict bg_saveDictionary];
+    /**
+     添加字典元素.
+     */
+    //[NSDictionary bg_setValue:@"标哥" forKey:@"name"];
+    /**
+     获取某个字典元素.
+     */
+    //id num = [NSDictionary bg_valueForKey:@"one"];
+    /**
+     移除字典某个元素.
+     */
+    //[NSDictionary bg_removeValueForKey:@"key"];
+    /**
+     遍历字典元素.
+     */
+    [NSDictionary bg_enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull value, BOOL *stop) {
+        NSLog(@"key = %@ , value = %@",key,value);
+    }];
+    /**
+     清空字典.
+     */
+    //[NSDictionary bg_clearDictionary];
+}
+
 -(People*)people{
     //存储对象使用示例
-    [NSObject setDebug:YES];//打开调试模式,打印输出调试信息.
     People* p = [People new];
     p.name = @"斯巴达";
     p.num = @(220.88);

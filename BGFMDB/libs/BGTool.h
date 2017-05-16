@@ -142,6 +142,14 @@ extern NSString* _Nonnull keyPathValues(NSArray* _Nonnull keyPathValues);
  */
 +(BOOL)ifNotExistWillCreateTableWithObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys;
 /**
+ 整形判断
+ */
++ (BOOL)isPureInt:(NSString* _Nonnull)string;
+/**
+ 浮点形判断
+ */
++ (BOOL)isPureFloat:(NSString* _Nonnull)string;
+/**
  NSUserDefaults封装使用函数.
  */
 +(BOOL)getBoolWithKey:(NSString* _Nonnull)key;
