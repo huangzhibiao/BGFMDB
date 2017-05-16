@@ -316,7 +316,7 @@ NSInteger count = [People countFormatSqlConditions:@"where %@=%@ and %@",sqlKey(
                                            @"image":@"image"}
                                            append:NO];
 ```
-### 直接存储数组
+### 直接存取数组
 ```Objective-C
 NSMutableArray* testA = [NSMutableArray array];
     [testA addObject:@"我是"];
@@ -353,7 +353,7 @@ NSMutableArray* testA = [NSMutableArray array];
      */
     [NSArray bg_clearArrayWithName:@"testA"];
 ```
-### 直接存储字典
+### 直接存取字典
 ```Objective-C
 NSDictionary* dict = @{@"one":@(1),@"key":@"value",@"array":@[@(1.2),@"哈哈"]};
     /**
