@@ -279,7 +279,6 @@
 
 #pragma mark 直接存储数组
 -(void)testSaveArray{
-    [NSObject setDebug:YES];
     NSMutableArray* testA = [NSMutableArray array];
     [testA addObject:@"我是"];
     [testA addObject:@(10)];
