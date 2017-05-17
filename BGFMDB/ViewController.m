@@ -284,36 +284,70 @@
     [testA addObject:@(10)];
     [testA addObject:@(9.999)];
     [testA addObject:@{@"key":@"value"}];
+    Human* human = [Human new];
+    human.sex = @"女";
+    human.body = @"小芳";
+    human.humanAge = 26;
+    human.age = 15;
+    human.num = 999;
+    human.counts = 10001;
+    human.food = @"大米";
+    human.data = UIImageJPEGRepresentation([UIImage imageNamed:@"MarkMan"], 1);
+    human.array = @[@"数组1",@"数组2",@"数组3",@(1),@(1.5)];
+    human.dict = @{@"key1":@"value1",@"key2":@(2)};
+    [testA addObject:human];
     /**
      存储标识名为testA的数组.
      */
     [testA bg_saveArrayWithName:@"testA"];
+    
     /**
      往标识名为@"testA"的数组中添加元素.
      */
     //[NSArray bg_addObjectWithName:@"testA" object:@[@(1),@"哈哈"]];
+    
+    /**
+     更新标识名为testA的数组某个位置上的元素.
+     */
+    //[NSArray bg_updateObjectWithName:@"testA" Object:@"人妖" Index:0];
+    
     /**
      删除标识名为testA的数组某个位置上的元素.
      */
     //[NSArray bg_deleteObjectWithName:@"testA" Index:3];
+    
     /**
      查询标识名为testA的数组全部元素.
      */
     NSArray* testResult = [NSArray bg_arrayWithName:@"testA"];
+    
     /**
      获取标识名为testA的数组某个位置上的元素.
      */
     //id arrObject = [NSArray bg_objectWithName:@"testA" Index:3];
+    
     /**
      清除标识名为testA的数组所有元素.
      */
     //[NSArray bg_clearArrayWithName:@"testA"];
+    
     NSLog(@"结果 = %@",testResult);
 }
 
 #pragma mark 直接存储集合
 -(void)testSaveDictionary{
-    NSDictionary* dict = @{@"one":@(1),@"key":@"value",@"array":@[@(1.2),@"哈哈"]};
+    Human* human = [Human new];
+    human.sex = @"女";
+    human.body = @"小芳";
+    human.humanAge = 26;
+    human.age = 15;
+    human.num = 999;
+    human.counts = 10001;
+    human.food = @"大米";
+    human.data = UIImageJPEGRepresentation([UIImage imageNamed:@"MarkMan"], 1);
+    human.array = @[@"数组1",@"数组2",@"数组3",@(1),@(1.5)];
+    human.dict = @{@"key1":@"value1",@"key2":@(2)};
+    NSDictionary* dict = @{@"one":@(1),@"key":@"value",@"array":@[@(1.2),@"哈哈"],@"human":human};
     /**
      存储字典.
      */
@@ -322,20 +356,29 @@
      添加字典元素.
      */
     //[NSDictionary bg_setValue:@"标哥" forKey:@"name"];
+    
+    /**
+    更新字典元素.
+     */
+    //[NSDictionary bg_updateValue:@"人妖" forKey:@"key"];
+    
     /**
      获取某个字典元素.
      */
     //id num = [NSDictionary bg_valueForKey:@"one"];
+    
     /**
      移除字典某个元素.
      */
     //[NSDictionary bg_removeValueForKey:@"key"];
+    
     /**
      遍历字典元素.
      */
     [NSDictionary bg_enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull value, BOOL *stop) {
         NSLog(@"key = %@ , value = %@",key,value);
     }];
+    
     /**
      清空字典.
      */

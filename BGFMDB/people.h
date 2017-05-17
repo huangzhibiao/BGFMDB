@@ -20,6 +20,9 @@
 @property(nonatomic,assign)int num;
 @property(nonatomic,assign)int counts;
 @property(nonatomic,copy)NSString* food;
+@property(nonatomic,strong)NSData* data;
+@property(nonatomic,strong)NSArray* array;
+@property(nonatomic,strong)NSDictionary* dict;
 @end
 
 @interface Student : NSObject

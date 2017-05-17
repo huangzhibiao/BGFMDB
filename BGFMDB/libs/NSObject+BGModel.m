@@ -966,11 +966,21 @@
  @index 数组元素位置.
  */
 +(id _Nullable)bg_objectWithName:(NSString* const _Nonnull)name Index:(NSInteger)index{
-    __block id resultValue;
-    resultValue = [[BGFMDB shareManager] queryArrayWithName:name index:index];
+    id resultValue = [[BGFMDB shareManager] queryArrayWithName:name index:index];
     //关闭数据库
     [[BGFMDB shareManager] closeDB];
     return resultValue;
+}
+/**
+ 更新数组某个位置的元素.
+ @name 唯一标识名称.
+ @index 数组元素位置.
+ */
++(BOOL)bg_updateObjectWithName:(NSString* const _Nonnull)name Object:(id _Nonnull)object Index:(NSInteger)index{
+    BOOL result = [[BGFMDB shareManager] updateObjectWithName:name object:object index:index];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return result;
 }
 /**
  删除数组的某个元素.
@@ -978,8 +988,7 @@
  @index 数组元素位置.
  */
 +(BOOL)bg_deleteObjectWithName:(NSString* const _Nonnull)name Index:(NSInteger)index{
-    __block BOOL result;
-    result = [[BGFMDB shareManager] deleteObjectWithName:name index:index];
+    BOOL result = [[BGFMDB shareManager] deleteObjectWithName:name index:index];
     //关闭数据库
     [[BGFMDB shareManager] closeDB];
     return result;
@@ -1023,6 +1032,15 @@
  */
 +(BOOL)bg_setValue:(id const _Nonnull)value forKey:(NSString* const _Nonnull)key{
     BOOL result = [[BGFMDB shareManager] bg_setValue:value forKey:key];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return result;
+}
+/**
+ 更新字典元素.
+ */
++(BOOL)bg_updateValue:(id const _Nonnull)value forKey:(NSString* const _Nonnull)key{
+    BOOL result = [[BGFMDB shareManager] bg_updateValue:value forKey:key];
     //关闭数据库
     [[BGFMDB shareManager] closeDB];
     return result;

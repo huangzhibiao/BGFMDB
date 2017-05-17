@@ -465,6 +465,12 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  */
 +(id _Nullable)bg_objectWithName:(NSString* const _Nonnull)name Index:(NSInteger)index;
 /**
+ 更新数组某个位置的元素.
+ @name 唯一标识名称.
+ @index 数组元素位置.
+ */
++(BOOL)bg_updateObjectWithName:(NSString* const _Nonnull)name Object:(id _Nonnull)object Index:(NSInteger)index;
+/**
  删除数组的某个元素.
  @name 唯一标识名称.
  @index 数组元素位置.
@@ -487,6 +493,10 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  添加字典元素.
  */
 +(BOOL)bg_setValue:(id const _Nonnull)value forKey:(NSString* const _Nonnull)key;
+/**
+ 更新字典元素.
+ */
++(BOOL)bg_updateValue:(id const _Nonnull)value forKey:(NSString* const _Nonnull)key;
 /**
  获取字典元素.
  */

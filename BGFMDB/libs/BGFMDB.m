@@ -1674,8 +1674,9 @@ static BGFMDB* BGFmdb = nil;
         __block NSInteger num = 0;
         [self inTransaction:^BOOL{
             for(id value in array){
-                id sqlValue = [BGTool getSqlValue:value type:NSStringFromClass([value class]) encode:YES];
-                sqlValue = [NSString stringWithFormat:@"%@$$$%@",sqlValue,NSStringFromClass([value class])];
+                NSString* type = [NSString stringWithFormat:@"@\"%@\"",NSStringFromClass([value class])];
+                id sqlValue = [BGTool getSqlValue:value type:type encode:YES];
+                sqlValue = [NSString stringWithFormat:@"%@$$$%@",sqlValue,type];
                 NSDictionary* dict = @{@"BG_param":sqlValue,@"BG_index":@(sqlCount++)};
                 [self insertIntoTableName:name Dict:dict complete:^(BOOL isSuccess) {
                     if(isSuccess) {
@@ -1730,6 +1731,26 @@ static BGFMDB* BGFmdb = nil;
     return resultValue;
 }
 /**
+ 更新数组某个元素.
+ */
+-(BOOL)updateObjectWithName:(NSString* _Nonnull)name object:(id _Nonnull)object index:(NSInteger)index{
+    NSAssert(name,@"唯一标识名不能为空!");
+    NSAssert(object,@"元素不能为空!");
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    __block BOOL result;
+    @autoreleasepool{
+        NSString* type = [NSString stringWithFormat:@"@\"%@\"",NSStringFromClass([object class])];
+        id sqlValue = [BGTool getSqlValue:object type:type encode:YES];
+        sqlValue = [NSString stringWithFormat:@"%@$$$%@",sqlValue,type];
+        NSDictionary* dict = @{@"BG_param":sqlValue};
+        [self updateWithTableName:name valueDict:dict where:@[@"index",@"=",@(index)] complete:^(BOOL isSuccess) {
+            result = isSuccess;
+        }];
+    }
+    dispatch_semaphore_signal(self.semaphore);
+    return result;
+}
+/**
  删除数组某个元素.
  */
 -(BOOL)deleteObjectWithName:(NSString* _Nonnull)name index:(NSInteger)index{
@@ -1774,8 +1795,9 @@ static BGFMDB* BGFmdb = nil;
         __block NSInteger num = 0;
         [self inTransaction:^BOOL{
             [dictionary enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull value, BOOL * _Nonnull stop){
-                id sqlValue = [BGTool getSqlValue:value type:NSStringFromClass([value class]) encode:YES];
-                sqlValue = [NSString stringWithFormat:@"%@$$$%@",sqlValue,NSStringFromClass([value class])];
+                NSString* type = [NSString stringWithFormat:@"@\"%@\"",NSStringFromClass([value class])];
+                id sqlValue = [BGTool getSqlValue:value type:type encode:YES];
+                sqlValue = [NSString stringWithFormat:@"%@$$$%@",sqlValue,type];
                 NSDictionary* dict = @{@"BG_key":key,@"BG_value":sqlValue};
                 [self insertIntoTableName:tableName Dict:dict complete:^(BOOL isSuccess) {
                     if(isSuccess) {
@@ -1800,6 +1822,27 @@ static BGFMDB* BGFmdb = nil;
     [self saveDictionary:dict complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
+    return result;
+}
+/**
+ 更新字典元素.
+ */
+-(BOOL)bg_updateValue:(id _Nonnull)value forKey:(NSString* const _Nonnull)key{
+    NSAssert(key,@"key不能为空!");
+    NSAssert(value,@"value不能为空!");
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    __block BOOL result;
+    @autoreleasepool{
+        NSString* type = [NSString stringWithFormat:@"@\"%@\"",NSStringFromClass([value class])];
+        id sqlvalue = [BGTool getSqlValue:value type:type encode:YES];
+        sqlvalue = [NSString stringWithFormat:@"%@$$$%@",sqlvalue,type];
+        NSDictionary* dict = @{@"BG_value":sqlvalue};
+        NSString* const tableName = @"BG_Dictionary";
+        [self updateWithTableName:tableName valueDict:dict where:@[@"key",@"=",key] complete:^(BOOL isSuccess) {
+            result = isSuccess;
+        }];
+    }
+    dispatch_semaphore_signal(self.semaphore);
     return result;
 }
 /**

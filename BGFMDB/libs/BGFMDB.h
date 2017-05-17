@@ -270,6 +270,7 @@
 -(void)refreshQueueTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* const _Nonnull)keys complete:(Complete_I)complete;
 -(void)refreshTable:(NSString* _Nonnull)name keyDict:(NSDictionary* const _Nonnull)keyDict complete:(Complete_I)complete;
 
+#pragma mark 存储数组.
 /**
  直接存储数组.
  */
@@ -283,9 +284,16 @@
  */
 -(id _Nullable)queryArrayWithName:(NSString* _Nonnull)name index:(NSInteger)index;
 /**
+ 更新数组某个元素.
+ */
+-(BOOL)updateObjectWithName:(NSString* _Nonnull)name object:(id _Nonnull)object index:(NSInteger)index;
+/**
  删除数组某个元素.
  */
 -(BOOL)deleteObjectWithName:(NSString* _Nonnull)name index:(NSInteger)index;
+
+
+#pragma mark 存储字典.
 /**
  直接存储字典.
  */
@@ -294,6 +302,10 @@
  添加字典元素.
  */
 -(BOOL)bg_setValue:(id _Nonnull)value forKey:(NSString* const _Nonnull)key;
+/**
+ 更新字典元素.
+ */
+-(BOOL)bg_updateValue:(id _Nonnull)value forKey:(NSString* const _Nonnull)key;
 /**
  遍历字典元素.
  */
