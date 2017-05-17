@@ -296,7 +296,7 @@
  */
 +(void)findAllAsyncWithLimit:(NSInteger)limit orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc complete:(Complete_A)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        NSArray* results = [NSObject findAllWithLimit:limit orderBy:orderBy desc:desc];
+        NSArray* results = [self findAllWithLimit:limit orderBy:orderBy desc:desc];
         BGComplete(results);
     });
 }
