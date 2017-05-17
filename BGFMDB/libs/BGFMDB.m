@@ -1698,13 +1698,16 @@ static BGFMDB* BGFmdb = nil;
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
     [self queryQueueWithTableName:name conditions:@"order by BG_ID asc" complete:^(NSArray * _Nullable array) {
-        NSMutableArray* resultM = [NSMutableArray array];
-        for(NSDictionary* dict in array){
-            NSArray* keyAndTypes = [dict[@"BG_param"] componentsSeparatedByString:@"$$$"];
-            id value = [keyAndTypes firstObject];
-            NSString* type = [keyAndTypes lastObject];
-            value = [BGTool getSqlValue:value type:type encode:NO];
-            [resultM addObject:value];
+        NSMutableArray* resultM = nil;
+        if(array&&array.count){
+            resultM = [NSMutableArray array];
+            for(NSDictionary* dict in array){
+                NSArray* keyAndTypes = [dict[@"BG_param"] componentsSeparatedByString:@"$$$"];
+                id value = [keyAndTypes firstObject];
+                NSString* type = [keyAndTypes lastObject];
+                value = [BGTool getSqlValue:value type:type encode:NO];
+                [resultM addObject:value];
+            }
         }
         !complete?:complete(resultM);
     }];
@@ -1719,12 +1722,14 @@ static BGFMDB* BGFmdb = nil;
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     __block id resultValue = nil;
     @autoreleasepool {
-        [self queryQueueWithTableName:name conditions:[NSString stringWithFormat:@"where BG_index=%@",@(index)] complete:^(NSArray * _Nullable array) {
-            NSDictionary* dict = [array firstObject];
-            NSArray* keyAndTypes = [dict[@"BG_param"] componentsSeparatedByString:@"$$$"];
-            id value = [keyAndTypes firstObject];
-            NSString* type = [keyAndTypes lastObject];
-            resultValue = [BGTool getSqlValue:value type:type encode:NO];
+        [self queryQueueWithTableName:name conditions:[NSString stringWithFormat:@"where BG_index=%@",@(index)] complete:^(NSArray * _Nullable array){
+            if(array&&array.count){
+                NSDictionary* dict = [array firstObject];
+                NSArray* keyAndTypes = [dict[@"BG_param"] componentsSeparatedByString:@"$$$"];
+                id value = [keyAndTypes firstObject];
+                NSString* type = [keyAndTypes lastObject];
+                resultValue = [BGTool getSqlValue:value type:type encode:NO];
+            }
         }];
     }
     dispatch_semaphore_signal(self.semaphore);
@@ -1878,12 +1883,14 @@ static BGFMDB* BGFmdb = nil;
     __block id resultValue = nil;
     @autoreleasepool {
         NSString* const tableName = @"BG_Dictionary";
-        [self queryQueueWithTableName:tableName conditions:[NSString stringWithFormat:@"where BG_key='%@'",key] complete:^(NSArray * _Nullable array) {
-            NSDictionary* dict = [array firstObject];
-            NSArray* keyAndTypes = [dict[@"BG_value"] componentsSeparatedByString:@"$$$"];
-            id value = [keyAndTypes firstObject];
-            NSString* type = [keyAndTypes lastObject];
-            resultValue = [BGTool getSqlValue:value type:type encode:NO];
+        [self queryQueueWithTableName:tableName conditions:[NSString stringWithFormat:@"where BG_key='%@'",key] complete:^(NSArray * _Nullable array){
+            if(array&&array.count){
+                NSDictionary* dict = [array firstObject];
+                NSArray* keyAndTypes = [dict[@"BG_value"] componentsSeparatedByString:@"$$$"];
+                id value = [keyAndTypes firstObject];
+                NSString* type = [keyAndTypes lastObject];
+                resultValue = [BGTool getSqlValue:value type:type encode:NO];
+            }
         }];
     }
     dispatch_semaphore_signal(self.semaphore);

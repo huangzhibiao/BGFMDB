@@ -324,7 +324,7 @@
     /**
      获取标识名为testA的数组某个位置上的元素.
      */
-    //id arrObject = [NSArray bg_objectWithName:@"testA" Index:3];
+    id arrObject = [NSArray bg_objectWithName:@"testA" Index:3];
     
     /**
      清除标识名为testA的数组所有元素.
@@ -365,7 +365,7 @@
     /**
      获取某个字典元素.
      */
-    //id num = [NSDictionary bg_valueForKey:@"one"];
+    id num = [NSDictionary bg_valueForKey:@"one"];
     
     /**
      移除字典某个元素.
