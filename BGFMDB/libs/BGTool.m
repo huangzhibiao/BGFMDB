@@ -787,6 +787,7 @@ NSString* keyPathValues(NSArray* keyPathValues){
     if(!jsonString || [jsonString isKindOfClass:[NSNull class]])return nil;
     
     NSDateFormatter *formatter = [NSDateFormatter new];
+    formatter.dateFormat = @"yyyy-MM-dd HH:mm:ss";
     NSDate *date = [formatter dateFromString:jsonString];
     return date;
 }

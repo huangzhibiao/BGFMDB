@@ -182,10 +182,13 @@
     NSInteger count = [People countWhere:nil];
     for(int i=0;i<count;i+=10){
             NSArray* arr = [People findAllWithRange:NSMakeRange(i,10) orderBy:nil desc:NO];
-            for(People* pp in arr)
+        for(People* pp in arr){
             //库新增两个自带字段createTime和updateTime方便开发者使用和做参考对比.
-            NSLog(@"主键 = %@ , 创建时间 = %@ , 更新时间 = %@",pp.ID,pp.createTime,pp.updateTime);
-        
+             NSLog(@"主键 = %@, 创建时间 = %@, 更新时间 = %@",pp.ID,pp.createTime,pp.updateTime);
+//            NSDateFormatter* formatter = [NSDateFormatter new];
+//            formatter.dateFormat = @"yyyy年MM月dd日 HH时mm分ss秒";
+//            NSLog(@"date = %@",[formatter stringFromDate:pp.date]);
+        }
             if(i==0){
                 People* p = arr.lastObject;
                 _showImage.image = p.image;
@@ -453,6 +456,7 @@
     p.mapTable = mapTable;
     p.nsset = set1;
     p.setM = set2;
+    p.date = [NSDate date];
     return p;
 }
 - (IBAction)insertAction:(id)sender {
