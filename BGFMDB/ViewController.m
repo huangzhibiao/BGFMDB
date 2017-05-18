@@ -186,11 +186,11 @@
             //库新增两个自带字段createTime和updateTime方便开发者使用和做参考对比.
             NSLog(@"主键 = %@ , 创建时间 = %@ , 更新时间 = %@",pp.ID,pp.createTime,pp.updateTime);
         
-        if(i==0){
-            People* p = arr.lastObject;
-            _showImage.image = p.image;
-            _showLab.attributedText = p.attriStr;
-        }
+            if(i==0){
+                People* p = arr.lastObject;
+                _showImage.image = p.image;
+                _showLab.attributedText = p.attriStr;
+            }
     }
     
     /**
