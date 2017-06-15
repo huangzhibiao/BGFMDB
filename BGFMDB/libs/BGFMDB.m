@@ -923,7 +923,7 @@ static BGFMDB* BGFmdb = nil;
         createFlag = isSuccess;
     }];
     if (!createFlag){
-        debug(@"数据库更新失败!")
+        debug(@"数据库更新失败!");
         !complete?:complete(Error);
         return;
     }
@@ -982,7 +982,7 @@ static BGFMDB* BGFmdb = nil;
     NSAssert(keys,@"字段数组不能为空!");
     [self isExistWithTableName:name complete:^(BOOL isSuccess){
         if (!isSuccess){
-            debug(@"没有数据存在,数据库更新失败!")
+            debug(@"没有数据存在,数据库更新失败!");
             !complete?:complete(Error);
             return;
         }
@@ -1046,7 +1046,7 @@ static BGFMDB* BGFmdb = nil;
         createFlag = isSuccess;
     }];
     if (!createFlag){
-        debug(@"数据库更新失败!")
+        debug(@"数据库更新失败!");
         !complete?:complete(Error);
         return;
     }
@@ -1117,7 +1117,7 @@ static BGFMDB* BGFmdb = nil;
     NSAssert(keyDict,@"变量名影射集合不能为空!");
     [self isExistWithTableName:name complete:^(BOOL isSuccess){
         if (!isSuccess){
-            debug(@"没有数据存在,数据库更新失败!")
+            debug(@"没有数据存在,数据库更新失败!");
             !complete?:complete(Error);
             return;
         }

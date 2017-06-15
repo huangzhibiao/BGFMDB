@@ -23,7 +23,9 @@
 #define BGLog(...)
 #endif
 
-#define debug(param) if(self.debug){BGLog(@"调试输出: %@",param);}
+#define debug(param) do{\
+if(self.debug){BGLog(@"调试输出: %@",param);}\
+}while(0)
 
 #define BG @"BG_"
 #define BGPrimaryKey @"ID"
