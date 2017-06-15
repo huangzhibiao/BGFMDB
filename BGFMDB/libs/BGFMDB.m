@@ -93,7 +93,7 @@ static BGFMDB* BGFmdb = nil;
         name = SQLITE_NAME;
     }
     NSString *filename = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:name];
-    NSLog(@"数据库路径 = %@",filename);
+    //NSLog(@"数据库路径 = %@",filename);
     _queue = [FMDatabaseQueue databaseQueueWithPath:filename];
     return _queue;
 }
