@@ -62,6 +62,27 @@ extern NSString* _Nonnull sqlValue(id _Nonnull value);
  根据keyPath和Value的数组, 封装成数据库语句，来操作库.
  */
 extern NSString* _Nonnull keyPathValues(NSArray* _Nonnull keyPathValues);
+
+/**
+ 自定义数据库名称.
+ */
+extern void bg_setSqliteName(NSString*_Nonnull sqliteName);
+/**
+ 删除数据库文件
+ */
+extern BOOL bg_deleteSqlite(NSString*_Nonnull sqliteName);
+/**
+ 设置操作过程中不可关闭数据库(即closeDB函数无效).
+ 默认是NO.
+ */
+extern void bg_setDisableCloseDB(BOOL disableCloseDB);
+/**
+ 设置调试模式
+ @debug YES:打印调试信息, NO:不打印调试信息.
+ */
+extern void bg_setDebug(BOOL debug);
+
+
 /**
  json字符转json格式数据 .
  */

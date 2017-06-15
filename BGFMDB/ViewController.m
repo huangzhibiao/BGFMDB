@@ -36,9 +36,11 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     //想测试更多功能,打开注释掉的代码即可.
-    [NSObject setDebug:YES];//打开调试模式,打印输出调试信息.
+    bg_setDebug(YES);//打开调试模式,打印输出调试信息.
     //自定义数据库名称，否则默认为BGFMDB
-    //[NSObject setSqliteName:@"Tencent"];
+    //bg_setSqliteName(@"Tencent");
+    //删除自定义数据库.
+    //bg_deleteSqlite(@"Tencent");
     
     /**
      直接存储数组.

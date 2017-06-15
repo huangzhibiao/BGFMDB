@@ -34,13 +34,13 @@
     //移除数据变化监听.
     [stockModel removeChangeWithName:@"stock"];
     //恢复默认值.
-    [NSObject setDisableCloseDB:NO];
+    bg_setDisableCloseDB(NO);
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     //设置操作过程中不可关闭数据库(即closeDB函数无效),防止数据更新的时候频繁关闭开启数据库.
-    [NSObject setDisableCloseDB:YES];
+    bg_setDisableCloseDB(YES);
     //注册数据变化监听.
     [self registerChange];
     

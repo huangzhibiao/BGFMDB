@@ -58,6 +58,40 @@ NSString* sqlValue(id value){
 NSString* keyPathValues(NSArray* keyPathValues){
     return [BGTool getLikeWithKeyPathAndValues:keyPathValues where:NO];
 }
+
+/**
+ 自定义数据库名称.
+ */
+void bg_setSqliteName(NSString*_Nonnull sqliteName){
+    if (![sqliteName isEqualToString:[BGFMDB shareManager].sqliteName]) {
+        [BGFMDB shareManager].sqliteName = sqliteName;
+    }
+}
+/**
+ 删除数据库文件
+ */
+BOOL bg_deleteSqlite(NSString*_Nonnull sqliteName){
+    return [BGFMDB deleteSqlite:sqliteName];
+}
+/**
+ 设置操作过程中不可关闭数据库(即closeDB函数无效).
+ 默认是NO.
+ */
+void bg_setDisableCloseDB(BOOL disableCloseDB){
+    if ([BGFMDB shareManager].disableCloseDB != disableCloseDB){//防止重复设置.
+        [BGFMDB shareManager].disableCloseDB = disableCloseDB;
+    }
+}
+/**
+ 设置调试模式
+ @debug YES:打印调试信息, NO:不打印调试信息.
+ */
+void bg_setDebug(BOOL debug){
+    if ([BGFMDB shareManager].debug != debug){//防止重复设置.
+        [BGFMDB shareManager].debug = debug;
+    }
+}
+
 /**
  json字符转json格式数据 .
  */
