@@ -36,7 +36,29 @@
 -(void)setUpdateTime:(NSString *)updateTime{
     objc_setAssociatedObject(self,@selector(updateTime),updateTime,OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
-
+/**
+ 自定义数据库名称.
+ */
++(void)setSqliteName:(NSString *)sqliteName{
+    if (![sqliteName isEqualToString:[BGFMDB shareManager].sqliteName]) {
+        [BGFMDB shareManager].sqliteName = sqliteName;
+    }
+}
+/**
+ 删除数据库文件
+ */
++(BOOL)deleteSqlite:(NSString*_Nonnull)sqliteName{
+    return [BGFMDB deleteSqlite:sqliteName];
+}
+/**
+ 设置操作过程中不可关闭数据库(即closeDB函数无效).
+ 默认是NO.
+ */
++(void)setDisableCloseDB:(BOOL)disableCloseDB{
+    if ([BGFMDB shareManager].disableCloseDB != disableCloseDB){//防止重复设置.
+        [BGFMDB shareManager].disableCloseDB = disableCloseDB;
+    }
+}
 /**
  设置调试模式
  */

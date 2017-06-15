@@ -51,6 +51,19 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 
 //同步：线程阻塞；异步：线程非阻塞;
 /**
+ 自定义数据库名称.
+ */
++(void)setSqliteName:(NSString*_Nonnull)sqliteName;
+/**
+ 删除数据库文件
+ */
++(BOOL)deleteSqlite:(NSString*_Nonnull)sqliteName;
+/**
+ 设置操作过程中不可关闭数据库(即closeDB函数无效).
+ 默认是NO.
+ */
++(void)setDisableCloseDB:(BOOL)disableCloseDB;
+/**
  设置调试模式
  @debug YES:打印调试信息, NO:不打印调试信息.
  */

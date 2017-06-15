@@ -51,10 +51,24 @@ static BGFMDB* BGFmdb = nil;
  关闭数据库.
  */
 -(void)closeDB{
+    if(_disableCloseDB)return;
+    
     if(!_inTransaction && _queue) {//没有事务的情况下就关闭数据库.
         [_queue close];//关闭数据库.
         _queue = nil;
     }
+}
+/**
+ 删除数据库文件.
+ */
++(BOOL)deleteSqlite:(NSString*)sqliteName{
+    NSString* filePath = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.sqlite",sqliteName]];
+    NSFileManager * file_manager = [NSFileManager defaultManager];
+    NSError* error;
+    if ([file_manager fileExistsAtPath:filePath]) {
+        [file_manager removeItemAtPath:filePath error:&error];
+    }
+    return error==nil;
 }
 
 -(instancetype)init{
@@ -72,7 +86,14 @@ static BGFMDB* BGFmdb = nil;
 -(FMDatabaseQueue *)queue{
     if(_queue)return _queue;
     // 0.获得沙盒中的数据库文件名
-    NSString *filename = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:SQLITE_NAME];
+    NSString* name;
+    if(_sqliteName) {
+        name = [NSString stringWithFormat:@"%@.sqlite",_sqliteName];
+    }else{
+        name = SQLITE_NAME;
+    }
+    NSString *filename = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:name];
+    NSLog(@"数据库路径 = %@",filename);
     _queue = [FMDatabaseQueue databaseQueueWithPath:filename];
     return _queue;
 }

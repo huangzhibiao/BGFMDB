@@ -10,8 +10,11 @@
 
 @interface BGFMDB : NSObject
 //信号量.
-@property (nonatomic, strong)dispatch_semaphore_t _Nullable semaphore;
+@property(nonatomic, strong)dispatch_semaphore_t _Nullable semaphore;
 @property(nonatomic,assign)BOOL debug;
+@property(nonatomic,copy)NSString* _Nonnull sqliteName;
+//设置操作过程中不可关闭数据库(即closeDB函数无效).
+@property(nonatomic,assign)BOOL disableCloseDB;
 /**
  获取单例函数.
  */
@@ -20,6 +23,10 @@
  关闭数据库.
  */
 -(void)closeDB;
+/**
+ 删除数据库文件.
+ */
++(BOOL)deleteSqlite:(NSString*_Nonnull)sqliteName;
 //事务操作
 -(void)inTransaction:(BOOL (^_Nonnull)())block;
 /**

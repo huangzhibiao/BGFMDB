@@ -344,7 +344,7 @@
 				TargetAttributes = {
 					D706630C1CD1EF67009E4B4D = {
 						CreatedOnToolsVersion = 7.3;
-						DevelopmentTeam = P2BR552UD7;
+						DevelopmentTeam = XYBK7B7U6R;
 					};
 					D70663251CD1EF67009E4B4D = {
 						CreatedOnToolsVersion = 7.3;
@@ -569,7 +569,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = P2BR552UD7;
+				DEVELOPMENT_TEAM = XYBK7B7U6R;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -590,7 +590,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = P2BR552UD7;
+				DEVELOPMENT_TEAM = XYBK7B7U6R;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
