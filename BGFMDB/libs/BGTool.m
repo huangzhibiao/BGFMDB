@@ -262,7 +262,16 @@ void bg_setDebug(BOOL debug){
         if ([relations[i] isEqualToString:Contains]){//包含关系
             [keyPathParam appendString:@"%"];
         }else{
-            keypaths.count<=2?[keyPathParam appendString:@"\"%"]:[keyPathParam appendString:@"\\%"];
+            //keypaths.count<=2?[keyPathParam appendString:@"\"%"]:[keyPathParam appendString:@"\\%"];
+            if(keypaths.count<=2){
+                if([values[i] isKindOfClass:[NSString class]]){
+                    [keyPathParam appendString:@"\"%"];
+                }else{
+                    [keyPathParam appendString:@",%"];
+                }
+            }else{
+                [keyPathParam appendString:@"\\%"];
+            }
         }
         [likeM appendFormat:@"%@%@ like '%@'",BG,keypaths[0],keyPathParam];
         if(i != (keys.count-1)){

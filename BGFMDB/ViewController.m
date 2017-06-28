@@ -423,14 +423,14 @@
     p->testName = @"测试名字";
     p.sex_old = @"新名";
     User* user = [[User alloc] init];
-    user.name = @"测试用户名字...重复吗?";
+    user.name = @"陈浩南";
     user.attri = @{@"用户名":@"黄芝标",@"密码":@(123456),@"数组":@[@"数组1",@"数组2"],@"集合":@{@"集合1":@"集合2"}};
     Student* student = [[Student alloc] init];
     student.num = @"测试学生数量...标哥";
     student.names = @[@"小哥哥",@"小红",@(110),@[@"数组元素1",@"数组元素2"],@{@"集合key":@"集合value"}];
     Human* human = [[Human alloc] init];
     human.sex = @"女";
-    human.body = @"小芳";
+    human.body = @"小";
     student.human = human;
     user.student = student;
     p.students = @[@(1),@"呵呵",@[@"数组元素1",@"数组元素2"],@{@"集合key":@"集合value"},student,data,student];
@@ -452,7 +452,7 @@
     p.user1 = [User new];
     p.user1.name = @"小明_fuck2222";
     p.bfloat = 8.88;
-    p.user.userAge = 1.024;
+    p.user.userAge = 13;
     p.user.userNumer = @(3.14);
     p.user.student.human.humanAge = 9999;
     

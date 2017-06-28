@@ -37,7 +37,7 @@
 
 @property(nonatomic,copy)NSString* name;
 @property(nonatomic,strong)NSDictionary* attri;
-@property(nonatomic,assign)float userAge;
+@property(nonatomic,assign)int userAge;
 @property(nonatomic,strong)NSNumber* userNumer;
 @property(nonatomic,strong)Student* student;//第二层类嵌套 , 可以无穷嵌套...
 

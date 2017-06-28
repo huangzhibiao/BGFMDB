@@ -10,6 +10,8 @@
 
 #define MaxQueryPageNum 50
 
+#define CachePath(name) [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:name]
+
 static const void * const BGFMDBDispatchQueueSpecificKey = &BGFMDBDispatchQueueSpecificKey;
 
 @interface BGFMDB()
@@ -62,7 +64,7 @@ static BGFMDB* BGFmdb = nil;
  删除数据库文件.
  */
 +(BOOL)deleteSqlite:(NSString*)sqliteName{
-    NSString* filePath = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.sqlite",sqliteName]];
+    NSString* filePath = CachePath(([NSString stringWithFormat:@"%@.sqlite",sqliteName]));
     NSFileManager * file_manager = [NSFileManager defaultManager];
     NSError* error;
     if ([file_manager fileExistsAtPath:filePath]) {
@@ -85,14 +87,14 @@ static BGFMDB* BGFmdb = nil;
 
 -(FMDatabaseQueue *)queue{
     if(_queue)return _queue;
-    // 0.获得沙盒中的数据库文件名
+    //获得沙盒中的数据库文件名
     NSString* name;
     if(_sqliteName) {
         name = [NSString stringWithFormat:@"%@.sqlite",_sqliteName];
     }else{
         name = SQLITE_NAME;
     }
-    NSString *filename = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:name];
+    NSString *filename = CachePath(name);
     //NSLog(@"数据库路径 = %@",filename);
     _queue = [FMDatabaseQueue databaseQueueWithPath:filename];
     return _queue;
