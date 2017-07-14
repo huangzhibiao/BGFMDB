@@ -49,6 +49,14 @@ typedef NS_ENUM(NSInteger,dealState){//处理状态
     Incomplete = 0,//处理不完整
     Complete = 1//处理完整
 };
+
+typedef NS_ENUM(NSInteger,bg_sqliteMethodType){//处理状态
+    bg_min,//求最小值
+    bg_max,//求最大值
+    bg_sum,//求总和值
+    bg_avg//求平均值
+};
+
 //keyPath查询用的关系，Equal:等于的关系；Contains：包含的关系.
 typedef NSString* _Nonnull Relation;
 extern Relation const Equal;

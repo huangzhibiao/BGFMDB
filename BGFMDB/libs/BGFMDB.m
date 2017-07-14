@@ -887,6 +887,55 @@ static BGFMDB* BGFmdb = nil;
     return count;
 }
 /**
+ 直接调用sqliteb的原生函数计算sun,min,max,avg等.
+ */
+-(NSInteger)sqliteMethodQueueForTable:(NSString* _Nonnull)name type:(bg_sqliteMethodType)methodType key:(NSString*)key{
+    NSAssert(name,@"表名不能为空!");
+    NSAssert(key,@"属性名不能为空!");
+    __block NSUInteger num = 0;
+    NSString* method;
+    switch (methodType) {
+        case bg_min:
+            method = [NSString stringWithFormat:@"min(%@%@)",BG,key];
+            break;
+        case bg_max:
+            method = [NSString stringWithFormat:@"max(%@%@)",BG,key];
+            break;
+        case bg_sum:
+            method = [NSString stringWithFormat:@"sum(%@%@)",BG,key];
+            break;
+        case bg_avg:
+            method = [NSString stringWithFormat:@"avg(%@%@)",BG,key];
+            break;
+        default:
+            NSAssert(NO,@"请传入方法类型!");
+            break;
+    }
+    [self executeDB:^(FMDatabase * _Nonnull db){
+        NSString* SQL = [NSString stringWithFormat:@"select %@ from %@",method,name];
+        debug(SQL);
+        [db executeStatements:SQL withResultBlock:^int(NSDictionary *resultsDictionary) {
+            num = [[resultsDictionary.allValues lastObject] integerValue];
+            return 0;
+        }];
+    }];
+    return num;
+}
+
+/**
+ 直接调用sqliteb的原生函数计算sun,min,max,avg等.
+ */
+-(NSInteger)sqliteMethodForTable:(NSString* _Nonnull)name type:(bg_sqliteMethodType)methodType key:(NSString*)key{
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    NSInteger num = 0;
+    @autoreleasepool {
+        num = [self sqliteMethodQueueForTable:name type:methodType key:key];
+    }
+    dispatch_semaphore_signal(self.semaphore);
+    return num;
+}
+
+/**
  keyPath查询数据条数.
  */
 -(NSInteger)countQueueForTable:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{

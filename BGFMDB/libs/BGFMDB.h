@@ -269,6 +269,10 @@
  */
 -(NSInteger)countForTable:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues;
 /**
+ 直接调用sqliteb的原生函数计算sun,min,max,avg等.
+ */
+-(NSInteger)sqliteMethodForTable:(NSString* _Nonnull)name type:(bg_sqliteMethodType)methodType key:(NSString* _Nonnull)key;
+/**
  刷新数据库，即将旧数据库的数据复制到新建的数据库,这是为了去掉没用的字段.
  @name 表名称.
  @keys 新表的数组字段.
