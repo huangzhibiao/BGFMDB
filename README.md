@@ -4,8 +4,9 @@
 2.增加直接存储字典功能.       
 ## 广而告知
 '简约时尚强悍版'震撼出世,点击此处跳转-> ![BGDB_OC](https://github.com/huangzhibiao/BGDB_OC "简约时尚强悍版")       
-1.BGFMDB是多功能版,同时也由于BGFMDB是在FMDB的基础上进行封装,由于多了中间一层的转化,所以性能有所下降,为了能满足更高性能需求的app,所以我特意重构sqlite API层逻辑,打造这款‘简约时尚强悍版’存储框架,名为BGDB,此款是OC版,欢迎老鸟新鸟们测试使用,找出bug跟我交流😊.     
-2.Swift工程中使用方式：目前可以存储Swift工程中的OC类model,用桥接文件导入OC的model类即可, 但是不能解析存储Swift类的model,后面会补上Swift model类解析部分😊.    
+1.BGFMDB是多功能版,同时也由于BGFMDB是在FMDB的基础上进行封装,由于多了中间一层的转化,所以性能有所下降,为了能满足更高性能需求的app,所以我特意重构sqlite API层逻辑,打造这款‘简约时尚强悍版’存储框架,名为BGDB,此款是OC版,欢迎老鸟新鸟们测试使用,找出bug跟我交流😊. 
+## Swift工程中使用方式    
+目前可以存储Swift工程中的OC类model,在桥接文件导入OC类model的头文件即可, 但是不能解析存储Swift类model,后面会补上Swift类model解析部分😊.    
 ## 小伙伴们的使用反馈   
 ![BGFMDB](http://o7pq80nc2.bkt.clouddn.com/showUse_meitu.jpg "小伙伴们的使用反馈")
 ## 交流QQ群:         
