@@ -8,11 +8,9 @@
 2.Swift版正在赶来的路上,请使用Swift的同学们拭目以待吧😊.
 ## 小伙伴们的使用反馈   
 ![BGFMDB](http://o7pq80nc2.bkt.clouddn.com/showUse_meitu.jpg "小伙伴们的使用反馈")
-## 作者联系方式:       
-QQ: 450426721   
-QQ邮箱: 450426721@qq.com   
+## 交流QQ群:         
 使用交流QQ群: 572359447    
-如果在使用过程中发现什么问题或有什么疑问,请加我QQ反馈.    
+如果在使用过程中发现什么问题或有什么疑问,请加群反馈.    
 ## 完美支持:    
 int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSMutableString,NSMutableAttributedString,NSAttributedString,NSNumber,NSArray,NSMutableArray,NSDictionary,NSMutableDictionary,NSMapTable,NSHashTable,NSData,NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象 等的存储.   
 ## 写本库的动机: 在对coredata和realm做了探究总结后,发现了很多有缺陷的地方,最明显的就是下面的原因:   
