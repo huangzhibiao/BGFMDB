@@ -65,7 +65,7 @@
     /**
      使用原生函数求某个整数类型的属性的总和，最大值，最小值，平均值等.
      */
-//    NSInteger num = [People bg_sqliteMethodWithType:bg_sum key:@"age"];
+//    NSInteger num = [People bg_sqliteMethodWithType:bg_sum key:@"age" where:@"where %@>20 and %@=%@",sqlKey(@"age"),sqlKey(@"name"),sqlValue(@"斯巴达")];
 //    NSLog(@"sum(age) = %@",@(num));
     
     /**
@@ -403,7 +403,7 @@
     People* p = [People new];
     p.name = @"斯巴达";
     p.num = @(220.88);
-    p.age = 3;
+    p.age = 30;
     p.sex = @"男";
     p.eye = @"末世眼皮";
     p.Url = [NSURL URLWithString:@"http://www.gmjk.com"];

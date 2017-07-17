@@ -889,7 +889,7 @@ static BGFMDB* BGFmdb = nil;
 /**
  直接调用sqliteb的原生函数计算sun,min,max,avg等.
  */
--(NSInteger)sqliteMethodQueueForTable:(NSString* _Nonnull)name type:(bg_sqliteMethodType)methodType key:(NSString*)key{
+-(NSInteger)sqliteMethodQueueForTable:(NSString* _Nonnull)name type:(bg_sqliteMethodType)methodType key:(NSString*)key where:(NSString* _Nullable)where{
     NSAssert(name,@"表名不能为空!");
     NSAssert(key,@"属性名不能为空!");
     __block NSUInteger num = 0;
@@ -912,10 +912,20 @@ static BGFMDB* BGFmdb = nil;
             break;
     }
     [self executeDB:^(FMDatabase * _Nonnull db){
-        NSString* SQL = [NSString stringWithFormat:@"select %@ from %@",method,name];
+        NSString* SQL;
+        if(where){
+            SQL = [NSString stringWithFormat:@"select %@ from %@ %@",method,name,where];
+        }else{
+            SQL = [NSString stringWithFormat:@"select %@ from %@",method,name];
+        }
         debug(SQL);
-        [db executeStatements:SQL withResultBlock:^int(NSDictionary *resultsDictionary) {
-            num = [[resultsDictionary.allValues lastObject] integerValue];
+        [db executeStatements:SQL withResultBlock:^int(NSDictionary *resultsDictionary){
+            id dbResult = [resultsDictionary.allValues lastObject];
+            if(dbResult && ![dbResult isKindOfClass:[NSNull class]]) {
+                num = [dbResult integerValue];
+            }else{
+                num = 0;
+            }
             return 0;
         }];
     }];
@@ -925,11 +935,11 @@ static BGFMDB* BGFmdb = nil;
 /**
  直接调用sqliteb的原生函数计算sun,min,max,avg等.
  */
--(NSInteger)sqliteMethodForTable:(NSString* _Nonnull)name type:(bg_sqliteMethodType)methodType key:(NSString*)key{
+-(NSInteger)sqliteMethodForTable:(NSString* _Nonnull)name type:(bg_sqliteMethodType)methodType key:(NSString*)key where:(NSString* _Nullable)where{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     NSInteger num = 0;
     @autoreleasepool {
-        num = [self sqliteMethodQueueForTable:name type:methodType key:key];
+        num = [self sqliteMethodQueueForTable:name type:methodType key:key where:where];
     }
     dispatch_semaphore_signal(self.semaphore);
     return num;

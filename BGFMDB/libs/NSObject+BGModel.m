@@ -725,10 +725,14 @@
 /**
  直接调用sqliteb的原生函数计算sun,min,max,avg等.
  用法：NSInteger num = [People bg_sqliteMethodWithType:bg_sum key:@"age"];
- 提示: 不支持keyPath
+ 提示: @param key -> 不支持keyPath , @param where -> 支持keyPath
  */
-+(NSInteger)bg_sqliteMethodWithType:(bg_sqliteMethodType)methodType key:(NSString* _Nonnull)key{
-    NSInteger num = [[BGFMDB shareManager] sqliteMethodForTable:NSStringFromClass([self class]) type:methodType key:key];
++(NSInteger)bg_sqliteMethodWithType:(bg_sqliteMethodType)methodType key:(NSString* _Nonnull)key where:(NSString* _Nullable)where,...{
+    va_list ap;
+    va_start (ap,where);
+    NSString *conditions = where?[[NSString alloc] initWithFormat:where arguments:ap]:nil;
+    va_end (ap);
+    NSInteger num = [[BGFMDB shareManager] sqliteMethodForTable:NSStringFromClass([self class]) type:methodType key:key where:conditions];
     //关闭数据库
     [[BGFMDB shareManager] closeDB];
     return num;
