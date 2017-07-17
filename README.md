@@ -1,22 +1,17 @@
 # BGFMDB让数据的增删改查分别只需要一行代码即可,就是这么简单任性.
 ## 最新重大更新:    
 1.增加直接存储数组功能.    
-2.增加直接存储字典功能.   
-
-# 插入一条广告,[蓝创短信](https://www.253.com "系统稳定,价格优惠").    
-有短信需求的同学,请点击 [蓝创短信](https://www.253.com "系统稳定,价格优惠")，打开客服聊天界面说找:李玉，说标哥介绍的,有优惠.    
-
+2.增加直接存储字典功能.       
 ## 广而告知
 '简约时尚强悍版'震撼出世,点击此处跳转-> ![BGDB_OC](https://github.com/huangzhibiao/BGDB_OC "简约时尚强悍版")       
-1.BGFMDB是多功能版,同时也由于BGFMDB是在FMDB的基础上进行封装,由于多了中间一层的转化,所以性能有所下降,为了能满足更高性能需求的app,所以我特意重构sqlite API层逻辑,打造这款‘简约时尚强悍版’存储框架,名为BGDB,此款是OC版,欢迎老鸟新鸟们测试使用,找出bug跟我交流😊.     
-2.Swift版正在赶来的路上,请使用Swift的同学们拭目以待吧😊.
+1.BGFMDB是多功能版,同时也由于BGFMDB是在FMDB的基础上进行封装,由于多了中间一层的转化,所以性能有所下降,为了能满足更高性能需求的app,所以我特意重构sqlite API层逻辑,打造这款‘简约时尚强悍版’存储框架,名为BGDB,此款是OC版,欢迎老鸟新鸟们测试使用,找出bug跟我交流😊. 
+## Swift工程中使用方式    
+目前可以存储Swift工程中的OC类model,在桥接文件导入OC类model的头文件即可, 但是不能解析存储Swift类model,后面会补上Swift类model解析部分😊.    
 ## 小伙伴们的使用反馈   
 ![BGFMDB](http://o7pq80nc2.bkt.clouddn.com/showUse_meitu.jpg "小伙伴们的使用反馈")
-## 作者联系方式:       
-QQ: 450426721   
-QQ邮箱: 450426721@qq.com   
+## 交流QQ群:         
 使用交流QQ群: 572359447    
-如果在使用过程中发现什么问题或有什么疑问,请加我QQ反馈.    
+如果在使用过程中发现什么问题或有什么疑问,请加群反馈.    
 ## 完美支持:    
 int,long,signed,float,double,NSInteger,CGFloat,BOOL,NSString,NSMutableString,NSMutableAttributedString,NSAttributedString,NSNumber,NSArray,NSMutableArray,NSDictionary,NSMutableDictionary,NSMapTable,NSHashTable,NSData,NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象 等的存储.   
 ## 写本库的动机: 在对coredata和realm做了探究总结后,发现了很多有缺陷的地方,最明显的就是下面的原因:   
@@ -39,7 +34,7 @@ LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo
 platform :ios, '8.0'
 
 target '工程名称' do
-pod ‘BGFMDB’, '~> 1.33’
+pod ‘BGFMDB’, '~> 1.35’
 end
 ```
 ## 直接下载库代码使用方式.
