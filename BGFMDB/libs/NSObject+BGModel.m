@@ -40,7 +40,7 @@
 /**
  判断这个类的数据表是否已经存在.
  */
-+(BOOL)isExist{
++(BOOL)bg_isExist{
     __block BOOL result;
     [[BGFMDB shareManager] isExistWithTableName:NSStringFromClass([self class]) complete:^(BOOL isSuccess) {
         result  = isSuccess;
@@ -52,7 +52,7 @@
 /**
  同步存储.
  */
--(BOOL)save{
+-(BOOL)bg_save{
     __block BOOL result;
     [[BGFMDB shareManager] saveObject:self ignoredKeys:nil complete:^(BOOL isSuccess) {
         result = isSuccess;
@@ -64,9 +64,9 @@
 /**
  异步存储.
  */
--(void)saveAsync:(Complete_B)complete{
+-(void)bg_saveAsync:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL flag = [self save];
+        BOOL flag = [self bg_save];
         BGComplete(flag);
     });
 }
@@ -74,7 +74,7 @@
  同步存入对象数组.
  @array 存放对象的数组.(数组中存放的是同一种类型的数据)
  */
-+(BOOL)saveArray:(NSArray*)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys{
++(BOOL)bg_saveArray:(NSArray*)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys{
     NSAssert(array||array.count,@"数组没有元素!");
     __block BOOL result = YES;
         [[BGFMDB shareManager] saveObjects:array ignoredKeys:ignoreKeys complete:^(BOOL isSuccess) {
@@ -88,10 +88,10 @@
  异步存入对象数组.
  @array 存放对象的数组.(数组中存放的是同一种类型的数据)
  */
-+(void)saveArrayAsync:(NSArray*)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(Complete_B)complete{
++(void)bg_saveArrayAsync:(NSArray*)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(Complete_B)complete{
     NSAssert(array||array.count,@"数组没有元素!");
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL flag = [self saveArray:array IgnoreKeys:ignoreKeys];
+        BOOL flag = [self bg_saveArray:array IgnoreKeys:ignoreKeys];
         BGComplete(flag);
     });
 }
@@ -99,56 +99,56 @@
  同步存储或更新数组.
  当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
  */
-+(void)saveOrUpdateArray:(NSArray*)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys{
++(void)bg_saveOrUpdateArray:(NSArray*)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys{
     NSAssert(array||array.count,@"数组没有元素!");
     NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_uniqueKey") forClass:[self class]];
     if (uniqueKey) {
         id uniqueKeyVlaue = [array.lastObject valueForKey:uniqueKey];
-        NSInteger count = [[array.lastObject class] countWhere:@[uniqueKey,@"=",uniqueKeyVlaue]];
+        NSInteger count = [[array.lastObject class] bg_countWhere:@[uniqueKey,@"=",uniqueKeyVlaue]];
         if (count){//有数据存在就更新.
             //此处更新数据.
             [[BGFMDB shareManager] updateObjects:array ignoredKeys:ignoreKeys complete:nil];
         }else{//没有就存储.
-            [self saveArray:array IgnoreKeys:ignoreKeys];
+            [self bg_saveArray:array IgnoreKeys:ignoreKeys];
         }
     }else{
-        [self saveArray:array IgnoreKeys:ignoreKeys];
+        [self bg_saveArray:array IgnoreKeys:ignoreKeys];
     }
 }
 /**
  异步存储或更新数组.
  当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
  */
-+(void)saveOrUpdateAsyncArray:(NSArray*)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys{
++(void)bg_saveOrUpdateAsyncArray:(NSArray*)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [self saveOrUpdateArray:array IgnoreKeys:ignoreKeys];
+        [self bg_saveOrUpdateArray:array IgnoreKeys:ignoreKeys];
     });
 }
 /**
  同步存储或更新.
  当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
  */
--(BOOL)saveOrUpdate{
+-(BOOL)bg_saveOrUpdate{
     NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_uniqueKey") forClass:[self class]];//[BGTool getUnique:self];
     if (uniqueKey) {
         id uniqueKeyVlaue = [self valueForKey:uniqueKey];
-        NSInteger count = [[self class] countWhere:@[uniqueKey,@"=",uniqueKeyVlaue]];
+        NSInteger count = [[self class] bg_countWhere:@[uniqueKey,@"=",uniqueKeyVlaue]];
         if (count){//有数据存在就更新.
-            return [self updateWhere:@[uniqueKey,@"=",uniqueKeyVlaue]];
+            return [self bg_updateWhere:@[uniqueKey,@"=",uniqueKeyVlaue]];
         }else{//没有就存储.
-            return [self save];
+            return [self bg_save];
         }
     }else{
-        return [self save];
+        return [self bg_save];
     }
 }
 /**
  异步存储或更新.
  当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
  */
--(void)saveOrUpdateAsync:(Complete_B)complete{
+-(void)bg_saveOrUpdateAsync:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL result = [self saveOrUpdate];
+        BOOL result = [self bg_saveOrUpdate];
         BGComplete(result);
     });
 }
@@ -156,7 +156,7 @@
  同步存储.
  @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.
  */
--(BOOL)saveIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys{
+-(BOOL)bg_saveIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys{
     __block BOOL result;
     [[BGFMDB shareManager] saveObject:self ignoredKeys:ignoredKeys complete:^(BOOL isSuccess) {
         result = isSuccess;
@@ -169,9 +169,9 @@
  异步存储.
  @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.
  */
--(void)saveAsyncIgnoreKeys:(NSArray* const _Nonnull)ignoredKeys complete:(Complete_B)complete{
+-(void)bg_saveAsyncIgnoreKeys:(NSArray* const _Nonnull)ignoredKeys complete:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL flag = [self saveIgnoredKeys:ignoredKeys];
+        BOOL flag = [self bg_saveIgnoredKeys:ignoredKeys];
         BGComplete(flag);
     });
 
@@ -180,7 +180,7 @@
  同步覆盖存储.
  覆盖掉原来的数据,只存储当前的数据.
  */
--(BOOL)cover{
+-(BOOL)bg_cover{
     __block BOOL result;
     [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess) {
         if(isSuccess)
@@ -199,9 +199,9 @@
  异步覆盖存储.
  覆盖掉原来的数据,只存储当前的数据.
  */
--(void)coverAsync:(Complete_B)complete{
+-(void)bg_coverAsync:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL flag = [self cover];
+        BOOL flag = [self bg_cover];
         BGComplete(flag);
     });
     
@@ -211,7 +211,7 @@
  覆盖掉原来的数据,只存储当前的数据.
  @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.
  */
--(BOOL)coverIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys{
+-(BOOL)bg_coverIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys{
     __block BOOL result;
     [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess) {
         if(isSuccess)
@@ -230,9 +230,9 @@
  覆盖掉原来的数据,只存储当前的数据.
  @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.
  */
--(void)coverAsyncIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys complete:(Complete_B)complete{
+-(void)bg_coverAsyncIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys complete:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL flag = [self coverIgnoredKeys:ignoredKeys];
+        BOOL flag = [self bg_coverIgnoredKeys:ignoredKeys];
         BGComplete(flag);
     });
 }
@@ -240,7 +240,7 @@
  同步查询所有结果.
  温馨提示: 当数据量巨大时,请用范围接口进行分页查询,避免查询出来的数据量过大导致程序崩溃.
  */
-+(NSArray* _Nullable)findAll{
++(NSArray* _Nullable)bg_findAll{
     __block NSArray* results;
     [[BGFMDB shareManager] queryObjectWithClass:[self class] where:nil param:nil complete:^(NSArray * _Nullable array) {
         results = array;
@@ -253,9 +253,9 @@
  异步查询所有结果.
  温馨提示: 当数据量巨大时,请用范围接口进行分页查询,避免查询出来的数据量过大导致程序崩溃.
  */
-+(void)findAllAsync:(Complete_A)complete{
++(void)bg_findAllAsync:(Complete_A)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        NSArray* array = [self findAll];
+        NSArray* array = [self bg_findAll];
         BGComplete(array);
     });
 }
@@ -265,7 +265,7 @@
  @limit 每次查询限制的条数,0则无限制.
  @desc YES:降序，NO:升序.
  */
-+(NSArray* _Nullable)findAllWithLimit:(NSInteger)limit orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc{
++(NSArray* _Nullable)bg_findAllWithLimit:(NSInteger)limit orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc{
     NSMutableString* param = [NSMutableString string];
     !(orderBy&&desc)?:[param appendFormat:@"order by %@%@ desc",BG,orderBy];
     !param.length?:[param appendString:@" "];
@@ -285,9 +285,9 @@
  @limit 每次查询限制的条数,0则无限制.
  @desc YES:降序，NO:升序.
  */
-+(void)findAllAsyncWithLimit:(NSInteger)limit orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc complete:(Complete_A)complete{
++(void)bg_findAllAsyncWithLimit:(NSInteger)limit orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc complete:(Complete_A)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        NSArray* results = [self findAllWithLimit:limit orderBy:orderBy desc:desc];
+        NSArray* results = [self bg_findAllWithLimit:limit orderBy:orderBy desc:desc];
         BGComplete(results);
     });
 }
@@ -296,7 +296,7 @@
  @range 查询的范围(从location开始的后面length条).
  @desc YES:降序，NO:升序.
  */
-+(NSArray* _Nullable)findAllWithRange:(NSRange)range orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc{
++(NSArray* _Nullable)bg_findAllWithRange:(NSRange)range orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc{
     NSMutableString* param = [NSMutableString string];
     !(orderBy&&desc)?:[param appendFormat:@"order by %@%@ desc ",BG,orderBy];
     NSAssert((range.location>=0)&&(range.length>0),@"range参数错误,location应该大于或等于零,length应该大于零");
@@ -314,9 +314,9 @@
  @range 查询的范围(从location(大于或等于零)开始的后面length(大于零)条).
  @desc YES:降序，NO:升序.
  */
-+(void)findAllAsyncWithRange:(NSRange)range orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc complete:(Complete_A)complete{
++(void)bg_findAllAsyncWithRange:(NSRange)range orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc complete:(Complete_A)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        NSArray* results = [self findAllWithRange:range orderBy:orderBy desc:desc];
+        NSArray* results = [self bg_findAllWithRange:range orderBy:orderBy desc:desc];
         BGComplete(results);
     });
 }
@@ -326,7 +326,7 @@
  可以为nil,为nil时查询所有数据;
  不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持(有专门的keyPath查询接口).
  */
-+(NSArray* _Nullable)findWhere:(NSArray* _Nullable)where{
++(NSArray* _Nullable)bg_findWhere:(NSArray* _Nullable)where{
     __block NSArray* results;
     [[BGFMDB shareManager] queryObjectWithClass:[self class] keys:nil where:where complete:^(NSArray * _Nullable array) {
         results = array;
@@ -341,9 +341,9 @@
  可以为nil,为nil时查询所有数据;
  不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持(有专门的keyPath查询接口).
  */
-+(void)findAsyncWhere:(NSArray* _Nullable)where complete:(Complete_A)complete{
++(void)bg_findAsyncWhere:(NSArray* _Nullable)where complete:(Complete_A)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        NSArray* array = [self findWhere:where];
+        NSArray* array = [self bg_findWhere:where];
         BGComplete(array);
     });
 }
@@ -358,7 +358,7 @@
  3.查询user.student.human.body等于小芳,user1.name中包含fuck这个字符串 和 name等于爸爸的数据.
     NSArray* arrayConds3 = [People findFormatSqlConditions:@"where %@ and %@=%@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳",@"user1.name",Contains,@"fuck"]),sqlKey(@"name"),sqlValue(@"爸爸")];
  */
-+(NSArray* _Nullable)findFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
++(NSArray* _Nullable)bg_findFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
     va_list ap;
     va_start (ap, format);
     NSString *conditions = [[NSString alloc] initWithFormat:format arguments:ap];
@@ -378,7 +378,7 @@
  @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
  即查询user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
-+(NSArray* _Nullable)findForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
++(NSArray* _Nullable)bg_findForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
     __block NSArray* results;
     [[BGFMDB shareManager] queryObjectWithClass:[self class] forKeyPathAndValues:keyPathValues complete:^(NSArray * _Nullable array) {
         results = array;
@@ -393,9 +393,9 @@
  @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
  即查询user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
-+(void)findAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_A)complete{
++(void)bg_findAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_A)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        NSArray* array = [self findForKeyPathAndValues:keyPathValues];
+        NSArray* array = [self bg_findForKeyPathAndValues:keyPathValues];
         BGComplete(array);
     });
 }
@@ -405,7 +405,7 @@
  可以为nil,nil时更新所有数据;
  不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持(有专门的keyPath更新接口).
  */
--(BOOL)updateWhere:(NSArray* _Nullable)where{
+-(BOOL)bg_updateWhere:(NSArray* _Nullable)where{
     __block BOOL result;
     [[BGFMDB shareManager] updateWithObject:self where:where ignoreKeys:nil complete:^(BOOL isSuccess) {
         result = isSuccess;
@@ -421,7 +421,7 @@
  @ignoreKeys 忽略哪些key不用更新.
  不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持(有专门的keyPath更新接口).
  */
--(BOOL)updateWhere:(NSArray* _Nullable)where ignoreKeys:(NSArray* const _Nullable)ignoreKeys{
+-(BOOL)bg_updateWhere:(NSArray* _Nullable)where ignoreKeys:(NSArray* const _Nullable)ignoreKeys{
     __block BOOL result;
     [[BGFMDB shareManager] updateWithObject:self where:where ignoreKeys:ignoreKeys complete:^(BOOL isSuccess) {
         result = isSuccess;
@@ -437,9 +437,9 @@
  可以为nil,nil时更新所有数据;
  不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持(有专门的keyPath更新接口).
  */
--(void)updateAsync:(NSArray* _Nullable)where complete:(Complete_B)complete{
+-(void)bg_updateAsync:(NSArray* _Nullable)where complete:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL flag = [self updateWhere:where];
+        BOOL flag = [self bg_updateWhere:where];
         BGComplete(flag);
     });
 }
@@ -450,13 +450,13 @@
  1.将People类中name等于"马云爸爸"的数据的name更新为"马化腾"
  [People updateFormatSqlConditions:@"set %@=%@ where %@=%@",sqlKey(@"name"),sqlValue(@"马化腾"),sqlKey(@"name"),sqlValue(@"马云爸爸")];
  */
-+(BOOL)updateFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
++(BOOL)bg_updateFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
     va_list ap;
     va_start (ap, format);
     NSString *conditions = [[NSString alloc] initWithFormat:format arguments:ap];
     va_end (ap);
     NSAssert([conditions hasPrefix:@"set"],@"更新条件要以set开头!");
-    NSString* setAppend = [NSString stringWithFormat:@"set %@=%@,",sqlKey(BGUpdateTime),sqlValue([BGTool stringWithDate:[NSDate new]])];
+    NSString* setAppend = [NSString stringWithFormat:@"set %@=%@,",bg_sqlKey(BGUpdateTime),bg_sqlValue([BGTool stringWithDate:[NSDate new]])];
     conditions = [conditions stringByReplacingOccurrencesOfString:@"set" withString:setAppend];
     NSString* tableName = NSStringFromClass([self class]);
     //加入更新时间字段值.
@@ -477,7 +477,7 @@
  2.将People类中name等于"马云爸爸"的数据更新为当前对象的数据.
  [p updateFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"马云爸爸")];
  */
--(BOOL)updateFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
+-(BOOL)bg_updateFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
     va_list ap;
     va_start (ap, format);
     NSString *conditions = [[NSString alloc] initWithFormat:format arguments:ap];
@@ -503,7 +503,7 @@
  NSString* conditions = [NSString stringWithFormat:@"where %@=%@",sqlKey(@"name"),sqlValue(@"马云爸爸")])];
  [p updateFormatSqlConditions:conditions IgnoreKeys:nil];
  */
--(BOOL)updateFormatSqlConditions:(NSString*)conditions IgnoreKeys:(NSArray* const _Nullable)ignoreKeys{
+-(BOOL)bg_updateFormatSqlConditions:(NSString*)conditions IgnoreKeys:(NSArray* const _Nullable)ignoreKeys{
     __block BOOL result;
     [[BGFMDB shareManager] updateObject:self ignoreKeys:ignoreKeys conditions:conditions complete:^(BOOL isSuccess) {
         result = isSuccess;
@@ -519,7 +519,7 @@
  @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
  即更新user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
--(BOOL)updateForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
+-(BOOL)bg_updateForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
     __block BOOL result;
     [[BGFMDB shareManager] updateWithObject:self forKeyPathAndValues:keyPathValues ignoreKeys:nil complete:^(BOOL isSuccess) {
         result = isSuccess;
@@ -535,7 +535,7 @@
  即更新user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  @ignoreKeys 即或略哪些key不用更新.
  */
--(BOOL)updateForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues ignoreKeys:(NSArray* const _Nullable)ignoreKeys{
+-(BOOL)bg_updateForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues ignoreKeys:(NSArray* const _Nullable)ignoreKeys{
     __block BOOL result;
     [[BGFMDB shareManager] updateWithObject:self forKeyPathAndValues:keyPathValues ignoreKeys:ignoreKeys complete:^(BOOL isSuccess) {
         result = isSuccess;
@@ -551,9 +551,9 @@
  @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
  即更新user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
--(void)updateAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
+-(void)bg_updateAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL flag = [self updateForKeyPathAndValues:keyPathValues];
+        BOOL flag = [self bg_updateForKeyPathAndValues:keyPathValues];
         BGComplete(flag);
     });
 }
@@ -563,7 +563,7 @@
  不可以为nil;
  不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持(有专门的keyPath删除接口).
  */
-+(BOOL)deleteWhere:(NSArray* _Nonnull)where{
++(BOOL)bg_deleteWhere:(NSArray* _Nonnull)where{
     __block BOOL result;
     [[BGFMDB shareManager] deleteWithClass:[self class] where:where complete:^(BOOL isSuccess) {
         result = isSuccess;
@@ -578,9 +578,9 @@
  不可以为nil;
  不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持(有专门的keyPath删除接口).
  */
-+(void)deleteAsync:(NSArray* _Nonnull)where complete:(Complete_B)complete{
++(void)bg_deleteAsync:(NSArray* _Nonnull)where complete:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL flag = [self deleteWhere:where];
+        BOOL flag = [self bg_deleteWhere:where];
         BGComplete(flag);
     });
 }
@@ -595,7 +595,7 @@
  3.删除People类中name等于"美国队长" 和 user.student.human.body等于"小芳"的数据
  [People deleteFormatSqlConditions:@"where %@=%@ and %@",sqlKey(@"name"),sqlValue(@"美国队长"),keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
  */
-+(BOOL)deleteFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
++(BOOL)bg_deleteFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
     va_list ap;
     va_start (ap, format);
     NSString *conditions = [[NSString alloc] initWithFormat:format arguments:ap];
@@ -615,7 +615,7 @@
  @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
  即删除user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
-+(BOOL)deleteForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
++(BOOL)bg_deleteForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
     __block BOOL result;
     [[BGFMDB shareManager] deleteWithTableName:NSStringFromClass([self class]) forKeyPathAndValues:keyPathValues complete:^(BOOL isSuccess) {
         result = isSuccess;
@@ -630,16 +630,16 @@
  @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
  即删除user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
-+(void)deleteAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
++(void)bg_deleteAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL flag = [self deleteForKeyPathAndValues:keyPathValues];
+        BOOL flag = [self bg_deleteForKeyPathAndValues:keyPathValues];
         BGComplete(flag);
     });
 }
 /**
  同步清除所有数据
  */
-+(BOOL)clear{
++(BOOL)bg_clear{
     __block BOOL result;
     [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess){
         result = isSuccess;
@@ -651,16 +651,16 @@
 /**
  异步清除所有数据.
  */
-+(void)clearAsync:(Complete_B)complete{
++(void)bg_clearAsync:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL flag = [self clear];
+        BOOL flag = [self bg_clear];
         BGComplete(flag);
     });
 }
 /**
  同步删除这个类的数据表
  */
-+(BOOL)drop{
++(BOOL)bg_drop{
     __block BOOL result;
     [[BGFMDB shareManager] dropWithClass:[self class] complete:^(BOOL isSuccess) {
         result = isSuccess;
@@ -672,9 +672,9 @@
 /**
  异步删除这个类的数据表.
  */
-+(void)dropAsync:(Complete_B)complete{
++(void)bg_dropAsync:(Complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL flag = [self drop];
+        BOOL flag = [self bg_drop];
         BGComplete(flag);
     });
 }
@@ -683,7 +683,7 @@
  @where 条件数组，形式@[@"name",@"=",@"标哥",@"age",@"=>",@(25)],即name=标哥,age=>25的数据有多少条,为nil时返回全部数据的条数.
  不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持(有专门的keyPath查询条数接口).
  */
-+(NSInteger)countWhere:(NSArray* _Nullable)where{
++(NSInteger)bg_countWhere:(NSArray* _Nullable)where{
     NSUInteger count = [[BGFMDB shareManager] countForTable:NSStringFromClass([self class]) where:where];
     //关闭数据库
     [[BGFMDB shareManager] closeDB];
@@ -700,7 +700,7 @@
  3.查询People类中name等于"美国队长" 和 user.student.human.body等于"小芳"的数据条数.
  [People countFormatSqlConditions:@"where %@=%@ and %@",sqlKey(@"name"),sqlValue(@"美国队长"),keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
  */
-+(NSInteger)countFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
++(NSInteger)bg_countFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
     va_list ap;
     va_start (ap, format);
     NSString *conditions = [[NSString alloc] initWithFormat:format arguments:ap];
@@ -716,7 +716,7 @@
  @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
  即查询user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象的条数.
  */
-+(NSInteger)countForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
++(NSInteger)bg_countForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
     NSInteger count = [[BGFMDB shareManager] countForTable:NSStringFromClass([self class]) forKeyPathAndValues:keyPathValues];
     //关闭数据库
     [[BGFMDB shareManager] closeDB];
@@ -740,7 +740,7 @@
 /**
  获取本类数据表当前版本号.
  */
-+(NSInteger)version{
++(NSInteger)bg_version{
     return [BGTool getIntegerWithKey:NSStringFromClass([self class])];
 }
 
@@ -750,20 +750,20 @@
  @version 版本号,从1开始,依次往后递增.
  说明: 本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
  */
-+(dealState)updateVersion:(NSInteger)version{
++(bg_dealState)bg_updateVersion:(NSInteger)version{
     NSString* tableName = NSStringFromClass([self class]);
     NSInteger oldVersion = [BGTool getIntegerWithKey:tableName];
     if(version > oldVersion){
         [BGTool setIntegerWithKey:tableName value:version];
-        __block dealState state;
-        [[BGFMDB shareManager] refreshTable:tableName keys:[BGTool getClassIvarList:[self class] onlyKey:NO] complete:^(dealState result) {
+        __block bg_dealState state;
+        [[BGFMDB shareManager] refreshTable:tableName keys:[BGTool getClassIvarList:[self class] onlyKey:NO] complete:^(bg_dealState result) {
             state = result;
         }];
         //关闭数据库
         [[BGFMDB shareManager] closeDB];
         return state;
     }else{
-        return  Error;
+        return  bg_error;
     }
 }
 /**
@@ -772,17 +772,17 @@
  @version 版本号,从1开始,依次往后递增.
  说明: 本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
  */
-+(void)updateVersionAsync:(NSInteger)version complete:(Complete_I)complete{
++(void)bg_updateVersionAsync:(NSInteger)version complete:(Complete_I)complete{
         NSString* tableName = NSStringFromClass([self class]);
         NSInteger oldVersion = [BGTool getIntegerWithKey:tableName];
         if(version > oldVersion){
             [BGTool setIntegerWithKey:tableName value:version];
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-                dealState state = [self updateVersion:version];
+                bg_dealState state = [self bg_updateVersion:version];
                 BGComplete(state);
                 });
         }else{
-            BGComplete(Error);;
+            BGComplete(bg_error);;
         }
 }
 /**
@@ -793,20 +793,20 @@
  (特别提示: 这里只要写那些改变了的变量名就可以了,没有改变的不要写)，比如A以前有3个变量,分别为a,b,c；现在变成了a,b,d；那只要写@{@"d":@"c"}就可以了，即只写变化了的变量名映射集合.
  说明: 本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
  */
-+(dealState)updateVersion:(NSInteger)version keyDict:(NSDictionary* const _Nonnull)keydict{
++(bg_dealState)bg_updateVersion:(NSInteger)version keyDict:(NSDictionary* const _Nonnull)keydict{
     NSString* tableName = NSStringFromClass([self class]);
     NSInteger oldVersion = [BGTool getIntegerWithKey:tableName];
     if(version > oldVersion){
         [BGTool setIntegerWithKey:tableName value:version];
-        __block dealState state;
-        [[BGFMDB shareManager] refreshTable:tableName keyDict:keydict complete:^(dealState result) {
+        __block bg_dealState state;
+        [[BGFMDB shareManager] refreshTable:tableName keyDict:keydict complete:^(bg_dealState result) {
             state = result;
         }];
         //关闭数据库
         [[BGFMDB shareManager] closeDB];
         return state;
     }else{
-        return Error;
+        return bg_error;
     }
 
 }
@@ -818,17 +818,17 @@
  (特别提示: 这里只要写那些改变了的变量名就可以了,没有改变的不要写)，比如A以前有3个变量,分别为a,b,c；现在变成了a,b,d；那只要写@{@"d":@"c"}就可以了，即只写变化了的变量名映射集合.
  说明: 本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
  */
-+(void)updateVersionAsync:(NSInteger)version keyDict:(NSDictionary* const _Nonnull)keydict complete:(Complete_I)complete{
++(void)bg_updateVersionAsync:(NSInteger)version keyDict:(NSDictionary* const _Nonnull)keydict complete:(Complete_I)complete{
     NSString* tableName = NSStringFromClass([self class]);
     NSInteger oldVersion = [BGTool getIntegerWithKey:tableName];
     if(version > oldVersion){
         [BGTool setIntegerWithKey:tableName value:version];
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-            dealState state = [self updateVersion:version keyDict:keydict];
+            bg_dealState state = [self bg_updateVersion:version keyDict:keydict];
             BGComplete(state);
         });
     }else{
-        BGComplete(Error);;
+        BGComplete(bg_error);;
     }
 }
 /**
@@ -838,9 +838,9 @@
  @keyDict 拷贝的对应key集合,形式@{@"srcKey1":@"destKey1",@"srcKey2":@"destKey2"},即将源类srcCla中的变量值拷贝给目标类destCla中的变量destKey1，srcKey2和destKey2同理对应,依此推类.
  @append YES: 不会覆盖destCla的原数据,在其末尾继续添加；NO: 覆盖掉destCla原数据,即将原数据删掉,然后将新数据拷贝过来.
  */
-+(dealState)copyToClass:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append{
-    __block dealState state;
-    [[BGFMDB shareManager] copyClass:[self class] to:destCla keyDict:keydict append:append complete:^(dealState result) {
++(bg_dealState)bg_copyToClass:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append{
+    __block bg_dealState state;
+    [[BGFMDB shareManager] copyClass:[self class] to:destCla keyDict:keydict append:append complete:^(bg_dealState result) {
         state = result;
     }];
     //关闭数据库
@@ -854,9 +854,9 @@
  @keyDict 拷贝的对应key集合,形式@{@"srcKey1":@"destKey1",@"srcKey2":@"destKey2"},即将源类srcCla中的变量值拷贝给目标类destCla中的变量destKey1，srcKey2和destKey2同理对应,依此推类.
  @append YES: 不会覆盖destCla的原数据,在其末尾继续添加；NO: 覆盖掉destCla原数据,即将原数据删掉,然后将新数据拷贝过来.
  */
-+(void)copyAsyncToClass:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append complete:(Complete_I)complete{
++(void)bg_copyAsyncToClass:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append complete:(Complete_I)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        dealState state = [self copyToClass:destCla keyDict:keydict append:append];
+        bg_dealState state = [self bg_copyToClass:destCla keyDict:keydict append:append];
         BGComplete(state);
     });
 }
@@ -864,7 +864,7 @@
  事务操作.
  @return 返回YES提交事务, 返回NO回滚事务.
  */
-+(void)inTransaction:(BOOL (^_Nonnull)())block{
++(void)bg_inTransaction:(BOOL (^_Nonnull)())block{
     [[BGFMDB shareManager] inTransaction:block];
 }
 /**
@@ -872,7 +872,7 @@
  @name 注册名称,此字符串唯一,不可重复,移除监听的时候使用此字符串移除.
  @return YES: 注册监听成功; NO: 注册监听失败.
  */
-+(BOOL)registerChangeWithName:(NSString* const _Nonnull)name block:(ChangeBlock)block{
++(BOOL)bg_registerChangeWithName:(NSString* const _Nonnull)name block:(ChangeBlock)block{
     NSString* uniqueName = [NSString stringWithFormat:@"%@*%@",NSStringFromClass([self class]),name];
     return [[BGFMDB shareManager] registerChangeWithName:uniqueName block:block];
 }
@@ -881,7 +881,7 @@
  @name 注册监听的时候使用的名称.
  @return YES: 移除监听成功; NO: 移除监听失败.
  */
-+(BOOL)removeChangeWithName:(NSString* const _Nonnull)name{
++(BOOL)bg_removeChangeWithName:(NSString* const _Nonnull)name{
      NSString* uniqueName = [NSString stringWithFormat:@"%@*%@",NSStringFromClass([self class]),name];
     return [[BGFMDB shareManager] removeChangeWithName:uniqueName];
 }

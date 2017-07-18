@@ -28,8 +28,8 @@
 //100M大小限制.
 #define MaxData @(838860800)
 
-Relation const Equal = @"Relation_Equal";
-Relation const Contains = @"Relation_Contains";
+bg_relation const Equal = @"Relation_Equal";
+bg_relation const Contains = @"Relation_Contains";
 
 /**
  *  遍历所有类的block（父类）
@@ -42,10 +42,10 @@ static NSSet *foundationClasses_;
 /**
  封装处理传入数据库的key和value.
  */
-NSString* sqlKey(NSString* key){
+NSString* bg_sqlKey(NSString* key){
     return [NSString stringWithFormat:@"%@%@",BG,key];
 }
-NSString* sqlValue(id value){
+NSString* bg_sqlValue(id value){
     if ([value isKindOfClass:[NSString class]]) {
         return [NSString stringWithFormat:@"'%@'",value];
     }else{
@@ -55,7 +55,7 @@ NSString* sqlValue(id value){
 /**
  根据keyPath和Value的数组, 封装成数据库语句，来操作库.
  */
-NSString* keyPathValues(NSArray* keyPathValues){
+NSString* bg_keyPathValues(NSArray* keyPathValues){
     return [BGTool getLikeWithKeyPathAndValues:keyPathValues where:NO];
 }
 

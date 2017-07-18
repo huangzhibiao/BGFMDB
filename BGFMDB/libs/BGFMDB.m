@@ -179,14 +179,14 @@ static BGFMDB* BGFmdb = nil;
         return NO;
     }
 }
--(void)doChangeWithName:(NSString* const _Nonnull)name flag:(BOOL)flag state:(changeState)state{
+-(void)doChangeWithName:(NSString* const _Nonnull)name flag:(BOOL)flag state:(bg_changeState)state{
         if(flag && _changeBlocks.count>0){
             //开一个子线程去执行block,防止死锁.
             dispatch_async(dispatch_get_global_queue(0,0), ^{
             [_changeBlocks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop){
                 NSArray* array = [key componentsSeparatedByString:@"*"];
                 if([name isEqualToString:array.firstObject]){
-                    void(^block)(changeState) = obj;
+                    void(^block)(bg_changeState) = obj;
                     //返回主线程回调.
                     dispatch_sync(dispatch_get_main_queue(), ^{
                         block(state);
@@ -296,7 +296,7 @@ static BGFMDB* BGFmdb = nil;
         result = [db executeUpdate:SQL withArgumentsInArray:values];
     }];
     //数据监听执行函数
-    [self doChangeWithName:name flag:result state:Insert];
+    [self doChangeWithName:name flag:result state:bg_insert];
     if (complete) {
         complete(result);
     }
@@ -340,7 +340,7 @@ static BGFMDB* BGFmdb = nil;
         [db commit];
     }];
     //数据监听执行函数
-    [self doChangeWithName:name flag:result state:Insert];
+    [self doChangeWithName:name flag:result state:bg_insert];
     if (complete) {
         complete(result);
     }
@@ -381,7 +381,7 @@ static BGFMDB* BGFmdb = nil;
         [db commit];
     }];
     //数据监听执行函数
-    [self doChangeWithName:name flag:result state:Update];
+    [self doChangeWithName:name flag:result state:bg_update];
     if (complete) {
         complete(result);
     }
@@ -581,7 +581,7 @@ static BGFMDB* BGFmdb = nil;
     }];
     
     //数据监听执行函数
-    [self doChangeWithName:name flag:result state:Update];
+    [self doChangeWithName:name flag:result state:bg_update];
     if (complete) {
         complete(result);
     }
@@ -616,7 +616,7 @@ static BGFMDB* BGFmdb = nil;
     }];
     
     //数据监听执行函数
-    [self doChangeWithName:name flag:result state:Update];
+    [self doChangeWithName:name flag:result state:bg_update];
     if (complete) {
         complete(result);
     }
@@ -670,7 +670,7 @@ static BGFMDB* BGFmdb = nil;
     }];
     
     //数据监听执行函数
-    [self doChangeWithName:name flag:result state:Update];
+    [self doChangeWithName:name flag:result state:bg_update];
     if (complete) {
         complete(result);
     }
@@ -699,7 +699,7 @@ static BGFMDB* BGFmdb = nil;
     }];
     
     //数据监听执行函数
-    [self doChangeWithName:name flag:result state:Delete];
+    [self doChangeWithName:name flag:result state:bg_delete];
     if (complete){
         complete(result);
     }
@@ -716,7 +716,7 @@ static BGFMDB* BGFmdb = nil;
     }];
     
     //数据监听执行函数
-    [self doChangeWithName:name flag:result state:Delete];
+    [self doChangeWithName:name flag:result state:bg_delete];
     if (complete){
         complete(result);
     }
@@ -741,7 +741,7 @@ static BGFMDB* BGFmdb = nil;
     }];
     
     //数据监听执行函数
-    [self doChangeWithName:name flag:result state:Delete];
+    [self doChangeWithName:name flag:result state:bg_delete];
     if (complete){
         complete(result);
     }
@@ -764,7 +764,7 @@ static BGFMDB* BGFmdb = nil;
     }];
     
     //数据监听执行函数
-    [self doChangeWithName:name flag:result state:Delete];
+    [self doChangeWithName:name flag:result state:bg_delete];
     if (complete) {
         complete(result);
     }
@@ -783,7 +783,7 @@ static BGFMDB* BGFmdb = nil;
     }];
     
     //数据监听执行函数
-    [self doChangeWithName:name flag:result state:Drop];
+    [self doChangeWithName:name flag:result state:bg_drop];
     if (complete){
         complete(result);
     }
@@ -985,10 +985,10 @@ static BGFMDB* BGFmdb = nil;
     }];
     if (!createFlag){
         debug(@"数据库更新失败!");
-        !complete?:complete(Error);
+        !complete?:complete(bg_error);
         return;
     }
-    __block dealState refreshstate = Error;
+    __block bg_dealState refreshstate = bg_error;
     __block BOOL recordError = NO;
     __block BOOL recordSuccess = NO;
     __weak typeof(self) BGSelf = self;
@@ -1027,11 +1027,11 @@ static BGFMDB* BGFmdb = nil;
     
     if (complete){
         if (recordError && recordSuccess) {
-            refreshstate = Incomplete;
+            refreshstate = bg_incomplete;
         }else if(recordError && !recordSuccess){
-            refreshstate = Error;
+            refreshstate = bg_error;
         }else if (recordSuccess && !recordError){
-            refreshstate = Complete;
+            refreshstate = bg_complete;
         }else;
         complete(refreshstate);
     }
@@ -1044,7 +1044,7 @@ static BGFMDB* BGFmdb = nil;
     [self isExistWithTableName:name complete:^(BOOL isSuccess){
         if (!isSuccess){
             debug(@"没有数据存在,数据库更新失败!");
-            !complete?:complete(Error);
+            !complete?:complete(bg_error);
             return;
         }
     }];
@@ -1052,16 +1052,16 @@ static BGFMDB* BGFmdb = nil;
     //事务操作.
     __block int recordFailCount = 0;
     [self inTransaction:^BOOL{
-        [self copyA:name toB:BGTempTable keys:keys complete:^(dealState result) {
-            if(result == Complete){
+        [self copyA:name toB:BGTempTable keys:keys complete:^(bg_dealState result) {
+            if(result == bg_complete){
                 recordFailCount++;
             }
         }];
         [self dropTable:name complete:^(BOOL isSuccess) {
             if(isSuccess)recordFailCount++;
         }];
-        [self copyA:BGTempTable toB:name keys:keys complete:^(dealState result) {
-            if(result == Complete){
+        [self copyA:BGTempTable toB:name keys:keys complete:^(bg_dealState result) {
+            if(result == bg_complete){
                 recordFailCount++;
             }
         }];
@@ -1076,11 +1076,11 @@ static BGFMDB* BGFmdb = nil;
     
     //回调结果.
     if (recordFailCount==0) {
-        !complete?:complete(Error);
+        !complete?:complete(bg_error);
     }else if (recordFailCount>0&&recordFailCount<4){
-        !complete?:complete(Incomplete);
+        !complete?:complete(bg_incomplete);
     }else{
-        !complete?:complete(Complete);
+        !complete?:complete(bg_complete);
     }
 }
 
@@ -1108,11 +1108,11 @@ static BGFMDB* BGFmdb = nil;
     }];
     if (!createFlag){
         debug(@"数据库更新失败!");
-        !complete?:complete(Error);
+        !complete?:complete(bg_error);
         return;
     }
     
-    __block dealState refreshstate = Error;
+    __block bg_dealState refreshstate = bg_error;
     __block BOOL recordError = NO;
     __block BOOL recordSuccess = NO;
     __weak typeof(self) BGSelf = self;
@@ -1161,11 +1161,11 @@ static BGFMDB* BGFmdb = nil;
 
     if (complete){
         if (recordError && recordSuccess) {
-            refreshstate = Incomplete;
+            refreshstate = bg_incomplete;
         }else if(recordError && !recordSuccess){
-            refreshstate = Error;
+            refreshstate = bg_error;
         }else if (recordSuccess && !recordError){
-            refreshstate = Complete;
+            refreshstate = bg_complete;
         }else;
         complete(refreshstate);
     }
@@ -1179,7 +1179,7 @@ static BGFMDB* BGFmdb = nil;
     [self isExistWithTableName:name complete:^(BOOL isSuccess){
         if (!isSuccess){
             debug(@"没有数据存在,数据库更新失败!");
-            !complete?:complete(Error);
+            !complete?:complete(bg_error);
             return;
         }
     }];
@@ -1211,16 +1211,16 @@ static BGFMDB* BGFmdb = nil;
     NSString* BGTempTable = @"BGTempTable";
     __block int recordFailCount = 0;
     [self inTransaction:^BOOL{
-        [self copyA:name toB:BGTempTable keyDict:keyDict complete:^(dealState result) {
-            if(result == Complete){
+        [self copyA:name toB:BGTempTable keyDict:keyDict complete:^(bg_dealState result) {
+            if(result == bg_complete){
                 recordFailCount++;
             }
         }];
         [self dropTable:name complete:^(BOOL isSuccess) {
             if(isSuccess)recordFailCount++;
         }];
-        [self copyA:BGTempTable toB:name keys:[BGTool getClassIvarList:NSClassFromString(name) onlyKey:NO] complete:^(dealState result) {
-            if(result == Complete){
+        [self copyA:BGTempTable toB:name keys:[BGTool getClassIvarList:NSClassFromString(name) onlyKey:NO] complete:^(bg_dealState result) {
+            if(result == bg_complete){
                 recordFailCount++;
             }
         }];
@@ -1235,11 +1235,11 @@ static BGFMDB* BGFmdb = nil;
     
     //回调结果.
     if (recordFailCount==0) {
-        !complete?:complete(Error);
+        !complete?:complete(bg_error);
     }else if (recordFailCount>0&&recordFailCount<4){
-        !complete?:complete(Incomplete);
+        !complete?:complete(bg_incomplete);
     }else{
-        !complete?:complete(Complete);
+        !complete?:complete(bg_complete);
     }
 
 }
@@ -1670,7 +1670,7 @@ static BGFMDB* BGFmdb = nil;
             }
         }
     }];
-    __block dealState copystate = Error;
+    __block bg_dealState copystate = bg_error;
     __block BOOL recordError = NO;
     __block BOOL recordSuccess = NO;
     NSInteger srcCount = [self countQueueForTable:srcTable where:nil];
@@ -1704,11 +1704,11 @@ static BGFMDB* BGFmdb = nil;
     
     if (complete){
         if (recordError && recordSuccess) {
-            copystate = Incomplete;
+            copystate = bg_incomplete;
         }else if(recordError && !recordSuccess){
-            copystate = Error;
+            copystate = bg_error;
         }else if (recordSuccess && !recordError){
-            copystate = Complete;
+            copystate = bg_complete;
         }else;
         complete(copystate);
     }
@@ -1724,8 +1724,8 @@ static BGFMDB* BGFmdb = nil;
     //事务操作其过程.
     [self inTransaction:^BOOL{
         __block BOOL success = NO;
-        [self copyQueueClass:srcCla to:destCla keyDict:keydict append:append complete:^(dealState result) {
-            if (result == Complete) {
+        [self copyQueueClass:srcCla to:destCla keyDict:keydict append:append complete:^(bg_dealState result) {
+            if (result == bg_complete) {
                 success = YES;
             }
         }];

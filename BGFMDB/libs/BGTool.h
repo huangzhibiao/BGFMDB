@@ -33,21 +33,21 @@ if(self.debug){BGLog(@"调试输出: %@",param);}\
 #define BGUpdateTime @"updateTime"
 
 #define Complete_B void(^_Nullable)(BOOL isSuccess)
-#define Complete_I void(^_Nullable)(dealState result)
+#define Complete_I void(^_Nullable)(bg_dealState result)
 #define Complete_A void(^_Nullable)(NSArray* _Nullable array)
-#define ChangeBlock void(^_Nullable)(changeState result)
+#define ChangeBlock void(^_Nullable)(bg_changeState result)
 
-typedef NS_ENUM(NSInteger,changeState){//数据改变状态
-    Insert,//插入
-    Update,//更新
-    Delete,//删除
-    Drop//删表
+typedef NS_ENUM(NSInteger,bg_changeState){//数据改变状态
+    bg_insert,//插入
+    bg_update,//更新
+    bg_delete,//删除
+    bg_drop//删表
 };
 
-typedef NS_ENUM(NSInteger,dealState){//处理状态
-    Error = -1,//处理失败
-    Incomplete = 0,//处理不完整
-    Complete = 1//处理完整
+typedef NS_ENUM(NSInteger,bg_dealState){//处理状态
+    bg_error = -1,//处理失败
+    bg_incomplete = 0,//处理不完整
+    bg_complete = 1//处理完整
 };
 
 typedef NS_ENUM(NSInteger,bg_sqliteMethodType){//处理状态
@@ -57,21 +57,21 @@ typedef NS_ENUM(NSInteger,bg_sqliteMethodType){//处理状态
     bg_avg//求平均值
 };
 
-//keyPath查询用的关系，Equal:等于的关系；Contains：包含的关系.
-typedef NSString* _Nonnull Relation;
-extern Relation const Equal;
-extern Relation const Contains;
+//keyPath查询用的关系，bg_equal:等于的关系；bg_contains：包含的关系.
+typedef NSString* _Nonnull bg_relation;
+extern bg_relation const bg_equal;
+extern bg_relation const bg_contains;
 @interface BGTool : NSObject
 
 /**
  封装处理传入数据库的key和value.
  */
-extern NSString* _Nonnull sqlKey(NSString* _Nonnull key);
-extern NSString* _Nonnull sqlValue(id _Nonnull value);
+extern NSString* _Nonnull bg_sqlKey(NSString* _Nonnull key);
+extern NSString* _Nonnull bg_sqlValue(id _Nonnull value);
 /**
  根据keyPath和Value的数组, 封装成数据库语句，来操作库.
  */
-extern NSString* _Nonnull keyPathValues(NSArray* _Nonnull keyPathValues);
+extern NSString* _Nonnull bg_keyPathValues(NSArray* _Nonnull keyPathValues);
 
 /**
  自定义数据库名称.

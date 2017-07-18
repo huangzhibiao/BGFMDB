@@ -60,7 +60,7 @@
     /**
      存储
      */
-    [p save];
+    [p bg_save];
     
     /**
      使用原生函数求某个整数类型的属性的总和，最大值，最小值，平均值等.
@@ -72,126 +72,126 @@
      同步存储或更新.
      当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
      */
-    //[p saveOrUpdate];
+    //[p bg_saveOrUpdate];
     
     /**
      忽略存储，即忽略掉 user,info,students 这三个变量不存储.
      */
-    //[p saveIgnoredKeys:@[@"user",@"info",@"students"]];
+    //[p bg_saveIgnoredKeys:@[@"user",@"info",@"students"]];
    
     /**
      获取该类的数据库版本号;
      */
-    //NSInteger version = [People version];
+    //NSInteger version = [People bg_version];
     
     /**
      如果类'变量名'或'唯一约束'发生改变,则调用此API刷新该类数据库,不需要新旧映射的情况下使用此API.
      */
-    //[People updateVersion:[People version]+1];
+    //[People bg_updateVersion:[People version]+1];
     
     /**
      如果类'变量名'或'唯一约束'发生改变,则调用此API刷新该类数据库.data2是新变量名,data是旧变量名,即将旧的值映射到新的变量名,其他不变的变量名会自动复制,只管写出变化的对应映射即可.
      */
-    //[People updateVersion:version keyDict:@{@"data2":@"data"}];
+    //[People bg_updateVersion:version keyDict:@{@"data2":@"data"}];
     
     /**
      事务操作,返回YES提交事务,返回NO则回滚事务.
      */
-//    [NSObject inTransaction:^BOOL{
-//        [p save];//存储
-//        [p save];
-//        [People clear];//清除全部People的数据.
+//    [NSObject bg_inTransaction:^BOOL{
+//        [p bg_save];//存储
+//        [p bg_save];
+//        [People bg_clear];//清除全部People的数据.
 //        return YES;
 //    }];
     
     /**
      将People类数据中name=@"标哥"，num=220.88的数据更新为当前对象的数据.
      */
-    //[p updateWhere:@[@"name",@"=",@"标哥",@"num",@"=",@(220.88)]];
+    //[p bg_updateWhere:@[@"name",@"=",@"标哥",@"num",@"=",@(220.88)]];
     
     /**
      更新age=5的数据成当前对象数据,忽略name不用更新.
      */
-    //[p updateWhere:@[@"age",@"=",@(50)] ignoreKeys:@[@"name"]];
+    //[p bg_updateWhere:@[@"age",@"=",@(50)] ignoreKeys:@[@"name"]];
     
     /**
      清除People表的所有数据
      */
-    //[People clear];
+    //[People bg_clear];
     
     /**
      删除People的数据表
      */
-    //[People drop];
+    //[People bg_drop];
     
     /**
      覆盖掉原来People类的所有数据,只存储当前对象的数据.
      */
-    //[p cover];
+    //[p bg_cover];
     
     /**
      将People类中user1.name包含@“小明”字符串 和 user.student.human.sex中等于@“女”的数据 更新为当前对象的数据.
      */
-    //BOOL updateResult = [p updateForKeyPathAndValues:@[@"user1.name",Contains,@"小明",@"user.student.human.sex",Equal,@"女"]];
+    //BOOL updateResult = [p bg_updateForKeyPathAndValues:@[@"user1.name",bg_contains,@"小明",@"user.student.human.sex",bg_equal,@"女"]];
     
     /**
      删除People类数据中主键ID=3的数据.
      */
-    //[People deleteWhere:@[@"ID",@"=",@(3)]];
+    //[People bg_deleteWhere:@[@"ID",@"=",@(3)]];
     
     /**
      将People类中name等于"马云爸爸"的数据的name设为"马化腾",此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
      */
-    //BOOL updateState = [People updateFormatSqlConditions:@"set %@=%@ where %@=%@",sqlKey(@"name"),sqlValue(@"马化腾"),sqlKey(@"name"),sqlValue(@"斯巴达")];
+    //BOOL updateState = [People bg_updateFormatSqlConditions:@"set %@=%@ where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"马化腾"),bg_sqlKey(@"name"),bg_sqlValue(@"斯巴达")];
 
     /**
      将People类数据中name等于"马化腾"的数据更新为当前对象的数据.
      */
-    //[p updateFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"爸爸")];
+    //[p bg_updateFormatSqlConditions:@"where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"爸爸")];
     
     /**
      将People类数据中user.student.human.body等于"小芳"的数据更新为当前对象的数据.
      */
-    //[p updateFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+    //[p bg_updateFormatSqlConditions:@"where %@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"])];
     
     /**
      删除People类中name等于"美国队长"的数据,此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
      */
-    //[People deleteFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"美国队长")];
+    //[People bg_deleteFormatSqlConditions:@"where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"美国队长")];
     
     /**
      删除People类中user.student.human.body等于"小芳"的数据
      */
-    //[People deleteFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+    //[People bg_deleteFormatSqlConditions:@"where %@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"])];
     
     /**
      删除People类中name等于"美国队长" 和 user.student.human.body等于"小芳"的数据
      */
-    //[People deleteFormatSqlConditions:@"where %@=%@ and %@",sqlKey(@"name"),sqlValue(@"美国队长"),keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+    //[People bg_deleteFormatSqlConditions:@"where %@=%@ and %@",bg_sqlKey(@"name"),bg_sqlValue(@"美国队长"),bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"])];
     
     /**
      查询People类中name等于"美国队长"的数据条数,此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
      */
-    //NSInteger count = [People countFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"美国队长")];
+    //NSInteger count = [People bg_countFormatSqlConditions:@"where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"美国队长")];
     
     /**
      查询People类中user.student.human.body等于"小芳"的数据条数.
      */
-    //NSInteger count = [People countFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+    //NSInteger count = [People bg_countFormatSqlConditions:@"where %@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"])];
     
     /**
      查询People类中name等于"美国队长" 和 user.student.human.body等于"小芳"的数据条数.
      */
-    //NSInteger count = [People countFormatSqlConditions:@"where %@=%@ and %@",sqlKey(@"name"),sqlValue(@"美国队长"),keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+    //NSInteger count = [People bg_countFormatSqlConditions:@"where %@=%@ and %@",bg_sqlKey(@"name"),bg_sqlValue(@"美国队长"),bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"])];
     
     //NSLog(@"数量 = %ld",count);
     
     /**
      当数据量巨大时采用分页范围查询.
      */
-    NSInteger count = [People countWhere:nil];
+    NSInteger count = [People bg_countWhere:nil];
     for(int i=0;i<count;i+=10){
-            NSArray* arr = [People findAllWithRange:NSMakeRange(i,10) orderBy:nil desc:NO];
+            NSArray* arr = [People bg_findAllWithRange:NSMakeRange(i,10) orderBy:nil desc:NO];
         for(People* pp in arr){
             //库新增两个自带字段createTime和updateTime方便开发者使用和做参考对比.
              NSLog(@"主键 = %@, 创建时间 = %@, 更新时间 = %@",pp.ID,pp.createTime,pp.updateTime);
@@ -209,7 +209,7 @@
     /**
      同步查询People类所有数据.
      */
-//    NSArray* finfAlls = [People findAll];
+//    NSArray* finfAlls = [People bg_findAll];
 //    People* lastObj = finfAlls.lastObject;
 //    _showImage.image = [UIImage imageWithData:lastObj.data2];
 //    self.view.backgroundColor = lastObj.color?lastObj.color:[UIColor whiteColor];
@@ -231,23 +231,23 @@
     /**
      查询name等于爸爸和age等于45,或者name等于马哥的数据.  此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
      */
-//    NSArray* arrayConds1 = [People findFormatSqlConditions:@"where %@=%@ and %@=%@ or %@=%@",sqlKey(@"age"),sqlValue(@(45)),sqlKey(@"name"),sqlValue(@"爸爸"),sqlKey(@"name"),sqlValue(@"马哥")];
+//    NSArray* arrayConds1 = [People bg_findFormatSqlConditions:@"where %@=%@ and %@=%@ or %@=%@",bg_sqlKey(@"age"),bg_sqlValue(@(45)),bg_sqlKey(@"name"),bg_sqlValue(@"爸爸"),bg_sqlKey(@"name"),bg_sqlValue(@"马哥")];
 //
     
     /**
      查询user.student.human.body等于小芳 和 user1.name中包含fuck这个字符串的数据.
      */
-//    NSArray* arrayConds2 = [People findFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳",@"user1.name",Contains,@"fuck"])];
+//    NSArray* arrayConds2 = [People bg_findFormatSqlConditions:@"where %@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳",@"user1.name",bg_contains,@"fuck"])];
     
     /**
     查询user.student.human.body等于小芳,user1.name中包含fuck这个字符串 和 name等于爸爸的数据.
     */
-//    NSArray* arrayConds3 = [People findFormatSqlConditions:@"where %@ and %@=%@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳",@"user1.name",Contains,@"fuck"]),sqlKey(@"name"),sqlValue(@"爸爸")];
+//    NSArray* arrayConds3 = [People bg_findFormatSqlConditions:@"where %@ and %@=%@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳",@"user1.name",bg_contains,@"fuck"]),bg_sqlKey(@"name"),bg_sqlValue(@"爸爸")];
     
     /**
      将People的name拷贝给Man的Man_name，其他同理.
      */
-//    [People copyToClass:[Man class] keyDict:@{@"name":@"Man_name",
+//    [People bg_copyToClass:[Man class] keyDict:@{@"name":@"Man_name",
 //                                                       @"num":@"Man_num",
 //                                                       @"age":@"Man_age",
 //                                                       @"image":@"image"}
@@ -255,7 +255,7 @@
     /**
      异步查询Man的所有数据.
      */
-//    NSArray* mans = [Man findAll];
+//    NSArray* mans = [Man bg_findAll];
 //    for(Man* man in mans){
 //        NSLog(@"Man_name = %@  , Man_num = %@ , Man_age = %d",man.Man_name,man.Man_num,man.Man_age);
 //    }
@@ -263,7 +263,7 @@
     /**
      异步查询People类的数据,查询限制3条,通过age降序排列.
      */
-//    [People findAllAsyncWithLimit:3 orderBy:@"age" desc:YES complete:^(NSArray * _Nullable array) {
+//    [People bg_findAllAsyncWithLimit:3 orderBy:@"age" desc:YES complete:^(NSArray * _Nullable array) {
 //        for(People* p in array){
 //            NSLog(@"查询结果： name = %@，testAge = %d,testName = %@,num = %@,age = %d,students = %@,info = %@,eye = %@,user.name = %@,user.密码 = %@ , user.student.num = %@,user.student.names[0] = %@, user.student.humane.sex = %@,p.user.student.human.body = %@",p.name,p->testAge,p->testName,p.num,p.age,p.students,p.info,p.eye,p.user.name,p.user.attri[@"密码"],p.user.student.num,p.user.student.names[0],p.user.student.human.sex,p.user.student.human.body);
 //        }
@@ -272,17 +272,17 @@
     /**
      查询People类中age>=21,name=@"马哥"的数据条数.
      */
-    //NSLog(@"数量 = %ld",[People countWhere:@[@"age",@">=",@(21),@"name",@"=",@"马哥"]]);
+    //NSLog(@"数量 = %ld",[People bg_countWhere:@[@"age",@">=",@(21),@"name",@"=",@"马哥"]]);
     
     /**
      查询People类中所有数据的条数.
      */
-    //NSLog(@"数量 = %ld",[People countWhere:nil]);
+    //NSLog(@"数量 = %ld",[People bg_countWhere:nil]);
     
     /**
      异步查询People类的数据,查询范围从第10处开始的后面5条,不排序.
      */
-//    [People findAllAsyncWithRange:NSMakeRange(10,5) orderBy:nil desc:NO complete:^(NSArray * _Nullable array) {
+//    [People bg_findAllAsyncWithRange:NSMakeRange(10,5) orderBy:nil desc:NO complete:^(NSArray * _Nullable array) {
 //        for(People* p in array){
 //            NSLog(@"查询结果： name = %@，testAge = %d,testName = %@,num = %@,age = %d,students = %@,info = %@,eye = %@,user.name = %@,user.密码 = %@ , user.student.num = %@,user.student.names[0] = %@, user.student.humane.sex = %@,p.user.student.human.body = %@",p.name,p->testAge,p->testName,p.num,p.age,p.students,p.info,p.eye,p.user.name,p.user.attri[@"密码"],p.user.student.num,p.user.student.names[0],p.user.student.human.sex,p.user.student.human.body);
 //        }
@@ -471,31 +471,31 @@
 }
 - (IBAction)insertAction:(id)sender {
     People* p = [self people];
-    [p save];
+    [p bg_save];
 }
 
 - (IBAction)deleteAction:(id)sender{
-    [People deleteWhere:@[@"ID",@"=",@(1)]];
+    [People bg_deleteWhere:@[@"ID",@"=",@(1)]];
 }
 
 - (IBAction)updateAction:(id)sender {
     People* p = [self people];
-    [p updateWhere:@[@"ID",@"=",@(1)]];
+    [p bg_updateWhere:@[@"ID",@"=",@(1)]];
 }
 
 - (IBAction)registerChangeAction:(id)sender{
-    [People registerChangeWithName:@"insert" block:^(changeState result) {
+    [People bg_registerChangeWithName:@"insert" block:^(bg_changeState result) {
         switch (result) {
-            case Insert:
+            case bg_insert:
                 NSLog(@"有数据插入");
                 break;
-            case Update:
+            case bg_update:
                 NSLog(@"有数据更新");
                 break;
-            case Delete:
+            case bg_delete:
                 NSLog(@"有数据删删除");
                 break;
-            case Drop:
+            case bg_drop:
                 NSLog(@"有表删除");
                 break;
             default:
@@ -505,7 +505,7 @@
 }
 
 - (IBAction)removeChangeAction:(id)sender{
-    [People removeChangeWithName:@"insert"];
+    [People bg_removeChangeWithName:@"insert"];
 }
 
 - (IBAction)stockAction:(id)sender {

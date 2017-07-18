@@ -38,8 +38,8 @@
     NSDictionary* dictBodyAll = [my bg_keyValuesIgnoredKeys:nil];
     //忽略掉hand不转.
     NSDictionary* dictBody = [my bg_keyValuesIgnoredKeys:@[@"foods"]];
-    [my save];
-    NSArray* myArr = [My findAll];
+    [my bg_save];
+    NSArray* myArr = [My bg_findAll];
     NSLog(@"断点察看结果");
 }
 
