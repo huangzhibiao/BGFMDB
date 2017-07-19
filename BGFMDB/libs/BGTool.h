@@ -28,9 +28,9 @@ if(self.debug){BGLog(@"调试输出: %@",param);}\
 }while(0)
 
 #define BG @"BG_"
-#define BGPrimaryKey @"ID"
-#define BGCreateTime @"createTime"
-#define BGUpdateTime @"updateTime"
+#define BGPrimaryKey @"bg_id"
+#define BGCreateTime @"bg_createTime"
+#define BGUpdateTime @"bg_updateTime"
 
 #define Complete_B void(^_Nullable)(BOOL isSuccess)
 #define Complete_I void(^_Nullable)(bg_dealState result)

@@ -60,7 +60,7 @@
     /**
      存储
      */
-    [p bg_save];
+    //[p bg_save];
     
     /**
      使用原生函数求某个整数类型的属性的总和，最大值，最小值，平均值等.
@@ -195,7 +195,7 @@
             NSArray* arr = [People bg_findAllWithRange:NSMakeRange(i,10) orderBy:nil desc:NO];
         for(People* pp in arr){
             //库新增两个自带字段createTime和updateTime方便开发者使用和做参考对比.
-             NSLog(@"主键 = %@, 创建时间 = %@, 更新时间 = %@",pp.ID,pp.createTime,pp.updateTime);
+             NSLog(@"主键 = %@, 创建时间 = %@, 更新时间 = %@",pp.bg_id,pp.bg_createTime,pp.bg_updateTime);
 //            NSDateFormatter* formatter = [NSDateFormatter new];
 //            formatter.dateFormat = @"yyyy年MM月dd日 HH时mm分ss秒";
 //            NSLog(@"date = %@",[formatter stringFromDate:pp.date]);

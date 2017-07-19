@@ -1595,10 +1595,8 @@ static BGFMDB* BGFmdb = nil;
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist) {
         __strong typeof(BGSelf) strongSelf = BGSelf;
-        if (!isExist){//如果不存在就返回NO
-            if (complete) {
-                complete(NO);
-            }
+        if (!isExist){//如果不存在就相当于清空,返回YES
+            !complete?:complete(YES);
         }else{
             [strongSelf clearTable:tableName complete:complete];
         }

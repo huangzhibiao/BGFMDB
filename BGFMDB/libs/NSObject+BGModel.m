@@ -16,25 +16,23 @@
 @implementation NSObject (BGModel)
 
 //分类中只生成属性get,set函数的声明,没有声称其实现,所以要自己实现get,set函数.
--(NSNumber*)ID{
+-(NSNumber *)bg_id{
     return objc_getAssociatedObject(self, _cmd);
 }
--(void)setID:(NSNumber*)ID{
-    objc_setAssociatedObject(self,@selector(ID),ID,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+-(void)setBg_id:(NSNumber *)bg_id{
+    objc_setAssociatedObject(self,@selector(bg_id),bg_id,OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
-
--(NSString *)createTime{
+-(NSString *)bg_createTime{
     return objc_getAssociatedObject(self, _cmd);
 }
--(void)setCreateTime:(NSString *)createTime{
-    objc_setAssociatedObject(self,@selector(createTime),createTime,OBJC_ASSOCIATION_COPY_NONATOMIC);
+-(void)setBg_createTime:(NSString *)bg_createTime{
+    objc_setAssociatedObject(self,@selector(bg_createTime),bg_createTime,OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
-
--(NSString *)updateTime{
+-(NSString *)bg_updateTime{
     return objc_getAssociatedObject(self, _cmd);
 }
--(void)setUpdateTime:(NSString *)updateTime{
-    objc_setAssociatedObject(self,@selector(updateTime),updateTime,OBJC_ASSOCIATION_COPY_NONATOMIC);
+-(void)setBg_updateTime:(NSString *)bg_updateTime{
+    objc_setAssociatedObject(self,@selector(bg_updateTime),bg_updateTime,OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
 /**

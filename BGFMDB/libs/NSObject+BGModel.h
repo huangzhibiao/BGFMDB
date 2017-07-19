@@ -42,12 +42,12 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 
 @interface NSObject (BGModel)<BGProtocol>
 
-@property(nonatomic,strong)NSNumber* _Nonnull ID;//本库自带的自动增长主键.
+@property(nonatomic,strong)NSNumber* _Nonnull bg_id;//本库自带的自动增长主键.
 /**
  为了方便开发者，特此加入以下两个字段属性供开发者做参考.(自动记录数据的存入时间和更新时间)
  */
-@property(nonatomic,copy)NSString* _Nonnull createTime;//数据创建时间(即存入数据库的时间)
-@property(nonatomic,copy)NSString* _Nonnull updateTime;//数据最后那次更新的时间.
+@property(nonatomic,copy)NSString* _Nonnull bg_createTime;//数据创建时间(即存入数据库的时间)
+@property(nonatomic,copy)NSString* _Nonnull bg_updateTime;//数据最后那次更新的时间.
 
 //同步：线程阻塞；异步：线程非阻塞;
 /**
