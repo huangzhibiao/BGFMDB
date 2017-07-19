@@ -114,6 +114,7 @@
      */
     //[p bg_updateWhere:@[@"age",@"=",@(50)] ignoreKeys:@[@"name"]];
     
+    
     /**
      清除People表的所有数据
      */

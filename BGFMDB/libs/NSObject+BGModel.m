@@ -352,11 +352,11 @@
  支持keyPath.
  使用规则请看demo或如下事例:
  1.查询name等于爸爸和age等于45,或者name等于马哥的数据.  此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
-    NSArray* arrayConds1 = [People findFormatSqlConditions:@"where %@=%@ and %@=%@ or %@=%@",sqlKey(@"age"),sqlValue(@(45)),sqlKey(@"name"),sqlValue(@"爸爸"),sqlKey(@"name"),sqlValue(@"马哥")];
+    NSArray* arrayConds1 = [People bg_findFormatSqlConditions:@"where %@=%@ and %@=%@ or %@=%@",bg_sqlKey(@"age"),bg_sqlValue(@(45)),bg_sqlKey(@"name"),bg_sqlValue(@"爸爸"),bg_sqlKey(@"name"),bg_sqlValue(@"马哥")];
  2.查询user.student.human.body等于小芳 和 user1.name中包含fuck这个字符串的数据.
-    [People findFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳",@"user1.name",Contains,@"fuck"])];
+    [People bg_findFormatSqlConditions:@"where %@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳",@"user1.name",bg_contains,@"fuck"])];
  3.查询user.student.human.body等于小芳,user1.name中包含fuck这个字符串 和 name等于爸爸的数据.
-    NSArray* arrayConds3 = [People findFormatSqlConditions:@"where %@ and %@=%@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳",@"user1.name",Contains,@"fuck"]),sqlKey(@"name"),sqlValue(@"爸爸")];
+    NSArray* arrayConds3 = [People bg_findFormatSqlConditions:@"where %@ and %@=%@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳",@"user1.name",bg_contains,@"fuck"]),bg_sqlKey(@"name"),bg_sqlValue(@"爸爸")];
  */
 +(NSArray* _Nullable)bg_findFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
     va_list ap;
@@ -375,7 +375,7 @@
 /**
  keyPath查询
  同步查询所有keyPath条件结果.
- @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
+ @keyPathValues数组,形式@[@"user.student.name",bg_equal,@"小芳",@"user.student.conten",bg_contains,@"书"]
  即查询user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
 +(NSArray* _Nullable)bg_findForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
@@ -390,7 +390,7 @@
 /**
  keyPath查询
  异步查询所有keyPath条件结果.
- @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
+ @keyPathValues数组,形式@[@"user.student.name",bg_equal,@"小芳",@"user.student.conten",bg_contains,@"书"]
  即查询user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
 +(void)bg_findAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_A)complete{
@@ -448,7 +448,7 @@
  此接口不支持keyPath.
  使用规则请看demo或如下事例:
  1.将People类中name等于"马云爸爸"的数据的name更新为"马化腾"
- [People updateFormatSqlConditions:@"set %@=%@ where %@=%@",sqlKey(@"name"),sqlValue(@"马化腾"),sqlKey(@"name"),sqlValue(@"马云爸爸")];
+ [People bg_updateFormatSqlConditions:@"set %@=%@ where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"马化腾"),bg_sqlKey(@"name"),bg_sqlValue(@"马云爸爸")];
  */
 +(BOOL)bg_updateFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
     va_list ap;
@@ -473,9 +473,9 @@
  支持keyPath.
  使用规则请看demo或如下事例:
  1.将People类数据中user.student.human.body等于"小芳"的数据更新为当前对象的数据.
- [p updateFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+ [p bg_updateFormatSqlConditions:@"where %@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"])];
  2.将People类中name等于"马云爸爸"的数据更新为当前对象的数据.
- [p updateFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"马云爸爸")];
+ [p bg_updateFormatSqlConditions:@"where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"马云爸爸")];
  */
 -(BOOL)bg_updateFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
     va_list ap;
@@ -497,11 +497,11 @@
  支持keyPath.
  使用规则请看demo或如下事例:
  1.将People类数据中user.student.human.body等于"小芳"的数据更新为当前对象的数据(忽略name不要更新).
- NSString* conditions = [NSString stringWithFormat:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
- [p updateFormatSqlConditions:conditions IgnoreKeys:@[@"name"]];
+ NSString* conditions = [NSString stringWithFormat:@"where %@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"])];
+ [p bg_updateFormatSqlConditions:conditions IgnoreKeys:@[@"name"]];
  2.将People类中name等于"马云爸爸"的数据更新为当前对象的数据.
- NSString* conditions = [NSString stringWithFormat:@"where %@=%@",sqlKey(@"name"),sqlValue(@"马云爸爸")])];
- [p updateFormatSqlConditions:conditions IgnoreKeys:nil];
+ NSString* conditions = [NSString stringWithFormat:@"where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"马云爸爸")])];
+ [p bg_updateFormatSqlConditions:conditions IgnoreKeys:nil];
  */
 -(BOOL)bg_updateFormatSqlConditions:(NSString*)conditions IgnoreKeys:(NSArray* const _Nullable)ignoreKeys{
     __block BOOL result;
@@ -516,7 +516,7 @@
 /**
  根据keypath更新数据.
  同步更新.
- @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
+ @keyPathValues数组,形式@[@"user.student.name",bg_equal,@"小芳",@"user.student.conten",bg_contains,@"书"]
  即更新user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
 -(BOOL)bg_updateForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
@@ -531,7 +531,7 @@
 /**
  根据keypath更新数据.
  同步更新.
- @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
+ @keyPathValues数组,形式@[@"user.student.name",bg_equal,@"小芳",@"user.student.conten",bg_contains,@"书"]
  即更新user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  @ignoreKeys 即或略哪些key不用更新.
  */
@@ -548,7 +548,7 @@
 /**
  根据keypath更新数据.
  异步更新.
- @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
+ @keyPathValues数组,形式@[@"user.student.name",bg_equal,@"小芳",@"user.student.conten",bg_contains,@"书"]
  即更新user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
 -(void)bg_updateAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
@@ -589,11 +589,11 @@
  支持keyPath.
  使用规则请看demo或如下事例:
  1.删除People类中name等于"美国队长"的数据
- [People deleteFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"美国队长")];
+ [People bg_deleteFormatSqlConditions:@"where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"美国队长")];
  2.删除People类中user.student.human.body等于"小芳"的数据
- [People deleteFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+ [People bg_deleteFormatSqlConditions:@"where %@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"])];
  3.删除People类中name等于"美国队长" 和 user.student.human.body等于"小芳"的数据
- [People deleteFormatSqlConditions:@"where %@=%@ and %@",sqlKey(@"name"),sqlValue(@"美国队长"),keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+ [People bg_deleteFormatSqlConditions:@"where %@=%@ and %@",bg_sqlKey(@"name"),bg_sqlValue(@"美国队长"),bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"])];
  */
 +(BOOL)bg_deleteFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
     va_list ap;
@@ -612,7 +612,7 @@
 /**
  根据keypath删除数据.
  同步删除.
- @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
+ @keyPathValues数组,形式@[@"user.student.name",bg_equal,@"小芳",@"user.student.conten",bg_contains,@"书"]
  即删除user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
 +(BOOL)bg_deleteForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
@@ -627,7 +627,7 @@
 /**
  根据keypath删除数据.
  异步删除.
- @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
+ @keyPathValues数组,形式@[@"user.student.name",bg_equal,@"小芳",@"user.student.conten",bg_contains,@"书"]
  即删除user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
 +(void)bg_deleteAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete{
@@ -694,11 +694,11 @@
  支持keyPath.
  使用规则请看demo或如下事例:
  1.查询People类中name等于"美国队长"的数据条数.
- [People countFormatSqlConditions:@"where %@=%@",sqlKey(@"name"),sqlValue(@"美国队长")];
+ [People bg_countFormatSqlConditions:@"where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"美国队长")];
  2.查询People类中user.student.human.body等于"小芳"的数据条数.
- [People countFormatSqlConditions:@"where %@",keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+ [People bg_countFormatSqlConditions:@"where %@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"])];
  3.查询People类中name等于"美国队长" 和 user.student.human.body等于"小芳"的数据条数.
- [People countFormatSqlConditions:@"where %@=%@ and %@",sqlKey(@"name"),sqlValue(@"美国队长"),keyPathValues(@[@"user.student.human.body",Equal,@"小芳"])];
+ [People bg_countFormatSqlConditions:@"where %@=%@ and %@",bg_sqlKey(@"name"),bg_sqlValue(@"美国队长"),bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"])];
  */
 +(NSInteger)bg_countFormatSqlConditions:(NSString*)format,... NS_FORMAT_FUNCTION(1,2){
     va_list ap;
@@ -713,7 +713,7 @@
 
 /**
  keyPath查询该表中有多少条数据
- @keyPathValues数组,形式@[@"user.student.name",Equal,@"小芳",@"user.student.conten",Contains,@"书"]
+ @keyPathValues数组,形式@[@"user.student.name",bg_equal,@"小芳",@"user.student.conten",bg_contains,@"书"]
  即查询user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象的条数.
  */
 +(NSInteger)bg_countForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
