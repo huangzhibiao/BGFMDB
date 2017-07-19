@@ -6,7 +6,8 @@
 //  Copyright © 2016年 Biao. All rights reserved.
 //
 #import <Foundation/Foundation.h>
-#import "BGTool.h"
+#import "BGFMDBConfig.h"
+#import "FMDB.h"
 
 @interface BGFMDB : NSObject
 //信号量.

@@ -8,6 +8,7 @@
 
 #import "BGModelInfo.h"
 #import "BGTool.h"
+#import "BGFMDBConfig.h"
 
 @implementation BGModelInfo
 

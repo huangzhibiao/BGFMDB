@@ -8,6 +8,7 @@
 
 #import "NSObject+BGModel.h"
 #import "BGFMDB.h"
+#import "BGTool.h"
 #import <objc/message.h>
 #import <UIKit/UIKit.h>
 
@@ -297,7 +298,6 @@
     [[BGFMDB shareManager] closeDB];
     return results;
 }
-
 /**
  异步查询所有结果.
  @limit 每次查询限制的条数,0则无限制.
@@ -416,6 +416,26 @@
         NSArray* array = [self bg_findForKeyPathAndValues:keyPathValues];
         BGComplete(array);
     });
+}
+/**
+ 查询某一时间段的数据.(存入时间或更新时间)
+ @dateTime 参数格式：
+ 2017 即查询2017年的数据
+ 2017-07 即查询2017年7月的数据
+ 2017-07-19 即查询2017年7月19日的数据
+ 2017-07-19 16 即查询2017年7月19日16时的数据
+ 2017-07-19 16:17 即查询2017年7月19日16时17分的数据
+ 2017-07-19 16:17:53 即查询2017年7月19日16时17分53秒的数据
+ */
++(NSArray* _Nullable)bg_findWithType:(bg_dataTimeType)type dateTime:(NSString* _Nonnull)dateTime{
+    NSMutableString* like = [NSMutableString string];
+    [like appendFormat:@"'%@",dateTime];
+    [like appendString:@"%'"];
+    if(type == bg_createTime){
+        return [self bg_findFormatSqlConditions:@"where %@ like %@",bg_sqlKey(BGCreateTime),like];
+    }else{
+        return [self bg_findFormatSqlConditions:@"where %@ like %@",bg_sqlKey(BGUpdateTime),like];
+    }
 }
 /**
  同步更新数据.

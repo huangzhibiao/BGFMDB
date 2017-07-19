@@ -10,6 +10,7 @@
 #import <CoreData/CoreData.h>
 #import "BGTool.h"
 #import "BGFMDB.h"
+#import "BGModelInfo.h"
 
 #define SqlText @"text" //数据库的字符类型
 #define SqlReal @"real" //数据库的浮点类型

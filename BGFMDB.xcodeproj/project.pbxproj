@@ -66,6 +66,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		075F016D1F1F4C0500ABF975 /* BGFMDBConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BGFMDBConfig.h; sourceTree = "<group>"; };
 		D706630D1CD1EF67009E4B4D /* BGFMDB.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BGFMDB.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D70663111CD1EF67009E4B4D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D70663131CD1EF67009E4B4D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -260,6 +261,7 @@
 				D77E3C701E72CBA500137471 /* FMResultSet.m */,
 				D77E3C711E72CBA500137471 /* NSObject+BGModel.h */,
 				D77E3C721E72CBA500137471 /* NSObject+BGModel.m */,
+				075F016D1F1F4C0500ABF975 /* BGFMDBConfig.h */,
 			);
 			path = libs;
 			sourceTree = "<group>";

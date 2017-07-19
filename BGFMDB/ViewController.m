@@ -218,6 +218,15 @@
     }
     
     /**
+     查询某一时间段的数据
+     */
+//    NSArray* arr = [People bg_findWithType:bg_createTime dateTime:@"2017-07-19 16:59:21"];
+//    for(People* pp in arr){
+//        //库新增两个自带字段createTime和updateTime方便开发者使用和做参考对比.
+//        NSLog(@"pp主键 = %@, pp创建时间 = %@, pp更新时间 = %@",pp.bg_id,pp.bg_createTime,pp.bg_updateTime);
+//    }
+    
+    /**
      同步查询People类所有数据.
      */
 //    NSArray* finfAlls = [People bg_findAll];

@@ -13,7 +13,7 @@ NSArray,NSMutableArray,NSDictionary,NSMutableDictionary,NSMapTable,NSHashTable,N
 NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象 等的存储.
  */
 #import <Foundation/Foundation.h>
-#import "BGTool.h"
+#import "BGFMDBConfig.h"
 
 @protocol BGProtocol <NSObject>
 //可选择操作
@@ -211,6 +211,17 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  即查询user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
 +(void)bg_findAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_A)complete;
+/**
+ 查询某一时间段的数据.(存入时间或更新时间)
+ @dateTime 参数格式：
+ 2017 即查询2017年的数据
+ 2017-07 即查询2017年7月的数据
+ 2017-07-19 即查询2017年7月19日的数据
+ 2017-07-19 16 即查询2017年7月19日16时的数据
+ 2017-07-19 16:17 即查询2017年7月19日16时17分的数据
+ 2017-07-19 16:17:53 即查询2017年7月19日16时17分53秒的数据
+ */
++(NSArray* _Nullable)bg_findWithType:(bg_dataTimeType)type dateTime:(NSString* _Nonnull)dateTime;
 /**
  同步更新数据.
  @where 条件数组，形式@[@"name",@"=",@"标哥",@"age",@"=>",@(25)],即更新name=标哥,age=>25的数据;

@@ -7,6 +7,8 @@
 //
 
 #import "BGFMDB.h"
+#import "BGModelInfo.h"
+#import "BGTool.h"
 
 #define MaxQueryPageNum 50
 
