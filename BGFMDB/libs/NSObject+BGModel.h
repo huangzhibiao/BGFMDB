@@ -135,6 +135,19 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  */
 +(void)bg_findAllAsync:(Complete_A)complete;
 /**
+ 查找第一条数据
+ */
++(id _Nullable)bg_firstObjet;
+/**
+ 查找最后一条数据
+ */
++(id _Nullable)bg_lastObject;
+/**
+ 查询某一行数据
+ @row 从第0行开始算起.
+ */
++(id _Nullable)bg_ObjectWithRow:(NSInteger)row;
+/**
  同步查询所有结果.
  @limit 每次查询限制的条数,0则无限制.
  @desc YES:降序，NO:升序.
@@ -305,6 +318,19 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  即删除user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
 +(void)bg_deleteAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete;
+/**
+ 删除某一行数据
+ @row 从第0行开始算起.
+ */
++(BOOL)bg_deleteWithRow:(NSInteger)row;
+/**
+ 删除第一条数据
+ */
++(BOOL)bg_deleteFirstObject;
+/**
+ 删除最后一条数据
+ */
++(BOOL)bg_deleteLastObject;
 /**
  同步清除所有数据
  */

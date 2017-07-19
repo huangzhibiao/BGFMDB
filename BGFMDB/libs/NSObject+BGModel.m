@@ -257,7 +257,27 @@
         BGComplete(array);
     });
 }
-
+/**
+ 查找第一条数据
+ */
++(id _Nullable)bg_firstObjet{
+    NSArray* array = [self bg_findAllWithLimit:1 orderBy:nil desc:NO];
+    return (array&&array.count)?array.firstObject:nil;
+}
+/**
+ 查找最后一条数据
+ */
++(id _Nullable)bg_lastObject{
+    NSArray* array = [self bg_findAllWithLimit:1 orderBy:BGPrimaryKey desc:YES];
+    return (array&&array.count)?array.firstObject:nil;
+}
+/**
+ 查询某一行数据
+ */
++(id _Nullable)bg_ObjectWithRow:(NSInteger)row{
+    NSArray* array = [self bg_findAllWithRange:NSMakeRange(row,1) orderBy:nil desc:NO];
+    return (array&&array.count)?array.firstObject:nil;
+}
 /**
  同步查询所有结果.
  @limit 每次查询限制的条数,0则无限制.
@@ -634,6 +654,25 @@
         BGComplete(flag);
     });
 }
+/**
+ 删除某一行数据
+ */
++(BOOL)bg_deleteWithRow:(NSInteger)row{
+    return [self bg_deleteFormatSqlConditions:@"where %@ in(select %@ from %@  limit %@,1)",bg_sqlKey(BGPrimaryKey),bg_sqlKey(BGPrimaryKey),NSStringFromClass([self class]),@(row)];
+}
+/**
+ 删除第一条数据
+ */
++(BOOL)bg_deleteFirstObject{
+    return [self bg_deleteFormatSqlConditions:@"where %@ in(select %@ from %@  limit 0,1)",bg_sqlKey(BGPrimaryKey),bg_sqlKey(BGPrimaryKey),NSStringFromClass([self class])];
+}
+/**
+ 删除最后一条数据
+ */
++(BOOL)bg_deleteLastObject{
+    return [self bg_deleteFormatSqlConditions:@"where %@ in(select %@ from %@ order by %@ desc limit 0,1)",bg_sqlKey(BGPrimaryKey),bg_sqlKey(BGPrimaryKey),NSStringFromClass([self class]),bg_sqlKey(BGPrimaryKey)];
+}
+
 /**
  同步清除所有数据
  */

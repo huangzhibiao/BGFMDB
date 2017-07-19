@@ -60,7 +60,17 @@
     /**
      存储
      */
-    //[p bg_save];
+    [p bg_save];
+    
+    /**
+     查询某一行的数据, 从0行开始算起.
+     */
+    //People* pp = [People bg_ObjectWithRow:1];
+    
+    /**
+     删除某一行数据, 从0行开始算起.
+     */
+    //[People bg_deleteWithRow:1];
     
     /**
      使用原生函数求某个整数类型的属性的总和，最大值，最小值，平均值等.
