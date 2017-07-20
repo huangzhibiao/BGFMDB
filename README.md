@@ -58,13 +58,13 @@ libsqlite3
 /**
 本库自带的自动增长主键.
 */
-@property(nonatomic,strong)NSNumber*_Nullable ID;
+@property(nonatomic,strong)NSNumber*_Nullable bg_id;
 
 /**
  为了方便开发者，特此加入以下两个字段属性供开发者做参考.(自动记录数据的存入时间和更新时间)
  */
-@property(nonatomic,copy)NSString* _Nonnull createTime;//数据创建时间(即存入数据库的时间)
-@property(nonatomic,copy)NSString* _Nonnull updateTime;//数据最后那次更新的时间.
+@property(nonatomic,copy)NSString* _Nonnull bg_createTime;//数据创建时间(即存入数据库的时间)
+@property(nonatomic,copy)NSString* _Nonnull bg_updateTime;//数据最后那次更新的时间.
 ```
 ### 唯一约束
 ```Objective-C
