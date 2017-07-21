@@ -61,7 +61,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 /**
  异步存储.
  */
--(void)bg_saveAsync:(Complete_B)complete;
+-(void)bg_saveAsync:(bg_complete_B)complete;
 /**
  同步存入对象数组.
  @array 存放对象的数组.(数组中存放的是同一种类型的数据)
@@ -71,7 +71,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  异步存入对象数组.
  @array 存放对象的数组.(数组中存放的是同一种类型的数据)
  */
-+(void)bg_saveArrayAsync:(NSArray* _Nonnull)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(Complete_B)complete;
++(void)bg_saveArrayAsync:(NSArray* _Nonnull)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(bg_complete_B)complete;
 /**
  同步存储或更新.
  当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
@@ -91,7 +91,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  异步存储或更新.
  当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
  */
--(void)bg_saveOrUpdateAsync:(Complete_B)complete;
+-(void)bg_saveOrUpdateAsync:(bg_complete_B)complete;
 /**
  同步存储.
  @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.
@@ -101,7 +101,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  异步存储.
  @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.
  */
--(void)bg_saveAsyncIgnoreKeys:(NSArray* const _Nonnull)ignoredKeys complete:(Complete_B)complete;
+-(void)bg_saveAsyncIgnoreKeys:(NSArray* const _Nonnull)ignoredKeys complete:(bg_complete_B)complete;
 /**
  同步覆盖存储.
  覆盖掉原来的数据,只存储当前的数据.
@@ -111,7 +111,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  异步覆盖存储
  覆盖掉原来的数据,只存储当前的数据.
  */
--(void)bg_coverAsync:(Complete_B)complete;
+-(void)bg_coverAsync:(bg_complete_B)complete;
 /**
  同步覆盖存储.
  覆盖掉原来的数据,只存储当前的数据.
@@ -123,7 +123,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  覆盖掉原来的数据,只存储当前的数据.
  @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.
  */
--(void)bg_coverAsyncIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys complete:(Complete_B)complete;
+-(void)bg_coverAsyncIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys complete:(bg_complete_B)complete;
 /**
  同步查询所有结果.
  温馨提示: 当数据量巨大时,请用范围接口进行分页查询,避免查询出来的数据量过大导致程序崩溃.
@@ -133,7 +133,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  异步查询所有结果
  温馨提示: 当数据量巨大时,请用范围接口进行分页查询,避免查询出来的数据量过大导致程序崩溃.
  */
-+(void)bg_findAllAsync:(Complete_A)complete;
++(void)bg_findAllAsync:(bg_complete_A)complete;
 /**
  查找第一条数据
  */
@@ -158,7 +158,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  @limit 每次查询限制的条数,0则无限制.
  @desc YES:降序，NO:升序.
  */
-+(void)bg_findAllAsyncWithLimit:(NSInteger)limit orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc complete:(Complete_A)complete;
++(void)bg_findAllAsyncWithLimit:(NSInteger)limit orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc complete:(bg_complete_A)complete;
 /**
  同步查询所有结果.
  @range 查询的范围(从location开始的后面length条).
@@ -170,7 +170,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  @range 查询的范围(从location开始的后面length条).
  @desc YES:降序，NO:升序.
  */
-+(void)bg_findAllAsyncWithRange:(NSRange)range orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc complete:(Complete_A)complete;
++(void)bg_findAllAsyncWithRange:(NSRange)range orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc complete:(bg_complete_A)complete;
 /**
  同步条件查询所有结果.
  @where 条件数组，形式@[@"name",@"=",@"标哥",@"age",@"=>",@(25)],即查询name=标哥,age=>25的数据;
@@ -184,7 +184,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  可以为nil,为nil时查询所有数据;
  目前不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持(有专门的keyPath查询接口).
  */
-+(void)bg_findAsyncWhere:(NSArray* _Nullable)where complete:(Complete_A)complete;
++(void)bg_findAsyncWhere:(NSArray* _Nullable)where complete:(bg_complete_A)complete;
 /**
  @format 传入sql条件参数,语句来进行查询,方便开发者自由扩展.
  使用规则请看demo或如下事例:
@@ -210,7 +210,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  @keyPathValues数组,形式@[@"user.student.name",bg_equal,@"小芳",@"user.student.conten",bg_contains,@"书"]
  即查询user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
-+(void)bg_findAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_A)complete;
++(void)bg_findAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(bg_complete_A)complete;
 /**
  查询某一时间段的数据.(存入时间或更新时间)
  @dateTime 参数格式：
@@ -243,7 +243,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  可以为nil,nil时更新所有数据;
  不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持.
  */
--(void)bg_updateAsync:(NSArray* _Nullable)where complete:(Complete_B)complete;
+-(void)bg_updateAsync:(NSArray* _Nullable)where complete:(bg_complete_B)complete;
 /**
  @format 传入sql条件参数,语句来进行更新,方便开发者自由扩展.
  此接口不支持keyPath.
@@ -288,7 +288,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  @keyPathValues数组,形式@[@"user.student.name",bg_equal,@"小芳",@"user.student.conten",bg_contains,@"书"]
  即更新user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
--(void)bg_updateAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete;
+-(void)bg_updateAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(bg_complete_B)complete;
 /**
  同步删除数据.
  @where 条件数组，形式@[@"name",@"=",@"标哥",@"age",@"=>",@(25)],即删除name=标哥,age=>25的数据.
@@ -302,7 +302,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  不可以为nil;
  不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持
  */
-+(void)bg_deleteAsync:(NSArray* _Nonnull)where complete:(Complete_B)complete;
++(void)bg_deleteAsync:(NSArray* _Nonnull)where complete:(bg_complete_B)complete;
 /**
  @format 传入sql条件参数,语句来进行更新,方便开发者自由扩展.
  支持keyPath.
@@ -328,7 +328,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  @keyPathValues数组,形式@[@"user.student.name",bg_equal,@"小芳",@"user.student.conten",bg_contains,@"书"]
  即删除user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象.
  */
-+(void)bg_deleteAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(Complete_B)complete;
++(void)bg_deleteAsyncForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(bg_complete_B)complete;
 /**
  删除某一行数据
  @row 从第0行开始算起.
@@ -349,7 +349,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 /**
  异步清除所有数据.
  */
-+(void)bg_clearAsync:(Complete_B)complete;
++(void)bg_clearAsync:(bg_complete_B)complete;
 /**
  同步删除这个类的数据表
  */
@@ -357,7 +357,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 /**
  异步删除这个类的数据表.
  */
-+(void)bg_dropAsync:(Complete_B)complete;
++(void)bg_dropAsync:(bg_complete_B)complete;
 /**
  查询该表中有多少条数据
  @where 条件数组，形式@[@"name",@"=",@"标哥",@"age",@"=>",@(25)],即name=标哥,age=>25的数据有多少条,为nil时返回全部数据的条数.
@@ -405,7 +405,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  @version 版本号,从1开始,依次往后递增.
  说明: 本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
  */
-+(void)bg_updateVersionAsync:(NSInteger)version complete:(Complete_I)complete;
++(void)bg_updateVersionAsync:(NSInteger)version complete:(bg_complete_I)complete;
 /**
  刷新,当类"唯一约束"改变时,调用此接口刷新一下.
  同步刷新.
@@ -423,7 +423,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  (特别提示: 这里只要写那些改变了的变量名就可以了,没有改变的不要写)，比如A以前有3个变量,分别为a,b,c；现在变成了a,b,d；那只要写@{@"d":@"c"}就可以了，即只写变化了的变量名映射集合.
  说明: 本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
  */
-+(void)bg_updateVersionAsync:(NSInteger)version keyDict:(NSDictionary* const _Nonnull)keydict complete:(Complete_I)complete;
++(void)bg_updateVersionAsync:(NSInteger)version keyDict:(NSDictionary* const _Nonnull)keydict complete:(bg_complete_I)complete;
 /**
  将某表的数据拷贝给另一个表
  同步复制.
@@ -439,7 +439,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  @keyDict 拷贝的对应key集合,形式@{@"srcKey1":@"destKey1",@"srcKey2":@"destKey2"},即将源类srcCla中的变量值拷贝给目标类destCla中的变量destKey1，srcKey2和destKey2同理对应,依此推类.
  @append YES: 不会覆盖destCla的原数据,在其末尾继续添加；NO: 覆盖掉destCla原数据,即将原数据删掉,然后将新数据拷贝过来.
  */
-+(void)bg_copyAsyncToClass:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append complete:(Complete_I)complete;
++(void)bg_copyAsyncToClass:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append complete:(bg_complete_I)complete;
 /**
  事务操作.
  @return 返回YES提交事务, 返回NO回滚事务.
@@ -450,7 +450,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  @name 注册名称,此字符串唯一,不可重复,移除监听的时候使用此字符串移除.
  @return YES: 注册监听成功; NO: 注册监听失败.
  */
-+(BOOL)bg_registerChangeWithName:(NSString* const _Nonnull)name block:(ChangeBlock)block;
++(BOOL)bg_registerChangeWithName:(NSString* const _Nonnull)name block:(bg_changeBlock)block;
 /**
  移除数据变化监听.
  @name 注册监听的时候使用的名称.

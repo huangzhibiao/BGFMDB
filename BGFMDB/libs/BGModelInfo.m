@@ -30,13 +30,13 @@
         NSString* sqlType = [BGTool getSqlType:propertyType];
         [info setValue:sqlType forKey:@"sqlColumnType"];
         //读取属性值
-        if(![propertyName isEqualToString:BGPrimaryKey]){
+        if(![propertyName isEqualToString:bg_primaryKey]){
             
             id propertyValue;
             id sqlValue;
             //crateTime和updateTime两个额外字段单独处理.
-            if([propertyName isEqualToString:BGCreateTime] ||
-               [propertyName isEqualToString:BGUpdateTime]){
+            if([propertyName isEqualToString:bg_createTimeKey] ||
+               [propertyName isEqualToString:bg_updateTimeKey]){
                 propertyValue = [BGTool stringWithDate:[NSDate new]];
             }else{
                 propertyValue = [object valueForKey:propertyName];

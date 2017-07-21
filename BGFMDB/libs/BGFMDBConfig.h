@@ -9,35 +9,22 @@
 #ifndef BGFMDBConfig_h
 #define BGFMDBConfig_h
 
-#define SQLITE_NAME @"BGFMDB.sqlite"
-
-// 过期
-#define BGFMDBDeprecated(instead) NS_DEPRECATED(2_0, 2_0, 2_0, 2_0, instead)
-
-// 日志输出
-#ifdef DEBUG
-#define BGLog(...) NSLog(__VA_ARGS__)
-#else
-#define BGLog(...)
-#endif
-
-#define debug(param) do{\
-if(self.debug){BGLog(@"调试输出: %@",param);}\
-}while(0)
+// 过期方法注释
+//#define BGFMDBDeprecated(instead) NS_DEPRECATED(2_0, 2_0, 2_0, 2_0, instead)
 
 #define BG @"BG_"
-#define BGPrimaryKey @"bg_id"
-#define BGCreateTime @"bg_createTime"
-#define BGUpdateTime @"bg_updateTime"
+#define bg_primaryKey @"bg_id"
+#define bg_createTimeKey @"bg_createTime"
+#define bg_updateTimeKey @"bg_updateTime"
 
 //keyPath查询用的关系，bg_equal:等于的关系；bg_contains：包含的关系.
 #define bg_equal @"Relation_Equal"
 #define bg_contains @"Relation_Contains"
 
-#define Complete_B void(^_Nullable)(BOOL isSuccess)
-#define Complete_I void(^_Nullable)(bg_dealState result)
-#define Complete_A void(^_Nullable)(NSArray* _Nullable array)
-#define ChangeBlock void(^_Nullable)(bg_changeState result)
+#define bg_complete_B void(^_Nullable)(BOOL isSuccess)
+#define bg_complete_I void(^_Nullable)(bg_dealState result)
+#define bg_complete_A void(^_Nullable)(NSArray* _Nullable array)
+#define bg_changeBlock void(^_Nullable)(bg_changeState result)
 
 typedef NS_ENUM(NSInteger,bg_changeState){//数据改变状态
     bg_insert,//插入

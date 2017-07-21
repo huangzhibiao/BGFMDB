@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
+#define bg_completeBlock(obj) !complete?:complete(obj);
 
 @interface BGTool : NSObject
 

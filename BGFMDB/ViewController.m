@@ -496,12 +496,12 @@
 }
 
 - (IBAction)deleteAction:(id)sender{
-    [People bg_deleteWhere:@[@"ID",@"=",@(1)]];
+    [People bg_deleteWhere:@[bg_primaryKey,@"=",@(1)]];
 }
 
 - (IBAction)updateAction:(id)sender {
     People* p = [self people];
-    [p bg_updateWhere:@[@"ID",@"=",@(1)]];
+    [p bg_updateWhere:@[bg_primaryKey,@"=",@(1)]];
 }
 
 - (IBAction)registerChangeAction:(id)sender{

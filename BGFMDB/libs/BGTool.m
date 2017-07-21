@@ -171,15 +171,15 @@ void bg_setDebug(BOOL debug){
 +(NSArray*)getClassIvarList:(__unsafe_unretained Class)cla onlyKey:(BOOL)onlyKey{
     NSMutableArray* keys = [NSMutableArray array];
     if(onlyKey){
-        [keys addObject:BGPrimaryKey];
-        [keys addObject:BGCreateTime];
-        [keys addObject:BGUpdateTime];
+        [keys addObject:bg_primaryKey];
+        [keys addObject:bg_createTimeKey];
+        [keys addObject:bg_updateTimeKey];
     }else{
         //手动添加库自带的自动增长主键ID和类型q
-        [keys addObject:[NSString stringWithFormat:@"%@*q",BGPrimaryKey]];
+        [keys addObject:[NSString stringWithFormat:@"%@*q",bg_primaryKey]];
         //建表时此处加入额外的两个字段(createTime和updateTime).
-        [keys addObject:[NSString stringWithFormat:@"%@*@\"NSString\"",BGCreateTime]];
-        [keys addObject:[NSString stringWithFormat:@"%@*@\"NSString\"",BGUpdateTime]];
+        [keys addObject:[NSString stringWithFormat:@"%@*@\"NSString\"",bg_createTimeKey]];
+        [keys addObject:[NSString stringWithFormat:@"%@*@\"NSString\"",bg_updateTimeKey]];
     }
     [self bg_enumerateClasses:cla complete:^(__unsafe_unretained Class c, BOOL *stop) {
         unsigned int numIvars; //成员变量个数
@@ -332,7 +332,7 @@ void bg_setDebug(BOOL debug){
         NSArray* arr = [keyAndType componentsSeparatedByString:@"*"];
         NSString* propertyName = arr[0];
         NSString* propertyType = arr[1];
-        if(![propertyName isEqualToString:BGPrimaryKey]){
+        if(![propertyName isEqualToString:bg_primaryKey]){
             id propertyValue = [object valueForKey:propertyName];
             if (propertyValue){
                 id Value = [self getSqlValue:propertyValue type:propertyType encode:YES];
@@ -886,7 +886,7 @@ void bg_setDebug(BOOL debug){
     }
     //移除创建时间字段不做更新.
     if (update) {
-         [valueDict removeObjectForKey:[NSString stringWithFormat:@"%@%@",BG,BGCreateTime]];
+         [valueDict removeObjectForKey:[NSString stringWithFormat:@"%@%@",BG,bg_createTimeKey]];
     }
     return valueDict;
 }
