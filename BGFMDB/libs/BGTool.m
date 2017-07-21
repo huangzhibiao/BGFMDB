@@ -29,9 +29,6 @@
 //100M大小限制.
 #define MaxData @(838860800)
 
-bg_relation const Equal = @"Relation_Equal";
-bg_relation const Contains = @"Relation_Contains";
-
 /**
  *  遍历所有类的block（父类）
  */
@@ -260,7 +257,7 @@ void bg_setDebug(BOOL debug){
             [keyPathParam appendString:@"%"];
         }
         [keyPathParam appendFormat:@"%@",value];
-        if ([relations[i] isEqualToString:Contains]){//包含关系
+        if ([relations[i] isEqualToString:bg_contains]){//包含关系
             [keyPathParam appendString:@"%"];
         }else{
             //keypaths.count<=2?[keyPathParam appendString:@"\"%"]:[keyPathParam appendString:@"\\%"];

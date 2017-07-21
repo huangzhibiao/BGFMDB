@@ -143,6 +143,7 @@
     /**
      将People类中user1.name包含@“小明”字符串 和 user.student.human.sex中等于@“女”的数据 更新为当前对象的数据.
      */
+    
     //BOOL updateResult = [p bg_updateForKeyPathAndValues:@[@"user1.name",bg_contains,@"小明",@"user.student.human.sex",bg_equal,@"女"]];
     
     /**

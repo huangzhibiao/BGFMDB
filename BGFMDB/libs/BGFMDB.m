@@ -451,7 +451,7 @@ static BGFMDB* BGFmdb = nil;
         }
         [SQL appendFormat:@" from %@",name];
         
-        if((where!=nil) && (where.count>0)){
+        if(where && (where.count>0)){
             NSArray* results = [BGTool where:where];
             [SQL appendString:results[0]];
             arguments = results[1];
@@ -491,12 +491,10 @@ static BGFMDB* BGFmdb = nil;
         NSMutableString* SQL = [NSMutableString string];
         [SQL appendFormat:@"select * from %@",name];
         
-        if ((where!=nil) && (where.count>0)){
-            if((where!=nil) && (where.count>0)){
-                NSArray* results = [BGTool where:where];
-                [SQL appendString:results[0]];
-                arguments = results[1];
-            }
+        if(where && (where.count>0)){
+            NSArray* results = [BGTool where:where];
+            [SQL appendString:results[0]];
+            arguments = results[1];
         }
         
         !param?:[SQL appendFormat:@" %@",param];
@@ -571,13 +569,13 @@ static BGFMDB* BGFmdb = nil;
                 [SQL appendString:@","];
             }
         }
-        if ((where!=nil) && (where.count>0)){
-            if((where!=nil) && (where.count>0)){
-                NSArray* results = [BGTool where:where];
-                [SQL appendString:results[0]];
-                [arguments addObjectsFromArray:results[1]];
-            }
+        
+        if(where && (where.count>0)){
+            NSArray* results = [BGTool where:where];
+            [SQL appendString:results[0]];
+            [arguments addObjectsFromArray:results[1]];
         }
+
         debug(SQL);
        result = [db executeUpdate:SQL withArgumentsInArray:arguments];
     }];
@@ -689,13 +687,12 @@ static BGFMDB* BGFmdb = nil;
         NSMutableString* SQL = [[NSMutableString alloc] init];
         [SQL appendFormat:@"delete from %@",name];
         
-        if ((where!=nil) && (where.count>0)){
-            if((where!=nil) && (where.count>0)){
-                NSArray* results = [BGTool where:where];
-                [SQL appendString:results[0]];
-                [arguments addObjectsFromArray:results[1]];
-            }
+        if(where && (where.count>0)){
+            NSArray* results = [BGTool where:where];
+            [SQL appendString:results[0]];
+            [arguments addObjectsFromArray:results[1]];
         }
+        
         debug(SQL);
         result = [db executeUpdate:SQL withArgumentsInArray:arguments];
     }];

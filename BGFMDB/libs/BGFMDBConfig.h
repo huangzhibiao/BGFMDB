@@ -30,6 +30,10 @@ if(self.debug){BGLog(@"调试输出: %@",param);}\
 #define BGCreateTime @"bg_createTime"
 #define BGUpdateTime @"bg_updateTime"
 
+//keyPath查询用的关系，bg_equal:等于的关系；bg_contains：包含的关系.
+#define bg_equal @"Relation_Equal"
+#define bg_contains @"Relation_Contains"
+
 #define Complete_B void(^_Nullable)(BOOL isSuccess)
 #define Complete_I void(^_Nullable)(bg_dealState result)
 #define Complete_A void(^_Nullable)(NSArray* _Nullable array)
@@ -59,11 +63,6 @@ typedef NS_ENUM(NSInteger,bg_dataTimeType){
     bg_createTime,//存储时间
     bg_updateTime,//更新时间
 };
-
-//keyPath查询用的关系，bg_equal:等于的关系；bg_contains：包含的关系.
-typedef NSString* _Nonnull bg_relation;
-extern bg_relation const bg_equal;
-extern bg_relation const bg_contains;
 
 /**
  封装处理传入数据库的key和value.
