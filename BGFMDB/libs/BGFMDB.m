@@ -1734,7 +1734,8 @@ static BGFMDB* BGFmdb = nil;
     NSAssert(name,@"唯一标识名不能为空!");
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    [self queryQueueWithTableName:name conditions:@"order by BG_ID asc" complete:^(NSArray * _Nullable array) {
+    NSString* condition = [NSString stringWithFormat:@"order by %@ asc",bg_sqlKey(bg_primaryKey)];
+    [self queryQueueWithTableName:name conditions:condition complete:^(NSArray * _Nullable array) {
         NSMutableArray* resultM = nil;
         if(array&&array.count){
             resultM = [NSMutableArray array];
@@ -1894,7 +1895,8 @@ static BGFMDB* BGFmdb = nil;
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool{
         NSString* const tableName = @"BG_Dictionary";
-        [self queryQueueWithTableName:tableName conditions:@"order by BG_ID asc" complete:^(NSArray * _Nullable array) {
+        NSString* condition = [NSString stringWithFormat:@"order by %@ asc",bg_sqlKey(bg_primaryKey)];
+        [self queryQueueWithTableName:tableName conditions:condition complete:^(NSArray * _Nullable array) {
             BOOL stopFlag = NO;
             for(NSDictionary* dict in array){
                 NSArray* keyAndTypes = [dict[@"BG_value"] componentsSeparatedByString:@"$$$"];
