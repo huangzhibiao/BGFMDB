@@ -12,6 +12,8 @@
 // 过期方法注释
 //#define BGFMDBDeprecated(instead) NS_DEPRECATED(2_0, 2_0, 2_0, 2_0, instead)
 
+#define bg_uniqueKeySelector @"bg_uniqueKey"
+
 #define BG @"BG_"
 #define bg_primaryKey @"bg_id"
 #define bg_createTimeKey @"bg_createTime"
@@ -60,7 +62,11 @@ extern NSString* _Nonnull bg_sqlValue(id _Nonnull value);
  根据keyPath和Value的数组, 封装成数据库语句，来操作库.
  */
 extern NSString* _Nonnull bg_keyPathValues(NSArray* _Nonnull keyPathValues);
-
+/**
+ 直接执行sql语句;
+ @className 要操作的类名.
+ */
+extern id _Nullable bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className);
 /**
  自定义数据库名称.
  */

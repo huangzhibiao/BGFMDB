@@ -56,7 +56,6 @@ NSString* bg_sqlValue(id value){
 NSString* bg_keyPathValues(NSArray* keyPathValues){
     return [BGTool getLikeWithKeyPathAndValues:keyPathValues where:NO];
 }
-
 /**
  自定义数据库名称.
  */
@@ -897,7 +896,7 @@ void bg_setDebug(BOOL debug){
     //检查是否建立了跟对象相对应的数据表
     NSString* tableName = NSStringFromClass([object class]);
     //获取"唯一约束"字段名
-    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_uniqueKey") forClass:[object class]];//[BGTool getUnique:object];
+    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(bg_uniqueKeySelector) forClass:[object class]];
     __block BOOL isExistTable;
     [[BGFMDB shareManager] isExistWithTableName:tableName complete:^(BOOL isExist) {
         if (!isExist){//如果不存在就新建

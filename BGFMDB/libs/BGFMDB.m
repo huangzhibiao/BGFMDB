@@ -365,7 +365,7 @@ static BGFMDB* BGFmdb = nil;
         [dictArray enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull dict, NSUInteger idx, BOOL * _Nonnull stop) {
             @autoreleasepool {
                 NSMutableArray* arguments = [NSMutableArray array];
-                NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_uniqueKey") forClass:NSClassFromString(name)];
+                NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(bg_uniqueKeySelector) forClass:NSClassFromString(name)];
                 NSString* sqlUniqueKey = [NSString stringWithFormat:@"%@%@",BG,uniqueKey];
                 NSString* where = nil;
                 NSMutableDictionary* tempDict = [[NSMutableDictionary alloc] initWithDictionary:dict];
@@ -397,7 +397,7 @@ static BGFMDB* BGFmdb = nil;
 }
 -(void)queryQueueWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(bg_complete_A)complete{
     NSAssert(name,@"表名不能为空!");
-    NSAssert(conditions||conditions.length,@"查询条件不能为空!");
+    NSAssert(conditions&&conditions.length,@"查询条件不能为空!");
     NSMutableArray* arrM = [[NSMutableArray alloc] init];
     [self executeDB:^(FMDatabase * _Nonnull db){
         NSString* SQL = [NSString stringWithFormat:@"select * from %@ %@",name,conditions];
@@ -583,7 +583,7 @@ static BGFMDB* BGFmdb = nil;
 }
 -(void)updateQueueWithTableName:(NSString* _Nonnull)name valueDict:(NSDictionary* _Nullable)valueDict conditions:(NSString* _Nonnull)conditions complete:(bg_complete_B)complete{
     NSAssert(name,@"表名不能为空!");
-    NSAssert(conditions||conditions.length,@"查询条件不能为空!");
+    NSAssert(conditions&&conditions.length,@"查询条件不能为空!");
     __block BOOL result;
     [self executeDB:^(FMDatabase * _Nonnull db){
         NSString* SQL;
@@ -695,7 +695,7 @@ static BGFMDB* BGFmdb = nil;
 
 -(void)deleteQueueWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(bg_complete_B)complete{
     NSAssert(name,@"表名不能为空!");
-    NSAssert(conditions||conditions.length,@"查询条件不能为空!");
+    NSAssert(conditions&&conditions.length,@"查询条件不能为空!");
     __block BOOL result;
     [self executeDB:^(FMDatabase * _Nonnull db) {
         NSString* SQL = [NSString stringWithFormat:@"delete from %@ %@",name,conditions];
@@ -839,7 +839,7 @@ static BGFMDB* BGFmdb = nil;
  */
 -(NSInteger)countQueueForTable:(NSString* _Nonnull)name conditions:(NSString* _Nullable)conditions{
     NSAssert(name,@"表名不能为空!");
-    NSAssert(conditions||conditions.length,@"查询条件不能为空!");
+    NSAssert(conditions&&conditions.length,@"查询条件不能为空!");
     __block NSUInteger count=0;
     [self executeDB:^(FMDatabase * _Nonnull db) {
         NSString* SQL = [NSString stringWithFormat:@"select count(*) from %@ %@",name,conditions];
@@ -954,7 +954,7 @@ static BGFMDB* BGFmdb = nil;
 
 -(void)copyA:(NSString* _Nonnull)A toB:(NSString* _Nonnull)B keys:(NSArray<NSString*>* const _Nonnull)keys complete:(bg_complete_I)complete{
     //获取"唯一约束"字段名
-    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_uniqueKey") forClass:NSClassFromString(A)];//[BGTool getUnique:[NSClassFromString(A) new]];
+    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(bg_uniqueKeySelector) forClass:NSClassFromString(A)];//[BGTool getUnique:[NSClassFromString(A) new]];
     //建立一张临时表
     __block BOOL createFlag;
     [self createTableWithTableName:B keys:keys uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
@@ -1074,7 +1074,7 @@ static BGFMDB* BGFmdb = nil;
 
 -(void)copyA:(NSString* _Nonnull)A toB:(NSString* _Nonnull)B keyDict:(NSDictionary* const _Nullable)keyDict complete:(bg_complete_I)complete{
     //获取"唯一约束"字段名
-    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_uniqueKey") forClass:NSClassFromString(A)];//[BGTool getUnique:[NSClassFromString(A) new]];
+    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(bg_uniqueKeySelector) forClass:NSClassFromString(A)];//[BGTool getUnique:[NSClassFromString(A) new]];
     __block NSArray* keys = [BGTool getClassIvarList:NSClassFromString(A) onlyKey:NO];
     NSArray* newKeys = keyDict.allKeys;
     NSArray* oldKeys = keyDict.allValues;
@@ -1615,7 +1615,7 @@ static BGFMDB* BGFmdb = nil;
                 }
             }
             //获取"唯一约束"字段名
-            NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_uniqueKey") forClass:destCla];//[BGTool getUnique:[destCla new]];
+            NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(bg_uniqueKeySelector) forClass:destCla];//[BGTool getUnique:[destCla new]];
             [BGSelf createTableWithTableName:destTable keys:destKeyAndTypes uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
                 NSAssert(isSuccess,@"目标表创建失败,复制失败!");
             }];
@@ -1689,14 +1689,52 @@ static BGFMDB* BGFmdb = nil;
     }
     dispatch_semaphore_signal(self.semaphore);
 }
-
+/**
+ 直接执行sql语句
+ @className 要操作的类名
+ */
+-(id)bg_executeSql:(NSString* const _Nonnull)sql className:(NSString* _Nullable)className{
+    NSAssert(sql,@"sql语句不能为空!");
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    __block id result;
+    [self executeDB:^(FMDatabase * _Nonnull db){
+        if([sql hasPrefix:@"select"]){
+            // 1.查询数据
+            FMResultSet *rs = [db executeQuery:sql];
+            if (rs == nil) {
+                bg_debug(@"查询错误,数据不存在,请存储后再读取!");
+                result = nil;
+            }else{
+                result = [NSMutableArray array];
+            }
+            result = [NSMutableArray array];
+            // 2.遍历结果集
+            while (rs.next) {
+                NSMutableDictionary* dictM = [[NSMutableDictionary alloc] init];
+                for (int i=0;i<[[[rs columnNameToIndexMap] allKeys] count];i++) {
+                    dictM[[rs columnNameForIndex:i]] = [rs objectForColumnIndex:i];
+                }
+                [result addObject:dictM];
+            }
+            //查询完后要关闭rs，不然会报@"Warning: there is at least one open result set around after performing
+            [rs close];
+            //转换结果
+            result = [BGTool tansformDataFromSqlDataWithTableName:className array:result];
+        }else{
+            result = @([db executeUpdate:sql]);
+        }
+        bg_debug(sql);
+    }];
+    dispatch_semaphore_signal(self.semaphore);
+    return result;
+}
 #pragma mark 存储数组.
 
 /**
  直接存储数组.
  */
 -(void)saveArray:(NSArray* _Nonnull)array name:(NSString*)name complete:(bg_complete_B)complete{
-    NSAssert(array||array.count,@"数组不能为空!");
+    NSAssert(array&&array.count,@"数组不能为空!");
     NSAssert(name,@"唯一标识名不能为空!");
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {

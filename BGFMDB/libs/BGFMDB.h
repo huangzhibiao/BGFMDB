@@ -31,10 +31,6 @@
 //事务操作
 -(void)inTransaction:(BOOL (^_Nonnull)())block;
 /**
- 为了对象层的事物操作而封装的函数.
- */
--(void)executeDB:(void (^_Nonnull)(FMDatabase *_Nonnull db))block;
-/**
  注册数据变化监听.
  @claName 注册监听的类名.
  @name 注册名称,此字符串唯一,不可重复,移除监听的时候使用此字符串移除.
@@ -281,7 +277,11 @@
 -(void)refreshTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* const _Nonnull)keys complete:(bg_complete_I)complete;
 -(void)refreshQueueTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* const _Nonnull)keys complete:(bg_complete_I)complete;
 -(void)refreshTable:(NSString* _Nonnull)name keyDict:(NSDictionary* const _Nonnull)keyDict complete:(bg_complete_I)complete;
-
+/**
+ 直接执行sql语句
+ @className 要操作的类名
+ */
+-(id _Nullable)bg_executeSql:(NSString* const _Nonnull)sql className:(NSString* _Nullable)className;
 #pragma mark 存储数组.
 /**
  直接存储数组.

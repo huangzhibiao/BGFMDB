@@ -37,8 +37,10 @@
     [super viewDidLoad];
     //想测试更多功能,打开注释掉的代码即可.
     bg_setDebug(YES);//打开调试模式,打印输出调试信息.
+    
     //自定义数据库名称，否则默认为BGFMDB
     //bg_setSqliteName(@"Tencent");
+    
     //删除自定义数据库.
     //bg_deleteSqlite(@"Tencent");
     
@@ -46,11 +48,11 @@
      直接存储数组.
      */
     //[self testSaveArray];
+    
     /**
      直接存储字典.
     */
     //[self testSaveDictionary];
-    
     
     /**
      直接存储自定义对象.
@@ -309,6 +311,15 @@
 //        }
 //    }];
 
+    
+/**
+ 直接执行sql语句,参数1：sql语句；参数2：要操作的类名.
+ */
+//查询
+//NSArray* allPs = bg_executeSql(@"select BG_bsigned,BG_rect,BG_eye from People",@"People");
+//更新
+//NSNumber* result = bg_executeSql(@"update People set BG_eye='独眼' where BG_eye='末世眼皮'",@"People");
+    
 }
 
 #pragma mark 直接存储数组

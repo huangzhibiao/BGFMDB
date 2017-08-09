@@ -98,7 +98,7 @@
  */
 +(void)bg_saveOrUpdateArray:(NSArray*)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys{
     NSAssert(array||array.count,@"数组没有元素!");
-    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_uniqueKey") forClass:[self class]];
+    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(bg_uniqueKeySelector) forClass:[self class]];
     if (uniqueKey) {
         id uniqueKeyVlaue = [array.lastObject valueForKey:uniqueKey];
         NSInteger count = [[array.lastObject class] bg_countWhere:@[uniqueKey,@"=",uniqueKeyVlaue]];
@@ -126,7 +126,7 @@
  当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
  */
 -(BOOL)bg_saveOrUpdate{
-    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_uniqueKey") forClass:[self class]];//[BGTool getUnique:self];
+    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(bg_uniqueKeySelector) forClass:[self class]];//[BGTool getUnique:self];
     if (uniqueKey) {
         id uniqueKeyVlaue = [self valueForKey:uniqueKey];
         NSInteger count = [[self class] bg_countWhere:@[uniqueKey,@"=",uniqueKeyVlaue]];
@@ -939,6 +939,17 @@
 +(BOOL)bg_removeChangeWithName:(NSString* const _Nonnull)name{
      NSString* uniqueName = [NSString stringWithFormat:@"%@*%@",NSStringFromClass([self class]),name];
     return [[BGFMDB shareManager] removeChangeWithName:uniqueName];
+}
+
+/**
+ 直接执行sql语句;
+  .
+ */
+id bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className){
+    id result = [[BGFMDB shareManager] bg_executeSql:sql className:className];
+    //关闭数据库
+    [[BGFMDB shareManager] closeDB];
+    return result;
 }
 
 #pragma mark 下面附加字典转模型API,简单好用,在只需要字典转模型功能的情况下,可以不必要再引入MJExtension那么多文件,造成代码冗余,缩减安装包.
