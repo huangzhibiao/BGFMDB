@@ -1718,8 +1718,10 @@ static BGFMDB* BGFmdb = nil;
             }
             //查询完后要关闭rs，不然会报@"Warning: there is at least one open result set around after performing
             [rs close];
-            //转换结果
-            result = [BGTool tansformDataFromSqlDataWithTableName:className array:result];
+            if(className){
+                //转换结果
+                result = [BGTool tansformDataFromSqlDataWithTableName:className array:result];
+            }
         }else{
             result = @([db executeUpdate:sql]);
         }

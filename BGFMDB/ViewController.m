@@ -313,13 +313,33 @@
 
     
 /**
- 直接执行sql语句,参数1：sql语句；参数2：要操作的类名.
+ 直接执行sql语句,参数1：sql语句；参数2：要操作的类名.(如果不传入，那返回的结果是一个字典，里面包含了数据库字段名和字段值)
+ 提示：字段名要增加BG_前缀
  */
-//查询
+////查询
 //NSArray* allPs = bg_executeSql(@"select BG_bsigned,BG_rect,BG_eye from People",@"People");
-//更新
+////更新
 //NSNumber* result = bg_executeSql(@"update People set BG_eye='独眼' where BG_eye='末世眼皮'",@"People");
-    
+//
+////建表
+//bg_executeSql(@"reate table TbDept (deptno tinyint primary key,dname varchar(10) not null,dloc varchar(20) not null);",nil);
+////插入数据
+//bg_executeSql(@"insert into TbDept values (10, '会计部', '北京');", nil);
+//bg_executeSql(@"insert into TbDept values (20, '研发部', '成都');", nil);
+//bg_executeSql(@"insert into TbDept values (30, '销售部', '重庆');", nil);
+//bg_executeSql(@"insert into TbDept values (40, '运维部', '深圳');", nil);
+////建表
+//bg_executeSql(@"create table TbEmp(empno int primary key,ename varchar(20) not null,job varchar(10) not null,mgr int,sal int not null,dno tinyint,foreign key (dno) references TbDept(deptno));",nil);
+////插入数据
+//bg_executeSql(@"insert into TbEmp values (7800, '张三丰', '总裁', null, 9000, 20);", nil);
+//bg_executeSql(@"insert into TbEmp values (2056, '乔峰', '分析师', 7800, 5000, 20);", nil);
+//bg_executeSql(@"insert into TbEmp values (3088, '李莫愁', '设计师', 2056, 3500, 20);", nil);
+//bg_executeSql(@"insert into TbEmp values (3211, '张无忌', '程序员', 2056, 3200, 20);", nil);
+//bg_executeSql(@"insert into TbEmp values (3233, '丘处机', '程序员', 2056, 3400, 20);", nil);
+//bg_executeSql(@"insert into TbEmp values (3251, '张翠山', '程序员', 2056, 4000, 20);", nil);
+//bg_executeSql(@"insert into TbEmp values (5566, '宋远桥', '会计师', 7800, 4000, 10);", nil);
+////查询
+//NSArray* results = bg_executeSql(@"select ename, sal from TbEmp where sal=(select max(sal) from TbEmp);", nil);
 }
 
 #pragma mark 直接存储数组

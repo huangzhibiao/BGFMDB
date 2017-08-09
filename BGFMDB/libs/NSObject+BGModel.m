@@ -943,7 +943,8 @@
 
 /**
  直接执行sql语句;
-  .
+ @className 要操作的类名.(如果不传入，那返回的结果是一个字典，里面包含了数据库字段名和字段值)
+ 提示：字段名要增加BG_前缀
  */
 id bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className){
     id result = [[BGFMDB shareManager] bg_executeSql:sql className:className];

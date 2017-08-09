@@ -64,7 +64,8 @@ extern NSString* _Nonnull bg_sqlValue(id _Nonnull value);
 extern NSString* _Nonnull bg_keyPathValues(NSArray* _Nonnull keyPathValues);
 /**
  直接执行sql语句;
- @className 要操作的类名.
+ @className 要操作的类名.(如果不传入，那返回的结果是一个字典，里面包含了数据库字段名和字段值)
+ 提示：字段名要增加BG_前缀
  */
 extern id _Nullable bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className);
 /**
