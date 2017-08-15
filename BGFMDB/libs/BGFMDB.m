@@ -13,7 +13,7 @@
 /**
  默认数据库名称
  */
-#define SQLITE_NAME @"BGFMDB.sqlite"
+#define SQLITE_NAME @"BGFMDB.db"
 
 // 日志输出
 #ifdef DEBUG
@@ -82,7 +82,7 @@ static BGFMDB* BGFmdb = nil;
  删除数据库文件.
  */
 +(BOOL)deleteSqlite:(NSString*)sqliteName{
-    NSString* filePath = CachePath(([NSString stringWithFormat:@"%@.sqlite",sqliteName]));
+    NSString* filePath = CachePath(([NSString stringWithFormat:@"%@.db",sqliteName]));
     NSFileManager * file_manager = [NSFileManager defaultManager];
     NSError* error;
     if ([file_manager fileExistsAtPath:filePath]) {
@@ -108,12 +108,12 @@ static BGFMDB* BGFmdb = nil;
     //获得沙盒中的数据库文件名
     NSString* name;
     if(_sqliteName) {
-        name = [NSString stringWithFormat:@"%@.sqlite",_sqliteName];
+        name = [NSString stringWithFormat:@"%@.db",_sqliteName];
     }else{
         name = SQLITE_NAME;
     }
     NSString *filename = CachePath(name);
-    //NSLog(@"数据库路径 = %@",filename);
+    NSLog(@"数据库路径 = %@",filename);
     _queue = [FMDatabaseQueue databaseQueueWithPath:filename];
     return _queue;
 }
