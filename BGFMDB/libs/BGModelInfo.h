@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 //保存到数据库的类型
 @property (nonatomic, copy, readonly) NSString *sqlColumnType;
 //保存到数据库的值
-@property (nonatomic, copy, readonly) id sqlColumnValue;
+@property (nonatomic, strong, readonly) id sqlColumnValue;
 
 //获取对象相关信息
 +(NSArray<BGModelInfo*>*)modelInfoWithObject:(id)object;
