@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 //属性的类型
 @property (nonatomic, copy, readonly) NSString *propertyType;
 //属性值
-@property (nonatomic, copy, readonly) NSString *propertyValue;
+@property (nonatomic, strong, readonly) id propertyValue;
 
 //保存到数据库的列名
 @property (nonatomic, copy, readonly) NSString *sqlColumnName;

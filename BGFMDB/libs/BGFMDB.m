@@ -113,7 +113,7 @@ static BGFMDB* BGFmdb = nil;
         name = SQLITE_NAME;
     }
     NSString *filename = CachePath(name);
-    NSLog(@"数据库路径 = %@",filename);
+    //NSLog(@"数据库路径 = %@",filename);
     _queue = [FMDatabaseQueue databaseQueueWithPath:filename];
     return _queue;
 }
@@ -268,7 +268,7 @@ static BGFMDB* BGFmdb = nil;
         }
         
         if(uniqueKey){
-            NSAssert(uniqueKeyFlag,@"没有找到设置的主键,请检查primarykey返回值是否正确!");
+            NSAssert(uniqueKeyFlag,@"没有找到设置的'唯一约束',请检查uniqueKey返回值是否正确!");
         }
         bg_debug(sql);
         result = [db executeUpdate:sql];

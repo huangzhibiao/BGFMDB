@@ -45,7 +45,7 @@
             if(propertyValue){
                 //设置属性值
                 [info setValue:propertyValue forKey:@"propertyValue"];
-                sqlValue = [BGTool getSqlValue:propertyValue type:propertyType encode:YES];
+                sqlValue = [BGTool getSqlValue:propertyValue type:propertyType encode:YES];        
                 //设置将要存储到数据库的值
                 [info setValue:sqlValue forKey:@"sqlColumnValue"];
                 [modelInfos addObject:info];

@@ -124,7 +124,7 @@
     /**
      更新age=5的数据成当前对象数据,忽略name不用更新.
      */
-    //[p bg_updateWhere:@[@"age",@"=",@(50)] ignoreKeys:@[@"name"]];
+    //[pp bg_updateWhere:@[@"age",@"=",@(50)] ignoreKeys:@[@"name"]];
     
     
     /**
@@ -494,14 +494,14 @@
     p.students = @[@(1),@"呵呵",@[@"数组元素1",@"数组元素2"],@{@"集合key":@"集合value"},student,data,student];
     p.infoDic = @{@"name":@"标哥",@"年龄":@(1),@"数组":@[@"数组1",@"数组2"],@"集合":@{@"集合1":@"集合2"},@"user":user,@"data":data};
     
-    NSHashTable* hashTable = [NSHashTable hashTableWithOptions:NSPointerFunctionsWeakMemory];
+    NSHashTable* hashTable = [NSHashTable new];
     [hashTable addObject:@"h1"];
     [hashTable addObject:@"h2"];
     [hashTable addObject:student];
-    NSMapTable* mapTable = [NSMapTable  weakToWeakObjectsMapTable];
-    [mapTable setObject:@"m_key1" forKey:@"m_value1"];
-    [mapTable setObject:@"m_key2" forKey:@"m_value2"];
-    [mapTable setObject:@"m_key3" forKey:user];
+    NSMapTable* mapTable = [NSMapTable  new];
+    [mapTable setObject:@"m_value1" forKey:@"m_key1"];
+    [mapTable setObject:@"m_value2" forKey:@"m_key2"];
+    [mapTable setObject:user forKey:@"m_key3"];
     NSSet* set1 = [NSSet setWithObjects:@"1",@"2",student, nil];
     NSMutableSet* set2 = [NSMutableSet set];
     [set2 addObject:@{@"key1":@"value"}];
