@@ -26,6 +26,7 @@
 - (IBAction)stockAction:(id)sender;
 - (IBAction)dictToModelAction:(id)sender;
 
+- (IBAction)multithreadTestAction:(id)sender;
 
 
 @end
@@ -521,20 +522,29 @@
     p.date = [NSDate date];
     return p;
 }
+/**
+ 插入
+ */
 - (IBAction)insertAction:(id)sender {
     People* p = [self people];
     [p bg_save];
 }
-
+/**
+ 删除
+ */
 - (IBAction)deleteAction:(id)sender{
     [People bg_deleteWhere:@[bg_primaryKey,@"=",@(1)]];
 }
-
+/**
+ 更新
+ */
 - (IBAction)updateAction:(id)sender {
     People* p = [self people];
     [p bg_updateWhere:@[bg_primaryKey,@"=",@(1)]];
 }
-
+/**
+ 数据库变化监听
+ */
 - (IBAction)registerChangeAction:(id)sender{
     [People bg_registerChangeWithName:@"insert" block:^(bg_changeState result) {
         switch (result) {
@@ -556,17 +566,45 @@
     }];
 }
 
+/**
+ 移除监听
+ */
 - (IBAction)removeChangeAction:(id)sender{
     [People bg_removeChangeWithName:@"insert"];
 }
-
+/**
+ 模拟股票数据
+ */
 - (IBAction)stockAction:(id)sender {
     stockController* con = [stockController new];
     [self presentViewController:con animated:YES completion:nil];
 }
-
+/**
+ 字典转模型
+ */
 - (IBAction)dictToModelAction:(id)sender{
     dictToModelController* con = [dictToModelController new];
     [self presentViewController:con animated:YES completion:nil];
+}
+/**
+ 多线程安全测试
+ */
+- (IBAction)multithreadTestAction:(id)sender {
+    People* p = [self people];
+    for(int i=0;i<20;i++){
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+            NSLog(@"存储...");
+            [p bg_save];
+        });
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+            NSLog(@"更新...");
+            [People bg_updateFormatSqlConditions:@"set %@=%@ where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"标哥"),bg_sqlKey(@"name"),bg_sqlValue(@"斯巴达")];
+        });
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+            People* pp = [People bg_lastObject];
+            NSLog(@"bg_id = %@",pp.bg_id);
+        });
+    }
+
 }
 @end

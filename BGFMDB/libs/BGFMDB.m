@@ -73,10 +73,12 @@ static BGFMDB* BGFmdb = nil;
 -(void)closeDB{
     if(_disableCloseDB)return;
     
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     if(!_inTransaction && _queue) {//没有事务的情况下就关闭数据库.
         [_queue close];//关闭数据库.
         _queue = nil;
     }
+    dispatch_semaphore_signal(self.semaphore);
 }
 /**
  删除数据库文件.
@@ -159,11 +161,12 @@ static BGFMDB* BGFmdb = nil;
         block(_db);
         return;
     }
-    __weak typeof(self) BGSelf = self;
-    [self.queue inDatabase:^(FMDatabase *db) {
-        BGSelf.db = db;
+    __weak typeof(self) weakSelf = self;
+    [self.queue inDatabase:^(FMDatabase *db){
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        strongSelf.db = db;
         block(db);
-        BGSelf.db = nil;
+        strongSelf.db = nil;
     }];
     
     //[self.threadLock unlock];//解锁
