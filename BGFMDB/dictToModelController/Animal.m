@@ -45,4 +45,12 @@
 +(NSDictionary *)bg_dictForCustomClass{
     return @{@"body":[Body class],@"dog":[Dog class]};
 }
+/**
+ 替换变量的功能(及当字典的key和属性名不一样时，进行映射对应起来)
+ 即将字典里key为descri的值 赋给 属性名为intro的变量,性别和sex同理.
+ */
++(NSDictionary *)bg_replacedKeyFromPropertyName{
+    return @{@"descri":@"intro",@"性别":@"sex"};
+}
+
 @end

@@ -90,6 +90,14 @@ void bg_setDebug(BOOL debug){
 }
 
 /**
+ 事务操作.
+ @return 返回YES提交事务, 返回NO回滚事务.
+ */
+void bg_inTransaction(BOOL (^ _Nonnull block)()){
+    [[BGFMDB shareManager] inTransaction:block];
+}
+
+/**
  json字符转json格式数据 .
  */
 +(id)jsonWithString:(NSString*)jsonString {
@@ -623,8 +631,9 @@ void bg_setDebug(BOOL debug){
     }else{
         NSAssert(NO,@"数据格式错误!, 只能转换字典或json格式数据.");
     }
-    NSDictionary* const objectClaInArr = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_objectClassInArray") forClass:[object class]];//[self getClassInArrayType:object];
+    NSDictionary* const objectClaInArr = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_objectClassInArray") forClass:[object class]];
     NSDictionary* const objectClaForCustom = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_objectClassForCustom") forClass:[object class]];
+    NSDictionary* const bg_replacedKeyFromPropertyNameDict = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_replacedKeyFromPropertyName") forClass:[object class]];
     NSArray* const claKeys = [self getClassIvarList:cla onlyKey:YES];
     //遍历自定义变量集合信息.
     !objectClaForCustom?:[objectClaForCustom enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull customKey, id  _Nonnull customObj, BOOL * _Nonnull stop) {
@@ -637,6 +646,17 @@ void bg_setDebug(BOOL debug){
             }
         }
     }];
+    
+    //处理要替换的key和属性名.
+    if(bg_replacedKeyFromPropertyNameDict && bg_replacedKeyFromPropertyNameDict.count){
+        [bg_replacedKeyFromPropertyNameDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+            if([dataDict.allKeys containsObject:key]){
+                dataDict[obj] = dataDict[key];
+                [dataDict removeObjectForKey:key];
+            }
+        }];
+    }
+    
     [dataDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull dataDictObj, BOOL * _Nonnull stop) {
         for(NSString* claKey in claKeys){
             if ([key isEqualToString:claKey]){

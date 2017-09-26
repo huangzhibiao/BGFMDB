@@ -915,13 +915,7 @@
         bg_completeBlock(state);
     });
 }
-/**
- 事务操作.
- @return 返回YES提交事务, 返回NO回滚事务.
- */
-+(void)bg_inTransaction:(BOOL (^_Nonnull)())block{
-    [[BGFMDB shareManager] inTransaction:block];
-}
+
 /**
  注册数据变化监听.
  @name 注册名称,此字符串唯一,不可重复,移除监听的时候使用此字符串移除.
@@ -964,6 +958,18 @@ id bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className){
 }
 +(id)bg_objectWithDictionary:(NSDictionary *)dictionary{
     return [BGTool bg_objectWithClass:[self class] value:dictionary];
+}
+/**
+ 直接传数组批量处理;
+ 注:array中的元素是字典,否则出错.
+ */
++(NSArray* _Nonnull)bg_objectArrayWithKeyValuesArray:(NSArray* const _Nonnull)array{
+    NSMutableArray* results = [NSMutableArray array];
+    for (id value in array) {
+        id obj = [BGTool bg_objectWithClass:[self class] value:value];
+        [results addObject:obj];
+    }
+    return results;
 }
 /**
  模型转字典.

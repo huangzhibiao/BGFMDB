@@ -38,6 +38,10 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  模型转字典用.
  */
 +(NSDictionary *_Nonnull)bg_dictForCustomClass;
+/**
+替换变量的功能(及当字典的key和属性名不一样时，进行映射对应起来)
+*/
++(NSDictionary *_Nonnull)bg_replacedKeyFromPropertyName;
 @end
 
 @interface NSObject (BGModel)<BGProtocol>
@@ -441,11 +445,6 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  */
 +(void)bg_copyAsyncToClass:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append complete:(bg_complete_I)complete;
 /**
- 事务操作.
- @return 返回YES提交事务, 返回NO回滚事务.
- */
-+(void)bg_inTransaction:(BOOL (^_Nonnull)())block;
-/**
  注册数据变化监听.
  @name 注册名称,此字符串唯一,不可重复,移除监听的时候使用此字符串移除.
  @return YES: 注册监听成功; NO: 注册监听失败.
@@ -464,8 +463,13 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  @keyValues 字典(NSDictionary)或json格式字符.
  说明:如果模型中有数组且存放的是自定义的类(NSString等系统自带的类型就不必要了),那就实现objectClassInArray这个函数返回一个字典,key是数组名称,value是自定的类Class,用法跟MJExtension一样.
  */
-+(id _Nonnull)bg_objectWithKeyValues:(id _Nonnull)keyValues;
-+(id _Nonnull)bg_objectWithDictionary:(NSDictionary* _Nonnull)dictionary;
++(id _Nonnull)bg_objectWithKeyValues:(id const _Nonnull)keyValues;
++(id _Nonnull)bg_objectWithDictionary:(NSDictionary* const _Nonnull)dictionary;
+/**
+ 直接传数组批量处理;
+ 注:array中的元素是字典,否则出错.
+ */
++(NSArray* _Nonnull)bg_objectArrayWithKeyValuesArray:(NSArray* const _Nonnull)array;
 /**
  模型转字典.
  @ignoredKeys 忽略掉模型中的哪些key(即模型变量)不要转,nil时全部转成字典.

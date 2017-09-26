@@ -31,15 +31,24 @@
     //一代码搞定字典转模型.
     My* my = [My bg_objectWithDictionary:dictMy];
     
+    /**
+     批量转化.
+     */
+    NSArray* mys = [My bg_objectArrayWithKeyValuesArray:@[dictMy,dictMy,dictMy]];
+    
     Body* body = [Body new];
     body.hand = @"手";
     body.leg = @"脚";
     //一句代码搞定模型转字典.
     NSDictionary* dictBodyAll = [my bg_keyValuesIgnoredKeys:nil];
+    
     //忽略掉hand不转.
     NSDictionary* dictBody = [my bg_keyValuesIgnoredKeys:@[@"foods"]];
+    
     [my bg_save];
+    
     NSArray* myArr = [My bg_findAll];
+    
     NSLog(@"断点察看结果");
 }
 
@@ -66,6 +75,8 @@
 -(NSDictionary*)getMyDict{
     NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
     dictM[@"name"] = @"小明";
+    dictM[@"descri"] = @"标哥最帅了...";
+    dictM[@"性别"] = @"男";
     dictM[@"dogs"] = @[[self getDogDict],[self getDogDict],[self getDogDict]];
     dictM[@"bodys"] = @[[self getBodyDict],[self getBodyDict]];
     dictM[@"foods"] = @[@"米饭",@"水果",@"蔬菜"];

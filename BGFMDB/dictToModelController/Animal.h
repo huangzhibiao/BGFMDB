@@ -37,6 +37,8 @@
 @interface My : NSObject
 
 @property(nonatomic,copy)NSString* name;
+@property(nonatomic,copy)NSString* intro;
+@property(nonatomic,copy)NSString* sex;
 @property(nonatomic,strong)NSArray* dogs;
 @property(nonatomic,strong)NSArray* bodys;
 @property(nonatomic,strong)NSArray* foods;

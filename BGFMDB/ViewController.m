@@ -36,10 +36,19 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    //想测试更多功能,打开注释掉的代码即可.
+    /**
+     想测试更多功能,打开注释掉的代码即可.
+     */
     bg_setDebug(YES);//打开调试模式,打印输出调试信息.
     
-    //自定义数据库名称，否则默认为BGFMDB
+    /**
+     如果频繁操作数据库时,建议进行此设置(即在操作过程不关闭数据库);
+     */
+    //bg_setDisableCloseDB(YES);
+    
+    /**
+     自定义数据库名称，否则默认为BGFMDB
+     */
     //bg_setSqliteName(@"Tencent");
     
     //删除自定义数据库.
@@ -110,12 +119,11 @@
     /**
      事务操作,返回YES提交事务,返回NO则回滚事务.
      */
-//    [NSObject bg_inTransaction:^BOOL{
+//    bg_inTransaction(^BOOL{
 //        [p bg_save];//存储
-//        [p bg_save];
-//        [People bg_clear];//清除全部People的数据.
-//        return YES;
-//    }];
+//        //[People bg_clear];//清除全部People的数据.
+//        return NO;
+//    });
     
     /**
      将People类数据中name=@"标哥"，num=220.88的数据更新为当前对象的数据.
