@@ -34,7 +34,7 @@ LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo
 platform :ios, '8.0'
 
 target '工程名称' do
-pod ‘BGFMDB’, '~> 1.43’
+pod ‘BGFMDB’, '~> 1.45’
 end
 ```
 ## 直接下载库代码使用方式.
@@ -271,11 +271,11 @@ NSInteger version = [People bg_version];
 /**
 事务操作,返回YES提交事务,返回NO则回滚事务.
 */
-[NSObject bg_inTransaction:^BOOL{
-       [p save];//存储
-       [p save];
-       return NO;
-}];
+bg_inTransaction(^BOOL{
+        [p bg_save];//存储
+        //[People bg_clear];//清除全部People的数据.
+        return NO;
+    });
 ```
 ### 快速查询数据条数
 ```Objective-C
