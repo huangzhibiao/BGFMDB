@@ -39,6 +39,7 @@
     /**
      想测试更多功能,打开注释掉的代码即可.
      */
+    
     bg_setDebug(YES);//打开调试模式,打印输出调试信息.
     
     /**
@@ -214,20 +215,32 @@
      */
     NSInteger count = [People bg_countWhere:nil];
     for(int i=0;i<count;i+=10){
-            NSArray* arr = [People bg_findAllWithRange:NSMakeRange(i,10) orderBy:nil desc:NO];
+        NSArray* arr = [People bg_findAllWithRange:NSMakeRange(i,10) orderBy:nil desc:NO];
         for(People* pp in arr){
+            //具体数据请断点查看
             //库新增两个自带字段createTime和updateTime方便开发者使用和做参考对比.
              NSLog(@"主键 = %@, 创建时间 = %@, 更新时间 = %@",pp.bg_id,pp.bg_createTime,pp.bg_updateTime);
-//            NSDateFormatter* formatter = [NSDateFormatter new];
-//            formatter.dateFormat = @"yyyy年MM月dd日 HH时mm分ss秒";
-//            NSLog(@"date = %@",[formatter stringFromDate:pp.date]);
         }
-            if(i==0){
-                People* p = arr.lastObject;
-                _showImage.image = p.image;
-                _showLab.attributedText = p.attriStr;
-            }
+        //顺便取第一个对象数据测试
+        if(i==0){
+            People* p = arr.lastObject;
+            _showImage.image = p.image;
+            _showLab.attributedText = p.attriStr;
+        }
     }
+    
+    /**
+     同步查询People类所有数据.
+     */
+//    NSArray* finfAlls = [People bg_findAll];
+//    for(People* pp in finfAlls){
+//        //具体数据请断点查看
+//        NSLog(@"主键 = %@, 创建时间 = %@, 更新时间 = %@",pp.bg_id,pp.bg_createTime,pp.bg_updateTime);
+//    }
+//    //顺便取第一个对象数据测试
+//    People* lastObj = finfAlls.lastObject;
+//    _showImage.image = [UIImage imageWithData:lastObj.data2];
+//    self.view.backgroundColor = lastObj.color?lastObj.color:[UIColor whiteColor];
     
     /**
      查询某一时间段的数据
@@ -236,28 +249,6 @@
 //    for(People* pp in arr){
 //        //库新增两个自带字段createTime和updateTime方便开发者使用和做参考对比.
 //        NSLog(@"pp主键 = %@, pp创建时间 = %@, pp更新时间 = %@",pp.bg_id,pp.bg_createTime,pp.bg_updateTime);
-//    }
-    
-    /**
-     同步查询People类所有数据.
-     */
-//    NSArray* finfAlls = [People bg_findAll];
-//    People* lastObj = finfAlls.lastObject;
-//    _showImage.image = [UIImage imageWithData:lastObj.data2];
-//    self.view.backgroundColor = lastObj.color?lastObj.color:[UIColor whiteColor];
-//    for(People* obj in finfAlls){
-//        for(id value in obj.nsset){
-//            NSLog(@"NSSet = %@",value);
-//        }
-//
-//        for(id value in obj.mapTable.objectEnumerator.allObjects){
-//            NSLog(@"mapTable = %@",value);
-//        }
-//        for(id value in obj.hashTable){
-//            NSLog(@"hashTable = %@",value);
-//        }
-//        NSLog(@"主键ID = %@",obj.ID);
-//        NSLog(@"查询结果： name = %@，testAge = %d,testName = %@,num = %@,age = %d,students = %@,info = %@,eye = %@,user.name = %@,user.密码 = %@ , user.student.num = %@,user.student.names[0] = %@, user.student.humane.sex = %@,p.user.student.human.body = %@",obj.name,obj->testAge,obj->testName,obj.num,obj.age,obj.students,obj.info,obj.eye,obj.user.name,obj.user.attri[@"密码"],obj.user.student.num,obj.user.student.names[0],obj.user.student.human.sex,obj.user.student.human.body);
 //    }
     
     /**
@@ -296,8 +287,9 @@
      异步查询People类的数据,查询限制3条,通过age降序排列.
      */
 //    [People bg_findAllAsyncWithLimit:3 orderBy:@"age" desc:YES complete:^(NSArray * _Nullable array) {
-//        for(People* p in array){
-//            NSLog(@"查询结果： name = %@，testAge = %d,testName = %@,num = %@,age = %d,students = %@,info = %@,eye = %@,user.name = %@,user.密码 = %@ , user.student.num = %@,user.student.names[0] = %@, user.student.humane.sex = %@,p.user.student.human.body = %@",p.name,p->testAge,p->testName,p.num,p.age,p.students,p.info,p.eye,p.user.name,p.user.attri[@"密码"],p.user.student.num,p.user.student.names[0],p.user.student.human.sex,p.user.student.human.body);
+//        for(People* pp in array){
+//            //具体数据请断点查看
+//            NSLog(@"主键 = %@, 创建时间 = %@, 更新时间 = %@",pp.bg_id,pp.bg_createTime,pp.bg_updateTime);
 //        }
 //    }];
     
@@ -315,8 +307,9 @@
      异步查询People类的数据,查询范围从第10处开始的后面5条,不排序.
      */
 //    [People bg_findAllAsyncWithRange:NSMakeRange(10,5) orderBy:nil desc:NO complete:^(NSArray * _Nullable array) {
-//        for(People* p in array){
-//            NSLog(@"查询结果： name = %@，testAge = %d,testName = %@,num = %@,age = %d,students = %@,info = %@,eye = %@,user.name = %@,user.密码 = %@ , user.student.num = %@,user.student.names[0] = %@, user.student.humane.sex = %@,p.user.student.human.body = %@",p.name,p->testAge,p->testName,p.num,p.age,p.students,p.info,p.eye,p.user.name,p.user.attri[@"密码"],p.user.student.num,p.user.student.names[0],p.user.student.human.sex,p.user.student.human.body);
+//        for(People* pp in array){
+//        //具体数据请断点查看
+//        NSLog(@"主键 = %@, 创建时间 = %@, 更新时间 = %@",pp.bg_id,pp.bg_createTime,pp.bg_updateTime);
 //        }
 //    }];
 
