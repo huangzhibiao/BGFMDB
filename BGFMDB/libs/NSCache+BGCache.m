@@ -11,7 +11,7 @@
 static NSCache* keyCaches;
 @implementation NSCache (BGCache)
 
-+(instancetype)cache{
++(instancetype)bg_cache{
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         keyCaches = [NSCache new];

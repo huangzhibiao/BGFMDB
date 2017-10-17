@@ -12,7 +12,6 @@
 #define bg_completeBlock(obj) !complete?:complete(obj);
 
 @interface BGTool : NSObject
-
 /**
  json字符转json格式数据 .
  */

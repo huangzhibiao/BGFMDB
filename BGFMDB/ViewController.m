@@ -10,6 +10,7 @@
 #import "stockController.h"
 #import "dictToModelController.h"
 #import "people.h"
+#import "BGTool.h"
 
 @interface ViewController ()
 
@@ -39,7 +40,6 @@
     /**
      想测试更多功能,打开注释掉的代码即可.
      */
-    
     bg_setDebug(YES);//打开调试模式,打印输出调试信息.
     
     /**
@@ -69,11 +69,17 @@
      直接存储自定义对象.
      */
     People* p = [self people];
-    
     /**
      存储
      */
     [p bg_save];
+    
+    /**
+     同步存储或更新.
+     当"唯一约束"或"主键"存在时，此接口会更新旧数据,没有则存储新数据.
+     提示：“唯一约束”优先级高于"主键".
+     */
+    //[p bg_saveOrUpdate];
     
     /**
      查询某一行的数据, 从0行开始算起.
@@ -90,13 +96,6 @@
      */
 //    NSInteger num = [People bg_sqliteMethodWithType:bg_sum key:@"age" where:@"where %@>20 and %@=%@",sqlKey(@"age"),sqlKey(@"name"),sqlValue(@"斯巴达")];
 //    NSLog(@"sum(age) = %@",@(num));
-    
-    /**
-     同步存储或更新.
-     当"唯一约束"或"主键"存在时，此接口会更新旧数据,没有则存储新数据.
-     提示：“唯一约束”优先级高于"主键".
-     */
-    //[p bg_saveOrUpdate];
     
     /**
      忽略存储，即忽略掉 user,info,students 这三个变量不存储.

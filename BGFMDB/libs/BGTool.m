@@ -37,7 +37,6 @@ typedef void (^BGClassesEnumeration)(Class c, BOOL *stop);
 static NSSet *foundationClasses_;
 
 @implementation BGTool
-
 /**
  封装处理传入数据库的key和value.
  */
@@ -101,7 +100,7 @@ void bg_inTransaction(BOOL (^ _Nonnull block)()){
  清除缓存
  */
 void bg_cleanCache(){
-    [[NSCache cache] removeAllObjects];
+    [[NSCache bg_cache] removeAllObjects];
 }
 /**
  json字符转json格式数据 .
@@ -184,7 +183,7 @@ void bg_cleanCache(){
 +(NSArray*)getClassIvarList:(__unsafe_unretained Class)cla onlyKey:(BOOL)onlyKey{
     
     //获取缓存的属性信息
-    NSCache* cache = [NSCache cache];
+    NSCache* cache = [NSCache bg_cache];
     NSArray* cachekeys = [cache objectForKey:NSStringFromClass(cla)];
     if(cachekeys) {
         return cachekeys;
@@ -221,7 +220,7 @@ void bg_cleanCache(){
         }
         free(vars);//释放资源
     }];
-    //存储缓存的属性信息
+    //缓存的属性信息
     [cache setObject:keys forKey:NSStringFromClass(cla)];
     return keys;
 }

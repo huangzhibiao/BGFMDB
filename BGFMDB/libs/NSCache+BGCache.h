@@ -10,6 +10,6 @@
 
 @interface NSCache (BGCache)
 
-+(instancetype)cache;
++(instancetype)bg_cache;
 
 @end
