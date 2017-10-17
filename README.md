@@ -34,7 +34,7 @@ LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo
 platform :ios, '8.0'
 
 target '工程名称' do
-pod ‘BGFMDB’, '~> 1.45’
+pod ‘BGFMDB’, '~> 1.46’
 end
 ```
 ## 直接下载库代码使用方式.
@@ -105,9 +105,10 @@ People* p = [self people];
 
 /**
  同步存储或更新.
- 当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
+ 当"唯一约束"或"主键"存在时，此接口会更新旧数据,没有则存储新数据.
+ 提示：“唯一约束”优先级高于"主键".
  */
-[p bg_saveOrUpdate];
+ [p bg_saveOrUpdate];
 ```
 ### 查询
 ```Objective-C
