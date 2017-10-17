@@ -184,8 +184,10 @@ void bg_cleanCache(){
     
     //获取缓存的属性信息
     NSCache* cache = [NSCache bg_cache];
-    NSArray* cachekeys = [cache objectForKey:NSStringFromClass(cla)];
-    if(cachekeys) {
+    NSString* cacheKey;
+    cacheKey = onlyKey?[NSString stringWithFormat:@"%@_yes",NSStringFromClass(cla)]:[NSString stringWithFormat:@"%@_no",NSStringFromClass(cla)];
+    NSArray* cachekeys = [cache objectForKey:cacheKey];
+    if(cachekeys){
         return cachekeys;
     }
     
@@ -221,7 +223,7 @@ void bg_cleanCache(){
         free(vars);//释放资源
     }];
     //缓存的属性信息
-    [cache setObject:keys forKey:NSStringFromClass(cla)];
+    [cache setObject:keys forKey:cacheKey];
     return keys;
 }
 
