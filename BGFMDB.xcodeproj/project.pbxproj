@@ -7,7 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0781195E1F95AC91008D9288 /* NSCache+BGCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 0781195D1F95AC91008D9288 /* NSCache+BGCache.m */; };
+		078119841F960F77008D9288 /* BGFMDB.m in Sources */ = {isa = PBXBuildFile; fileRef = 0781196D1F960E88008D9288 /* BGFMDB.m */; };
+		078119871F960F77008D9288 /* BGModelInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119701F960E88008D9288 /* BGModelInfo.m */; };
+		078119891F960F77008D9288 /* BGTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119721F960E88008D9288 /* BGTool.m */; };
+		0781198B1F960F77008D9288 /* NSCache+BGCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119741F960E88008D9288 /* NSCache+BGCache.m */; };
+		0781198D1F960F77008D9288 /* NSObject+BGModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119761F960E88008D9288 /* NSObject+BGModel.m */; };
+		078119BE1F961502008D9288 /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119BD1F9614E3008D9288 /* FMDatabase.m */; };
+		078119BF1F961502008D9288 /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119B41F9614E2008D9288 /* FMDatabaseAdditions.m */; };
+		078119C01F961502008D9288 /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119B51F9614E2008D9288 /* FMDatabasePool.m */; };
+		078119C11F961502008D9288 /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119B61F9614E2008D9288 /* FMDatabaseQueue.m */; };
+		078119C21F961502008D9288 /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119B81F9614E2008D9288 /* FMResultSet.m */; };
 		D70663121CD1EF67009E4B4D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D70663111CD1EF67009E4B4D /* main.m */; };
 		D70663151CD1EF67009E4B4D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D70663141CD1EF67009E4B4D /* AppDelegate.m */; };
 		D70663181CD1EF67009E4B4D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D70663171CD1EF67009E4B4D /* ViewController.m */; };
@@ -21,15 +30,6 @@
 		D76F302F1E7777FD0053675F /* dictToModelController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D76F302D1E7777FD0053675F /* dictToModelController.xib */; };
 		D76F30321E777AB10053675F /* Animal.m in Sources */ = {isa = PBXBuildFile; fileRef = D76F30311E777AB10053675F /* Animal.m */; };
 		D77E3C1F1E72B88900137471 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D77E3C1E1E72B88900137471 /* libsqlite3.tbd */; };
-		D77E3C731E72CBA500137471 /* BGFMDB.m in Sources */ = {isa = PBXBuildFile; fileRef = D77E3C611E72CBA500137471 /* BGFMDB.m */; };
-		D77E3C741E72CBA500137471 /* BGModelInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D77E3C631E72CBA500137471 /* BGModelInfo.m */; };
-		D77E3C751E72CBA500137471 /* BGTool.m in Sources */ = {isa = PBXBuildFile; fileRef = D77E3C651E72CBA500137471 /* BGTool.m */; };
-		D77E3C761E72CBA500137471 /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = D77E3C671E72CBA500137471 /* FMDatabase.m */; };
-		D77E3C771E72CBA500137471 /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = D77E3C691E72CBA500137471 /* FMDatabaseAdditions.m */; };
-		D77E3C781E72CBA500137471 /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = D77E3C6B1E72CBA500137471 /* FMDatabasePool.m */; };
-		D77E3C791E72CBA500137471 /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D77E3C6D1E72CBA500137471 /* FMDatabaseQueue.m */; };
-		D77E3C7A1E72CBA500137471 /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = D77E3C701E72CBA500137471 /* FMResultSet.m */; };
-		D77E3C7B1E72CBA500137471 /* NSObject+BGModel.m in Sources */ = {isa = PBXBuildFile; fileRef = D77E3C721E72CBA500137471 /* NSObject+BGModel.m */; };
 		D781DEBC1D9A5506007B6FB4 /* people.m in Sources */ = {isa = PBXBuildFile; fileRef = D781DEBB1D9A5506007B6FB4 /* people.m */; };
 		D78A0D7C1E70F92400511A6D /* stockController.m in Sources */ = {isa = PBXBuildFile; fileRef = D78A0D7A1E70F92400511A6D /* stockController.m */; };
 		D78A0D7D1E70F92400511A6D /* stockController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D78A0D7B1E70F92400511A6D /* stockController.xib */; };
@@ -67,9 +67,29 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		075F016D1F1F4C0500ABF975 /* BGFMDBConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BGFMDBConfig.h; sourceTree = "<group>"; };
-		0781195C1F95AC91008D9288 /* NSCache+BGCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSCache+BGCache.h"; sourceTree = "<group>"; };
-		0781195D1F95AC91008D9288 /* NSCache+BGCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSCache+BGCache.m"; sourceTree = "<group>"; };
+		0781196C1F960E88008D9288 /* BGFMDB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BGFMDB.h; sourceTree = "<group>"; };
+		0781196D1F960E88008D9288 /* BGFMDB.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BGFMDB.m; sourceTree = "<group>"; };
+		0781196E1F960E88008D9288 /* BGFMDBConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BGFMDBConfig.h; sourceTree = "<group>"; };
+		0781196F1F960E88008D9288 /* BGModelInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BGModelInfo.h; sourceTree = "<group>"; };
+		078119701F960E88008D9288 /* BGModelInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BGModelInfo.m; sourceTree = "<group>"; };
+		078119711F960E88008D9288 /* BGTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BGTool.h; sourceTree = "<group>"; };
+		078119721F960E88008D9288 /* BGTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BGTool.m; sourceTree = "<group>"; };
+		078119731F960E88008D9288 /* NSCache+BGCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSCache+BGCache.h"; sourceTree = "<group>"; };
+		078119741F960E88008D9288 /* NSCache+BGCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSCache+BGCache.m"; sourceTree = "<group>"; };
+		078119751F960E88008D9288 /* NSObject+BGModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+BGModel.h"; sourceTree = "<group>"; };
+		078119761F960E88008D9288 /* NSObject+BGModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSObject+BGModel.m"; sourceTree = "<group>"; };
+		078119B21F9614E2008D9288 /* FMDatabaseAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDatabaseAdditions.h; sourceTree = "<group>"; };
+		078119B31F9614E2008D9288 /* FMDatabasePool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDatabasePool.h; sourceTree = "<group>"; };
+		078119B41F9614E2008D9288 /* FMDatabaseAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseAdditions.m; sourceTree = "<group>"; };
+		078119B51F9614E2008D9288 /* FMDatabasePool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMDatabasePool.m; sourceTree = "<group>"; };
+		078119B61F9614E2008D9288 /* FMDatabaseQueue.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseQueue.m; sourceTree = "<group>"; };
+		078119B71F9614E2008D9288 /* FMDatabase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDatabase.h; sourceTree = "<group>"; };
+		078119B81F9614E2008D9288 /* FMResultSet.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMResultSet.m; sourceTree = "<group>"; };
+		078119B91F9614E3008D9288 /* FMDB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDB.h; sourceTree = "<group>"; };
+		078119BA1F9614E3008D9288 /* FMResultSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMResultSet.h; sourceTree = "<group>"; };
+		078119BB1F9614E3008D9288 /* FMDatabaseQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDatabaseQueue.h; sourceTree = "<group>"; };
+		078119BC1F9614E3008D9288 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		078119BD1F9614E3008D9288 /* FMDatabase.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMDatabase.m; sourceTree = "<group>"; };
 		D706630D1CD1EF67009E4B4D /* BGFMDB.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BGFMDB.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D70663111CD1EF67009E4B4D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D70663131CD1EF67009E4B4D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -95,25 +115,6 @@
 		D77E3C1A1E72B74E00137471 /* libstdc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.tbd"; path = "usr/lib/libstdc++.tbd"; sourceTree = SDKROOT; };
 		D77E3C1C1E72B84100137471 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = ../../../../../usr/lib/libsqlite3.dylib; sourceTree = "<group>"; };
 		D77E3C1E1E72B88900137471 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
-		D77E3C601E72CBA500137471 /* BGFMDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BGFMDB.h; sourceTree = "<group>"; };
-		D77E3C611E72CBA500137471 /* BGFMDB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BGFMDB.m; sourceTree = "<group>"; };
-		D77E3C621E72CBA500137471 /* BGModelInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BGModelInfo.h; sourceTree = "<group>"; };
-		D77E3C631E72CBA500137471 /* BGModelInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BGModelInfo.m; sourceTree = "<group>"; };
-		D77E3C641E72CBA500137471 /* BGTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BGTool.h; sourceTree = "<group>"; };
-		D77E3C651E72CBA500137471 /* BGTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BGTool.m; sourceTree = "<group>"; };
-		D77E3C661E72CBA500137471 /* FMDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabase.h; sourceTree = "<group>"; };
-		D77E3C671E72CBA500137471 /* FMDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabase.m; sourceTree = "<group>"; };
-		D77E3C681E72CBA500137471 /* FMDatabaseAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabaseAdditions.h; sourceTree = "<group>"; };
-		D77E3C691E72CBA500137471 /* FMDatabaseAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseAdditions.m; sourceTree = "<group>"; };
-		D77E3C6A1E72CBA500137471 /* FMDatabasePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabasePool.h; sourceTree = "<group>"; };
-		D77E3C6B1E72CBA500137471 /* FMDatabasePool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabasePool.m; sourceTree = "<group>"; };
-		D77E3C6C1E72CBA500137471 /* FMDatabaseQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabaseQueue.h; sourceTree = "<group>"; };
-		D77E3C6D1E72CBA500137471 /* FMDatabaseQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseQueue.m; sourceTree = "<group>"; };
-		D77E3C6E1E72CBA500137471 /* FMDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDB.h; sourceTree = "<group>"; };
-		D77E3C6F1E72CBA500137471 /* FMResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMResultSet.h; sourceTree = "<group>"; };
-		D77E3C701E72CBA500137471 /* FMResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMResultSet.m; sourceTree = "<group>"; };
-		D77E3C711E72CBA500137471 /* NSObject+BGModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+BGModel.h"; sourceTree = "<group>"; };
-		D77E3C721E72CBA500137471 /* NSObject+BGModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+BGModel.m"; sourceTree = "<group>"; };
 		D781DEBA1D9A5506007B6FB4 /* people.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = people.h; sourceTree = "<group>"; };
 		D781DEBB1D9A5506007B6FB4 /* people.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = people.m; sourceTree = "<group>"; };
 		D78A0D791E70F92400511A6D /* stockController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stockController.h; sourceTree = "<group>"; };
@@ -150,6 +151,43 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0781196B1F960E88008D9288 /* BG */ = {
+			isa = PBXGroup;
+			children = (
+				0781196C1F960E88008D9288 /* BGFMDB.h */,
+				0781196D1F960E88008D9288 /* BGFMDB.m */,
+				0781196E1F960E88008D9288 /* BGFMDBConfig.h */,
+				0781196F1F960E88008D9288 /* BGModelInfo.h */,
+				078119701F960E88008D9288 /* BGModelInfo.m */,
+				078119711F960E88008D9288 /* BGTool.h */,
+				078119721F960E88008D9288 /* BGTool.m */,
+				078119731F960E88008D9288 /* NSCache+BGCache.h */,
+				078119741F960E88008D9288 /* NSCache+BGCache.m */,
+				078119751F960E88008D9288 /* NSObject+BGModel.h */,
+				078119761F960E88008D9288 /* NSObject+BGModel.m */,
+			);
+			path = BG;
+			sourceTree = "<group>";
+		};
+		078119771F960E88008D9288 /* FMDB */ = {
+			isa = PBXGroup;
+			children = (
+				078119B71F9614E2008D9288 /* FMDatabase.h */,
+				078119BD1F9614E3008D9288 /* FMDatabase.m */,
+				078119B21F9614E2008D9288 /* FMDatabaseAdditions.h */,
+				078119B41F9614E2008D9288 /* FMDatabaseAdditions.m */,
+				078119B31F9614E2008D9288 /* FMDatabasePool.h */,
+				078119B51F9614E2008D9288 /* FMDatabasePool.m */,
+				078119BB1F9614E3008D9288 /* FMDatabaseQueue.h */,
+				078119B61F9614E2008D9288 /* FMDatabaseQueue.m */,
+				078119B91F9614E3008D9288 /* FMDB.h */,
+				078119BA1F9614E3008D9288 /* FMResultSet.h */,
+				078119B81F9614E2008D9288 /* FMResultSet.m */,
+				078119BC1F9614E3008D9288 /* Info.plist */,
+			);
+			path = FMDB;
+			sourceTree = "<group>";
+		};
 		D70663041CD1EF67009E4B4D = {
 			isa = PBXGroup;
 			children = (
@@ -245,28 +283,8 @@
 		D77E3C5F1E72CBA500137471 /* libs */ = {
 			isa = PBXGroup;
 			children = (
-				D77E3C601E72CBA500137471 /* BGFMDB.h */,
-				D77E3C611E72CBA500137471 /* BGFMDB.m */,
-				D77E3C621E72CBA500137471 /* BGModelInfo.h */,
-				D77E3C631E72CBA500137471 /* BGModelInfo.m */,
-				D77E3C641E72CBA500137471 /* BGTool.h */,
-				D77E3C651E72CBA500137471 /* BGTool.m */,
-				D77E3C661E72CBA500137471 /* FMDatabase.h */,
-				D77E3C671E72CBA500137471 /* FMDatabase.m */,
-				D77E3C681E72CBA500137471 /* FMDatabaseAdditions.h */,
-				D77E3C691E72CBA500137471 /* FMDatabaseAdditions.m */,
-				D77E3C6A1E72CBA500137471 /* FMDatabasePool.h */,
-				D77E3C6B1E72CBA500137471 /* FMDatabasePool.m */,
-				D77E3C6C1E72CBA500137471 /* FMDatabaseQueue.h */,
-				D77E3C6D1E72CBA500137471 /* FMDatabaseQueue.m */,
-				D77E3C6E1E72CBA500137471 /* FMDB.h */,
-				D77E3C6F1E72CBA500137471 /* FMResultSet.h */,
-				D77E3C701E72CBA500137471 /* FMResultSet.m */,
-				D77E3C711E72CBA500137471 /* NSObject+BGModel.h */,
-				D77E3C721E72CBA500137471 /* NSObject+BGModel.m */,
-				075F016D1F1F4C0500ABF975 /* BGFMDBConfig.h */,
-				0781195C1F95AC91008D9288 /* NSCache+BGCache.h */,
-				0781195D1F95AC91008D9288 /* NSCache+BGCache.m */,
+				0781196B1F960E88008D9288 /* BG */,
+				078119771F960E88008D9288 /* FMDB */,
 			);
 			path = libs;
 			sourceTree = "<group>";
@@ -418,24 +436,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				078119BE1F961502008D9288 /* FMDatabase.m in Sources */,
+				078119BF1F961502008D9288 /* FMDatabaseAdditions.m in Sources */,
+				078119C01F961502008D9288 /* FMDatabasePool.m in Sources */,
+				078119C11F961502008D9288 /* FMDatabaseQueue.m in Sources */,
+				078119C21F961502008D9288 /* FMResultSet.m in Sources */,
+				078119841F960F77008D9288 /* BGFMDB.m in Sources */,
+				078119871F960F77008D9288 /* BGModelInfo.m in Sources */,
+				078119891F960F77008D9288 /* BGTool.m in Sources */,
+				0781198B1F960F77008D9288 /* NSCache+BGCache.m in Sources */,
+				0781198D1F960F77008D9288 /* NSObject+BGModel.m in Sources */,
 				D70663181CD1EF67009E4B4D /* ViewController.m in Sources */,
-				D77E3C781E72CBA500137471 /* FMDatabasePool.m in Sources */,
-				D77E3C7A1E72CBA500137471 /* FMResultSet.m in Sources */,
-				0781195E1F95AC91008D9288 /* NSCache+BGCache.m in Sources */,
 				D70663151CD1EF67009E4B4D /* AppDelegate.m in Sources */,
-				D77E3C731E72CBA500137471 /* BGFMDB.m in Sources */,
-				D77E3C791E72CBA500137471 /* FMDatabaseQueue.m in Sources */,
-				D77E3C761E72CBA500137471 /* FMDatabase.m in Sources */,
 				D78A0D7C1E70F92400511A6D /* stockController.m in Sources */,
 				D70663121CD1EF67009E4B4D /* main.m in Sources */,
 				D76F30321E777AB10053675F /* Animal.m in Sources */,
 				D781DEBC1D9A5506007B6FB4 /* people.m in Sources */,
-				D77E3C7B1E72CBA500137471 /* NSObject+BGModel.m in Sources */,
-				D77E3C771E72CBA500137471 /* FMDatabaseAdditions.m in Sources */,
-				D77E3C741E72CBA500137471 /* BGModelInfo.m in Sources */,
 				D78A0D801E70F95700511A6D /* stockModel.m in Sources */,
 				D76F302E1E7777FD0053675F /* dictToModelController.m in Sources */,
-				D77E3C751E72CBA500137471 /* BGTool.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

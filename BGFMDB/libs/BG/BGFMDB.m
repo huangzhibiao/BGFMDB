@@ -1245,7 +1245,13 @@ static BGFMDB* BGFmdb = nil;
             FMResultSet* rs = [db executeQuery:SQL];
             // 2.遍历结果集
             if(rs.next){
-                NSArray* columNames = [rs columnNames];
+                //获取数据库字段名集合.
+                int columnCount = [rs columnCount];
+                NSMutableArray* tempArrayM = [NSMutableArray array];
+                for (int columnIdx = 0; columnIdx < columnCount; columnIdx++){
+                    [tempArrayM addObject:[rs columnNameForIndex:columnIdx]];
+                }
+                NSArray* columNames = tempArrayM.count?tempArrayM:nil;
                 NSArray* keyAndtypes = [BGTool getClassIvarList:cla onlyKey:NO];
                 for(NSString* keyAndtype in keyAndtypes){
                     NSString* key = [[keyAndtype componentsSeparatedByString:@"*"] firstObject];
