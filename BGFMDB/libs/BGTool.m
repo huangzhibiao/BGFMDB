@@ -11,6 +11,7 @@
 #import "BGTool.h"
 #import "BGFMDB.h"
 #import "BGModelInfo.h"
+#import "NSCache+BGCache.h"
 
 #define SqlText @"text" //数据库的字符类型
 #define SqlReal @"real" //数据库的浮点类型
@@ -96,7 +97,12 @@ void bg_setDebug(BOOL debug){
 void bg_inTransaction(BOOL (^ _Nonnull block)()){
     [[BGFMDB shareManager] inTransaction:block];
 }
-
+/**
+ 清除缓存
+ */
+void bg_cleanCache(){
+    [[NSCache cache] removeAllObjects];
+}
 /**
  json字符转json格式数据 .
  */
@@ -176,6 +182,14 @@ void bg_inTransaction(BOOL (^ _Nonnull block)()){
  @onlyKey YES:紧紧返回key,NO:在key后面添加type.
  */
 +(NSArray*)getClassIvarList:(__unsafe_unretained Class)cla onlyKey:(BOOL)onlyKey{
+    
+    //获取缓存的属性信息
+    NSCache* cache = [NSCache cache];
+    NSArray* cachekeys = [cache objectForKey:NSStringFromClass(cla)];
+    if(cachekeys) {
+        return cachekeys;
+    }
+    
     NSMutableArray* keys = [NSMutableArray array];
     if(onlyKey){
         [keys addObject:bg_primaryKey];
@@ -207,6 +221,8 @@ void bg_inTransaction(BOOL (^ _Nonnull block)()){
         }
         free(vars);//释放资源
     }];
+    //存储缓存的属性信息
+    [cache setObject:keys forKey:NSStringFromClass(cla)];
     return keys;
 }
 

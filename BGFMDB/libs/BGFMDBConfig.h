@@ -93,4 +93,9 @@ extern void bg_setDebug(BOOL debug);
  */
 extern void bg_inTransaction(BOOL (^ _Nonnull block)());
 
+/**
+ 清除缓存
+ */
+extern void bg_cleanCache();
+
 #endif /* BGFMDBConfig_h */

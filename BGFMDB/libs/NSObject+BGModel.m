@@ -123,10 +123,11 @@
 }
 /**
  同步存储或更新.
- 当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
+ 当"唯一约束"或"主键"存在时，此接口会更新旧数据,没有则存储新数据.
+ 提示：“唯一约束”优先级高于"主键".
  */
 -(BOOL)bg_saveOrUpdate{
-    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(bg_uniqueKeySelector) forClass:[self class]];//[BGTool getUnique:self];
+    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(bg_uniqueKeySelector) forClass:[self class]];
     if (uniqueKey) {
         id uniqueKeyVlaue = [self valueForKey:uniqueKey];
         NSInteger count = [[self class] bg_countWhere:@[uniqueKey,@"=",uniqueKeyVlaue]];
@@ -136,12 +137,17 @@
             return [self bg_save];
         }
     }else{
-        return [self bg_save];
+        if(self.bg_id == nil){
+            return [self bg_save];
+        }else{
+            return [self bg_updateWhere:@[bg_primaryKey,@"=",self.bg_id]];
+        }
     }
 }
 /**
  异步存储或更新.
- 当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
+ 当"唯一约束"或"主键"存在时，此接口会更新旧数据,没有则存储新数据.
+ 提示：“唯一约束”优先级高于"主键".
  */
 -(void)bg_saveOrUpdateAsync:(bg_complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{

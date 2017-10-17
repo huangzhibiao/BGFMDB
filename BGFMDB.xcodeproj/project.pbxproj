@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0781195E1F95AC91008D9288 /* NSCache+BGCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 0781195D1F95AC91008D9288 /* NSCache+BGCache.m */; };
 		D70663121CD1EF67009E4B4D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D70663111CD1EF67009E4B4D /* main.m */; };
 		D70663151CD1EF67009E4B4D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D70663141CD1EF67009E4B4D /* AppDelegate.m */; };
 		D70663181CD1EF67009E4B4D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D70663171CD1EF67009E4B4D /* ViewController.m */; };
@@ -67,6 +68,8 @@
 
 /* Begin PBXFileReference section */
 		075F016D1F1F4C0500ABF975 /* BGFMDBConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BGFMDBConfig.h; sourceTree = "<group>"; };
+		0781195C1F95AC91008D9288 /* NSCache+BGCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSCache+BGCache.h"; sourceTree = "<group>"; };
+		0781195D1F95AC91008D9288 /* NSCache+BGCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSCache+BGCache.m"; sourceTree = "<group>"; };
 		D706630D1CD1EF67009E4B4D /* BGFMDB.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BGFMDB.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D70663111CD1EF67009E4B4D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D70663131CD1EF67009E4B4D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -262,6 +265,8 @@
 				D77E3C711E72CBA500137471 /* NSObject+BGModel.h */,
 				D77E3C721E72CBA500137471 /* NSObject+BGModel.m */,
 				075F016D1F1F4C0500ABF975 /* BGFMDBConfig.h */,
+				0781195C1F95AC91008D9288 /* NSCache+BGCache.h */,
+				0781195D1F95AC91008D9288 /* NSCache+BGCache.m */,
 			);
 			path = libs;
 			sourceTree = "<group>";
@@ -416,6 +421,7 @@
 				D70663181CD1EF67009E4B4D /* ViewController.m in Sources */,
 				D77E3C781E72CBA500137471 /* FMDatabasePool.m in Sources */,
 				D77E3C7A1E72CBA500137471 /* FMResultSet.m in Sources */,
+				0781195E1F95AC91008D9288 /* NSCache+BGCache.m in Sources */,
 				D70663151CD1EF67009E4B4D /* AppDelegate.m in Sources */,
 				D77E3C731E72CBA500137471 /* BGFMDB.m in Sources */,
 				D77E3C791E72CBA500137471 /* FMDatabaseQueue.m in Sources */,
