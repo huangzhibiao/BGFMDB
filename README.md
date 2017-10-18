@@ -34,7 +34,7 @@ LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo
 platform :ios, '8.0'
 
 target '工程名称' do
-pod ‘BGFMDB’, '~> 1.47’
+pod ‘BGFMDB’, '~> 1.50’
 end
 ```
 ## 直接下载库代码使用方式.
@@ -43,10 +43,10 @@ libsqlite3
 ### 导入头文件   
 ```Objective-C
 /**
-只要在自己的类中导入了NSObject+BGModel.h这个头文件,本类就具有了存储功能.
+只要在自己的类中导入了BGFMDB.h这个头文件,本类就具有了存储功能.
 */
 #import <Foundation/Foundation.h>
-#import "NSObject+BGModel.h"
+#import "BGFMDB.h"
 @interface stockModel : NSObject
 @property(nonatomic,copy)NSString* name;
 @property(nonatomic,strong)NSNumber* stockData;
