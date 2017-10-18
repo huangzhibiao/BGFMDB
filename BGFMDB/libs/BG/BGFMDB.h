@@ -9,6 +9,6 @@
 #ifndef BGFMDB_h
 #define BGFMDB_h
 
-#import "./BG/NSObject+BGModel.h"
+#import "NSObject+BGModel.h"
 
 #endif /* BGFMDB_h */

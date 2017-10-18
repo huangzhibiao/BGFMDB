@@ -90,7 +90,7 @@
 		078119BD1F9614E3008D9288 /* FMDatabase.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMDatabase.m; sourceTree = "<group>"; };
 		078119CD1F96ED4A008D9288 /* BGDB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BGDB.h; sourceTree = "<group>"; };
 		078119CE1F96ED4A008D9288 /* BGDB.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BGDB.m; sourceTree = "<group>"; };
-		078119D01F96EEAE008D9288 /* BGFMDB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BGFMDB.h; sourceTree = "<group>"; };
+		078119D11F96F66F008D9288 /* BGFMDB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BGFMDB.h; sourceTree = "<group>"; };
 		D706630D1CD1EF67009E4B4D /* BGFMDB.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BGFMDB.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D70663111CD1EF67009E4B4D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D70663131CD1EF67009E4B4D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -155,6 +155,7 @@
 		0781196B1F960E88008D9288 /* BG */ = {
 			isa = PBXGroup;
 			children = (
+				078119D11F96F66F008D9288 /* BGFMDB.h */,
 				0781196E1F960E88008D9288 /* BGFMDBConfig.h */,
 				0781196F1F960E88008D9288 /* BGModelInfo.h */,
 				078119701F960E88008D9288 /* BGModelInfo.m */,
@@ -284,7 +285,6 @@
 		D77E3C5F1E72CBA500137471 /* libs */ = {
 			isa = PBXGroup;
 			children = (
-				078119D01F96EEAE008D9288 /* BGFMDB.h */,
 				0781196B1F960E88008D9288 /* BG */,
 				078119771F960E88008D9288 /* FMDB */,
 			);
