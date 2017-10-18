@@ -1,12 +1,12 @@
 //
-//  BGFMDB.m
+//  BGDB.m
 //  BGFMDB
 //
-//  Created by huangzhibiao on 16/4/28.
-//  Copyright © 2016年 Biao. All rights reserved.
+//  Created by biao on 2017/10/18.
+//  Copyright © 2017年 Biao. All rights reserved.
 //
 
-#import "BGFMDB.h"
+#import "BGDB.h"
 #import "BGModelInfo.h"
 #import "BGTool.h"
 
@@ -32,7 +32,7 @@ if(self.debug){bg_log(@"调试输出: %@",param);}\
 
 static const void * const BGFMDBDispatchQueueSpecificKey = &BGFMDBDispatchQueueSpecificKey;
 
-@interface BGFMDB()
+@interface BGDB()
 //数据库队列
 @property (nonatomic, strong) FMDatabaseQueue *queue;
 @property (nonatomic, strong) FMDatabase* db;
@@ -44,8 +44,8 @@ static const void * const BGFMDBDispatchQueueSpecificKey = &BGFMDBDispatchQueueS
 
 @end
 
-static BGFMDB* BGFmdb = nil;
-@implementation BGFMDB
+static BGDB* BGdb = nil;
+@implementation BGDB
 
 -(void)dealloc{
     //烧毁数据.
@@ -62,10 +62,10 @@ static BGFMDB* BGFmdb = nil;
         _semaphore = 0x00;
     }
     [self closeDB];
-    if (BGFmdb) {
-        BGFmdb = nil;
+    if (BGdb) {
+        BGdb = nil;
     }
-
+    
 }
 /**
  关闭数据库.
@@ -126,9 +126,9 @@ static BGFMDB* BGFmdb = nil;
 +(_Nonnull instancetype)shareManager{
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        BGFmdb = [[BGFMDB alloc] init];
+        BGdb = [[BGDB alloc] init];
     });
-    return BGFmdb;
+    return BGdb;
 }
 //事务操作
 -(void)inTransaction:(BOOL (^_Nonnull)())block{
@@ -136,7 +136,7 @@ static BGFMDB* BGFmdb = nil;
     [self executeDB:^(FMDatabase * _Nonnull db) {
         _inTransaction = db.inTransaction;
         if (!_inTransaction) {
-           _inTransaction = [db beginTransaction];
+            _inTransaction = [db beginTransaction];
         }
         BOOL isCommit = NO;
         isCommit = block();
@@ -201,9 +201,9 @@ static BGFMDB* BGFmdb = nil;
     }
 }
 -(void)doChangeWithName:(NSString* const _Nonnull)name flag:(BOOL)flag state:(bg_changeState)state{
-        if(flag && _changeBlocks.count>0){
-            //开一个子线程去执行block,防止死锁.
-            dispatch_async(dispatch_get_global_queue(0,0), ^{
+    if(flag && _changeBlocks.count>0){
+        //开一个子线程去执行block,防止死锁.
+        dispatch_async(dispatch_get_global_queue(0,0), ^{
             [_changeBlocks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop){
                 NSArray* array = [key componentsSeparatedByString:@"*"];
                 if([name isEqualToString:array.firstObject]){
@@ -214,8 +214,8 @@ static BGFMDB* BGFmdb = nil;
                     });
                 }
             }];
-          });
-        }
+        });
+    }
 }
 
 /**
@@ -421,7 +421,7 @@ static BGFMDB* BGFmdb = nil;
         //查询完后要关闭rs，不然会报@"Warning: there is at least one open result set around after performing
         [rs close];
     }];
-
+    
     bg_completeBlock(arrM);
 }
 
@@ -431,7 +431,7 @@ static BGFMDB* BGFmdb = nil;
 -(void)queryWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(bg_complete_A)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    [self queryQueueWithTableName:name conditions:conditions complete:complete];
+        [self queryQueueWithTableName:name conditions:conditions complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
 }
@@ -454,7 +454,7 @@ static BGFMDB* BGFmdb = nil;
                 }
             }
         }else{
-            [SQL appendString:@" *"]; 
+            [SQL appendString:@" *"];
         }
         [SQL appendFormat:@" from %@",name];
         
@@ -547,7 +547,7 @@ static BGFMDB* BGFmdb = nil;
         //查询完后要关闭rs，不然会报@"Warning: there is at least one open result set around after performing
         [rs close];
     }];
-
+    
     bg_completeBlock(arrM);
 }
 
@@ -575,9 +575,9 @@ static BGFMDB* BGFmdb = nil;
             [SQL appendString:results[0]];
             [arguments addObjectsFromArray:results[1]];
         }
-
-       bg_debug(SQL);
-       result = [db executeUpdate:SQL withArgumentsInArray:arguments];
+        
+        bg_debug(SQL);
+        result = [db executeUpdate:SQL withArgumentsInArray:arguments];
     }];
     
     //数据监听执行函数
@@ -638,7 +638,7 @@ static BGFMDB* BGFmdb = nil;
         NSString* tableName = NSStringFromClass([object class]);
         //自动判断是否有字段改变,自动刷新数据库.
         [self ifIvarChangeForClass:NSClassFromString(tableName) ignoredKeys:ignoreKeys];
-         NSDictionary* valueDict = [BGTool getDictWithObject:self ignoredKeys:ignoreKeys isUpdate:YES];
+        NSDictionary* valueDict = [BGTool getDictWithObject:self ignoredKeys:ignoreKeys isUpdate:YES];
         [self updateQueueWithTableName:tableName valueDict:valueDict conditions:conditions complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
@@ -1001,9 +1001,9 @@ static BGFMDB* BGFmdb = nil;
                         
                     }];
                 }
-                }];
-                }
-            }
+            }];
+        }
+    }
     
     if (complete){
         if (recordError && recordSuccess) {
@@ -1015,7 +1015,7 @@ static BGFMDB* BGFmdb = nil;
         }else;
         complete(refreshstate);
     }
-
+    
 }
 
 -(void)refreshQueueTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* const _Nonnull)keys complete:(bg_complete_I)complete{
@@ -1070,7 +1070,7 @@ static BGFMDB* BGFmdb = nil;
 -(void)refreshTable:(NSString* _Nonnull)name keys:(NSArray<NSString*>* const _Nonnull)keys complete:(bg_complete_I)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    [self refreshQueueTable:name keys:keys complete:complete];
+        [self refreshQueueTable:name keys:keys complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
 }
@@ -1122,7 +1122,7 @@ static BGFMDB* BGFmdb = nil;
                     }
                     //将旧表的数据插入到新表
                     [strongSelf insertIntoTableName:B Dict:newDict complete:^(BOOL isSuccess){
-                      
+                        
                         if (isSuccess){
                             if (!recordSuccess) {
                                 recordSuccess = YES;
@@ -1134,11 +1134,11 @@ static BGFMDB* BGFmdb = nil;
                         }
                     }];
                 }
-
+                
             }];
         }
     }
-
+    
     if (complete){
         if (recordError && recordSuccess) {
             refreshstate = bg_incomplete;
@@ -1149,7 +1149,7 @@ static BGFMDB* BGFmdb = nil;
         }else;
         complete(refreshstate);
     }
-
+    
     
 }
 
@@ -1173,7 +1173,7 @@ static BGFMDB* BGFmdb = nil;
             @throw [NSException exceptionWithName:@"类新变量名称写错" reason:@"请检查keydict中的 新Key 是否书写正确!" userInfo:nil];
         }
     }
-
+    
     [self queryWithTableName:name param:@"limit 0,1" where:nil complete:^(NSArray<NSDictionary*> * _Nullable array) {
         NSArray* tableKeys = array.firstObject.allKeys;
         NSString* tableKey;
@@ -1185,7 +1185,7 @@ static BGFMDB* BGFmdb = nil;
                 @throw [NSException exceptionWithName:@"类旧变量名称写错" reason:@"请检查keydict中的 旧Key 是否书写正确!" userInfo:nil];
             }
         }
-
+        
     }];
     //事务操作.
     NSString* BGTempTable = @"BGTempTable";
@@ -1221,13 +1221,13 @@ static BGFMDB* BGFmdb = nil;
     }else{
         bg_completeBlock(bg_complete);
     }
-
+    
 }
 
 -(void)refreshTable:(NSString* _Nonnull)name keyDict:(NSDictionary* const _Nonnull)keyDict complete:(bg_complete_I)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    [self refreshQueueTable:name keyDict:keyDict complete:complete];
+        [self refreshQueueTable:name keyDict:keyDict complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
 }
@@ -1256,7 +1256,7 @@ static BGFMDB* BGFmdb = nil;
                 for(NSString* keyAndtype in keyAndtypes){
                     NSString* key = [[keyAndtype componentsSeparatedByString:@"*"] firstObject];
                     if(ignoredkeys && [ignoredkeys containsObject:key])continue;
-                        
+                    
                     key = [NSString stringWithFormat:@"%@%@",BG,key];
                     if (![columNames containsObject:key]) {
                         [newKeys addObject:keyAndtype];
@@ -1314,7 +1314,7 @@ static BGFMDB* BGFmdb = nil;
     [self ifIvarChangeForClass:[object class] ignoredKeys:ignoredKeys];
     NSString* tableName = [NSString stringWithFormat:@"%@",[object class]];
     [self insertIntoTableName:tableName Dict:dictM complete:complete];
-
+    
 }
 
 -(NSArray*)getArray:(NSArray*)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys isUpdate:(BOOL)update{
@@ -1327,7 +1327,7 @@ static BGFMDB* BGFmdb = nil;
 }
 
 /**
-批量插入数据
+ 批量插入数据
  */
 -(void)insertWithObjects:(NSArray*)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(bg_complete_B)complete{
     NSArray* dictArray = [self getArray:array ignoredKeys:ignoredKeys isUpdate:NO];
@@ -1348,7 +1348,7 @@ static BGFMDB* BGFmdb = nil;
 -(void)saveQueueObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(bg_complete_B)complete{
     //插入数据
     [self insertWithObject:object ignoredKeys:ignoredKeys complete:complete];
-
+    
 }
 /**
  批量存储.
@@ -1377,8 +1377,8 @@ static BGFMDB* BGFmdb = nil;
 -(void)saveObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(bg_complete_B)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    [BGTool ifNotExistWillCreateTableWithObject:object ignoredKeys:ignoredKeys];
-    [self saveQueueObject:object ignoredKeys:ignoredKeys complete:complete];
+        [BGTool ifNotExistWillCreateTableWithObject:object ignoredKeys:ignoredKeys];
+        [self saveQueueObject:object ignoredKeys:ignoredKeys complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
 }
@@ -1405,7 +1405,7 @@ static BGFMDB* BGFmdb = nil;
 -(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla where:(NSArray* _Nullable)where param:(NSString* _Nullable)param complete:(bg_complete_A)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    [self queryObjectQueueWithClass:cla where:where param:param complete:complete];
+        [self queryObjectQueueWithClass:cla where:where param:param complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
 }
@@ -1431,7 +1431,7 @@ static BGFMDB* BGFmdb = nil;
 -(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla keys:(NSArray<NSString*>* _Nullable)keys where:(NSArray* _Nullable)where complete:(bg_complete_A)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    [self queryObjectQueueWithClass:cla keys:keys where:where complete:complete];
+        [self queryObjectQueueWithClass:cla keys:keys where:where complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
 }
@@ -1457,7 +1457,7 @@ static BGFMDB* BGFmdb = nil;
 -(void)queryObjectWithClass:(__unsafe_unretained _Nonnull Class)cla forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(bg_complete_A)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    [self queryObjectQueueWithClass:cla forKeyPathAndValues:keyPathValues complete:complete];
+        [self queryObjectQueueWithClass:cla forKeyPathAndValues:keyPathValues complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
 }
@@ -1478,7 +1478,7 @@ static BGFMDB* BGFmdb = nil;
         [self ifIvarChangeForClass:[object class] ignoredKeys:ignoreKeys];
         [self updateWithTableName:tableName valueDict:valueDict where:where complete:complete];
     }
-
+    
 }
 
 /**
@@ -1487,7 +1487,7 @@ static BGFMDB* BGFmdb = nil;
 -(void)updateWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where ignoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(bg_complete_B)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    [self updateQueueWithObject:object where:where ignoreKeys:ignoreKeys complete:complete];
+        [self updateQueueWithObject:object where:where ignoreKeys:ignoreKeys complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
 }
@@ -1512,9 +1512,9 @@ static BGFMDB* BGFmdb = nil;
 -(void)updateWithObject:(id _Nonnull)object forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues ignoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(bg_complete_B)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    //自动判断是否有字段改变,自动刷新数据库.
-    [self ifIvarChangeForClass:[object class] ignoredKeys:ignoreKeys];
-    [self updateQueueWithObject:object forKeyPathAndValues:keyPathValues ignoreKeys:ignoreKeys complete:complete];
+        //自动判断是否有字段改变,自动刷新数据库.
+        [self ifIvarChangeForClass:[object class] ignoredKeys:ignoreKeys];
+        [self updateQueueWithObject:object forKeyPathAndValues:keyPathValues ignoreKeys:ignoreKeys complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
 }
@@ -1531,7 +1531,7 @@ static BGFMDB* BGFmdb = nil;
         if (!isExist){//如果不存在就返回NO
             bg_completeBlock(NO);
         }else{
-          [strongSelf updateWithTableName:tableName valueDict:valueDict where:where complete:complete];
+            [strongSelf updateWithTableName:tableName valueDict:valueDict where:where complete:complete];
         }
     }];
 }
@@ -1639,31 +1639,31 @@ static BGFMDB* BGFmdb = nil;
     __block BOOL recordSuccess = NO;
     NSInteger srcCount = [self countQueueForTable:srcTable where:nil];
     for(NSInteger i=0;i<srcCount;i+=MaxQueryPageNum){
-    @autoreleasepool{//由于查询出来的数据量可能巨大,所以加入自动释放池.
-        NSString* param = [NSString stringWithFormat:@"limit %@,%@",@(i),@(MaxQueryPageNum)];
-        [self queryWithTableName:srcTable param:param where:nil complete:^(NSArray * _Nullable array) {
-            for(NSDictionary* srcDict in array){
-                NSMutableDictionary* destDict = [NSMutableDictionary dictionary];
-                for(int i=0;i<srcKeys.count;i++){
-                    //字段名前加上 @"BG_"
-                    NSString* destSqlKey = [NSString stringWithFormat:@"%@%@",BG,destKeys[i]];
-                    NSString* srcSqlKey = [NSString stringWithFormat:@"%@%@",BG,srcKeys[i]];
-                    destDict[destSqlKey] = srcDict[srcSqlKey];
-                }
-                [BGSelf insertIntoTableName:destTable Dict:destDict complete:^(BOOL isSuccess) {
-                    if (isSuccess){
-                        if (!recordSuccess) {
-                            recordSuccess = YES;
-                        }
-                    }else{
-                        if (!recordError) {
-                            recordError = YES;
-                        }
+        @autoreleasepool{//由于查询出来的数据量可能巨大,所以加入自动释放池.
+            NSString* param = [NSString stringWithFormat:@"limit %@,%@",@(i),@(MaxQueryPageNum)];
+            [self queryWithTableName:srcTable param:param where:nil complete:^(NSArray * _Nullable array) {
+                for(NSDictionary* srcDict in array){
+                    NSMutableDictionary* destDict = [NSMutableDictionary dictionary];
+                    for(int i=0;i<srcKeys.count;i++){
+                        //字段名前加上 @"BG_"
+                        NSString* destSqlKey = [NSString stringWithFormat:@"%@%@",BG,destKeys[i]];
+                        NSString* srcSqlKey = [NSString stringWithFormat:@"%@%@",BG,srcKeys[i]];
+                        destDict[destSqlKey] = srcDict[srcSqlKey];
                     }
-                }];
-            }
-        }];
-    }
+                    [BGSelf insertIntoTableName:destTable Dict:destDict complete:^(BOOL isSuccess) {
+                        if (isSuccess){
+                            if (!recordSuccess) {
+                                recordSuccess = YES;
+                            }
+                        }else{
+                            if (!recordError) {
+                                recordError = YES;
+                            }
+                        }
+                    }];
+                }
+            }];
+        }
     }
     
     if (complete){
@@ -1676,7 +1676,7 @@ static BGFMDB* BGFmdb = nil;
         }else;
         complete(copystate);
     }
-
+    
 }
 
 /**
@@ -1685,16 +1685,16 @@ static BGFMDB* BGFmdb = nil;
 -(void)copyClass:(__unsafe_unretained _Nonnull Class)srcCla to:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append complete:(bg_complete_I)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    //事务操作其过程.
-    [self inTransaction:^BOOL{
-        __block BOOL success = NO;
-        [self copyQueueClass:srcCla to:destCla keyDict:keydict append:append complete:^(bg_dealState result) {
-            if (result == bg_complete) {
-                success = YES;
-            }
+        //事务操作其过程.
+        [self inTransaction:^BOOL{
+            __block BOOL success = NO;
+            [self copyQueueClass:srcCla to:destCla keyDict:keydict append:append complete:^(bg_dealState result) {
+                if (result == bg_complete) {
+                    success = YES;
+                }
+            }];
+            return success;
         }];
-        return success;
-    }];
     }
     dispatch_semaphore_signal(self.semaphore);
 }
@@ -1783,21 +1783,21 @@ static BGFMDB* BGFmdb = nil;
     NSAssert(name,@"唯一标识名不能为空!");
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
-    NSString* condition = [NSString stringWithFormat:@"order by %@ asc",bg_sqlKey(bg_primaryKey)];
-    [self queryQueueWithTableName:name conditions:condition complete:^(NSArray * _Nullable array) {
-        NSMutableArray* resultM = nil;
-        if(array&&array.count){
-            resultM = [NSMutableArray array];
-            for(NSDictionary* dict in array){
-                NSArray* keyAndTypes = [dict[@"BG_param"] componentsSeparatedByString:@"$$$"];
-                id value = [keyAndTypes firstObject];
-                NSString* type = [keyAndTypes lastObject];
-                value = [BGTool getSqlValue:value type:type encode:NO];
-                [resultM addObject:value];
+        NSString* condition = [NSString stringWithFormat:@"order by %@ asc",bg_sqlKey(bg_primaryKey)];
+        [self queryQueueWithTableName:name conditions:condition complete:^(NSArray * _Nullable array) {
+            NSMutableArray* resultM = nil;
+            if(array&&array.count){
+                resultM = [NSMutableArray array];
+                for(NSDictionary* dict in array){
+                    NSArray* keyAndTypes = [dict[@"BG_param"] componentsSeparatedByString:@"$$$"];
+                    id value = [keyAndTypes firstObject];
+                    NSString* type = [keyAndTypes lastObject];
+                    value = [BGTool getSqlValue:value type:type encode:NO];
+                    [resultM addObject:value];
+                }
             }
-        }
-        bg_completeBlock(resultM);
-    }];
+            bg_completeBlock(resultM);
+        }];
     }
     dispatch_semaphore_signal(self.semaphore);
 }
@@ -2000,4 +2000,5 @@ static BGFMDB* BGFmdb = nil;
     dispatch_semaphore_signal(self.semaphore);
     return result;
 }
+
 @end

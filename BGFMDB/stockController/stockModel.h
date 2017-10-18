@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NSObject+BGModel.h"
+#import "BGFMDB.h" //引入所需的头文件
 
 @interface stockModel : NSObject
 

@@ -8,8 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-//添加该头文件,本类就具有了存储功能.
-#import "NSObject+BGModel.h"
+#import "BGFMDB.h" //添加该头文件,本类就具有了存储功能.
 
 @interface Human : NSObject
 

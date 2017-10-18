@@ -1,15 +1,16 @@
 //
-//  BGFMDB.h
+//  BGDB.h
 //  BGFMDB
 //
-//  Created by huangzhibiao on 16/4/28.
-//  Copyright © 2016年 Biao. All rights reserved.
+//  Created by biao on 2017/10/18.
+//  Copyright © 2017年 Biao. All rights reserved.
 //
+
 #import <Foundation/Foundation.h>
 #import "BGFMDBConfig.h"
 #import "FMDB.h"
 
-@interface BGFMDB : NSObject
+@interface BGDB : NSObject
 //信号量.
 @property(nonatomic, strong)dispatch_semaphore_t _Nullable semaphore;
 @property(nonatomic,assign)BOOL debug;
@@ -141,7 +142,7 @@
 /**----------------------------------华丽分割线---------------------------------------------*/
 #pragma mark --> 以下是非直接存储一个对象的API
 
-/** 
+/**
  数据库中是否存在表.
  @name 表名称.
  @complete 回调的block
@@ -165,11 +166,11 @@
 /**
  直接传入条件sql语句查询.
  @name 表名称.
- @conditions 条件语句.例如:@"where name = '标哥' or name = '小马哥' and age = 26 order by age desc limit 6" 即查询name等于标哥或小马哥和age等于26的数据通过age降序输出,只查询前面6条. 
+ @conditions 条件语句.例如:@"where name = '标哥' or name = '小马哥' and age = 26 order by age desc limit 6" 即查询name等于标哥或小马哥和age等于26的数据通过age降序输出,只查询前面6条.
  更多条件语法,请查询sql的基本使用语句.
  */
 -(void)queryWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(bg_complete_A)complete;
-/** 
+/**
  根据条件查询字段.
  @name 表名称.
  @keys 存放的是要查询的哪些key,为nil时代表查询全部.

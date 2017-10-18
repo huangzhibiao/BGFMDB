@@ -1,13 +1,13 @@
 //
 //  NSObject+BGModel.m
-//  BGFMDB
+//  BGDB
 //
 //  Created by huangzhibiao on 17/2/28.
 //  Copyright © 2017年 Biao. All rights reserved.
 //
 
 #import "NSObject+BGModel.h"
-#import "BGFMDB.h"
+#import "BGDB.h"
 #import "BGTool.h"
 #import <objc/message.h>
 #import <UIKit/UIKit.h>
@@ -39,11 +39,11 @@
  */
 +(BOOL)bg_isExist{
     __block BOOL result;
-    [[BGFMDB shareManager] isExistWithTableName:NSStringFromClass([self class]) complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] isExistWithTableName:NSStringFromClass([self class]) complete:^(BOOL isSuccess) {
         result  = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -51,11 +51,11 @@
  */
 -(BOOL)bg_save{
     __block BOOL result;
-    [[BGFMDB shareManager] saveObject:self ignoredKeys:nil complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] saveObject:self ignoredKeys:nil complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -74,11 +74,11 @@
 +(BOOL)bg_saveArray:(NSArray*)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys{
     NSAssert(array||array.count,@"数组没有元素!");
     __block BOOL result = YES;
-        [[BGFMDB shareManager] saveObjects:array ignoredKeys:ignoreKeys complete:^(BOOL isSuccess) {
+        [[BGDB shareManager] saveObjects:array ignoredKeys:ignoreKeys complete:^(BOOL isSuccess) {
             result = isSuccess;
         }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -104,7 +104,7 @@
         NSInteger count = [[array.lastObject class] bg_countWhere:@[uniqueKey,@"=",uniqueKeyVlaue]];
         if (count){//有数据存在就更新.
             //此处更新数据.
-            [[BGFMDB shareManager] updateObjects:array ignoredKeys:ignoreKeys complete:nil];
+            [[BGDB shareManager] updateObjects:array ignoredKeys:ignoreKeys complete:nil];
         }else{//没有就存储.
             [self bg_saveArray:array IgnoreKeys:ignoreKeys];
         }
@@ -161,11 +161,11 @@
  */
 -(BOOL)bg_saveIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys{
     __block BOOL result;
-    [[BGFMDB shareManager] saveObject:self ignoredKeys:ignoredKeys complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] saveObject:self ignoredKeys:ignoredKeys complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -185,16 +185,16 @@
  */
 -(BOOL)bg_cover{
     __block BOOL result;
-    [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess) {
         if(isSuccess)
-            [[BGFMDB shareManager] saveObject:self ignoredKeys:nil complete:^(BOOL isSuccess) {
+            [[BGDB shareManager] saveObject:self ignoredKeys:nil complete:^(BOOL isSuccess) {
                 result = isSuccess;
             }];
         else
             result = NO;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 
@@ -216,16 +216,16 @@
  */
 -(BOOL)bg_coverIgnoredKeys:(NSArray* const _Nonnull)ignoredKeys{
     __block BOOL result;
-    [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess) {
         if(isSuccess)
-            [[BGFMDB shareManager] saveObject:self ignoredKeys:ignoredKeys complete:^(BOOL isSuccess) {
+            [[BGDB shareManager] saveObject:self ignoredKeys:ignoredKeys complete:^(BOOL isSuccess) {
                 result = isSuccess;
             }];
         else
             result = NO;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -245,11 +245,11 @@
  */
 +(NSArray* _Nullable)bg_findAll{
     __block NSArray* results;
-    [[BGFMDB shareManager] queryObjectWithClass:[self class] where:nil param:nil complete:^(NSArray * _Nullable array) {
+    [[BGDB shareManager] queryObjectWithClass:[self class] where:nil param:nil complete:^(NSArray * _Nullable array) {
         results = array;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return results;
 }
 /**
@@ -295,11 +295,11 @@
     !limit?:[param appendFormat:@"limit %@",@(limit)];
     param = param.length?param:nil;
     __block NSArray* results;
-     [[BGFMDB shareManager] queryObjectWithClass:[self class] where:nil param:param complete:^(NSArray * _Nullable array) {
+     [[BGDB shareManager] queryObjectWithClass:[self class] where:nil param:param complete:^(NSArray * _Nullable array) {
          results = array;
      }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return results;
 }
 /**
@@ -324,11 +324,11 @@
     NSAssert((range.location>=0)&&(range.length>0),@"range参数错误,location应该大于或等于零,length应该大于零");
     [param appendFormat:@"limit %@,%@",@(range.location),@(range.length)];
     __block NSArray* results;
-    [[BGFMDB shareManager] queryObjectWithClass:[self class] where:nil param:param complete:^(NSArray * _Nullable array) {
+    [[BGDB shareManager] queryObjectWithClass:[self class] where:nil param:param complete:^(NSArray * _Nullable array) {
         results = array;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return results;
 }
 /**
@@ -350,11 +350,11 @@
  */
 +(NSArray* _Nullable)bg_findWhere:(NSArray* _Nullable)where{
     __block NSArray* results;
-    [[BGFMDB shareManager] queryObjectWithClass:[self class] keys:nil where:where complete:^(NSArray * _Nullable array) {
+    [[BGDB shareManager] queryObjectWithClass:[self class] keys:nil where:where complete:^(NSArray * _Nullable array) {
         results = array;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return results;
 }
 /**
@@ -387,11 +387,11 @@
     va_end (ap);
     NSString* tableName = NSStringFromClass([self class]);
     __block NSArray* results;
-    [[BGFMDB shareManager] queryWithTableName:tableName conditions:conditions complete:^(NSArray * _Nullable array) {
+    [[BGDB shareManager] queryWithTableName:tableName conditions:conditions complete:^(NSArray * _Nullable array) {
         results = [BGTool tansformDataFromSqlDataWithTableName:tableName array:array];
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return results;
 }
 /**
@@ -402,11 +402,11 @@
  */
 +(NSArray* _Nullable)bg_findForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
     __block NSArray* results;
-    [[BGFMDB shareManager] queryObjectWithClass:[self class] forKeyPathAndValues:keyPathValues complete:^(NSArray * _Nullable array) {
+    [[BGDB shareManager] queryObjectWithClass:[self class] forKeyPathAndValues:keyPathValues complete:^(NSArray * _Nullable array) {
         results = array;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return results;
 }
 /**
@@ -449,11 +449,11 @@
  */
 -(BOOL)bg_updateWhere:(NSArray* _Nullable)where{
     __block BOOL result;
-    [[BGFMDB shareManager] updateWithObject:self where:where ignoreKeys:nil complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] updateWithObject:self where:where ignoreKeys:nil complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -465,11 +465,11 @@
  */
 -(BOOL)bg_updateWhere:(NSArray* _Nullable)where ignoreKeys:(NSArray* const _Nullable)ignoreKeys{
     __block BOOL result;
-    [[BGFMDB shareManager] updateWithObject:self where:where ignoreKeys:ignoreKeys complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] updateWithObject:self where:where ignoreKeys:ignoreKeys complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 
@@ -503,11 +503,11 @@
     NSString* tableName = NSStringFromClass([self class]);
     //加入更新时间字段值.
     __block BOOL result;
-    [[BGFMDB shareManager] updateWithTableName:tableName valueDict:nil conditions:conditions complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] updateWithTableName:tableName valueDict:nil conditions:conditions complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -527,11 +527,11 @@
     NSString* tableName = NSStringFromClass([self class]);
     NSDictionary* valueDict = [BGTool getDictWithObject:self ignoredKeys:nil isUpdate:YES];
     __block BOOL result;
-    [[BGFMDB shareManager] updateWithTableName:tableName valueDict:valueDict conditions:conditions complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] updateWithTableName:tableName valueDict:valueDict conditions:conditions complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -547,11 +547,11 @@
  */
 -(BOOL)bg_updateFormatSqlConditions:(NSString*)conditions IgnoreKeys:(NSArray* const _Nullable)ignoreKeys{
     __block BOOL result;
-    [[BGFMDB shareManager] updateObject:self ignoreKeys:ignoreKeys conditions:conditions complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] updateObject:self ignoreKeys:ignoreKeys conditions:conditions complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 
@@ -563,11 +563,11 @@
  */
 -(BOOL)bg_updateForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
     __block BOOL result;
-    [[BGFMDB shareManager] updateWithObject:self forKeyPathAndValues:keyPathValues ignoreKeys:nil complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] updateWithObject:self forKeyPathAndValues:keyPathValues ignoreKeys:nil complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -579,11 +579,11 @@
  */
 -(BOOL)bg_updateForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues ignoreKeys:(NSArray* const _Nullable)ignoreKeys{
     __block BOOL result;
-    [[BGFMDB shareManager] updateWithObject:self forKeyPathAndValues:keyPathValues ignoreKeys:ignoreKeys complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] updateWithObject:self forKeyPathAndValues:keyPathValues ignoreKeys:ignoreKeys complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 
@@ -607,11 +607,11 @@
  */
 +(BOOL)bg_deleteWhere:(NSArray* _Nonnull)where{
     __block BOOL result;
-    [[BGFMDB shareManager] deleteWithClass:[self class] where:where complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] deleteWithClass:[self class] where:where complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -644,11 +644,11 @@
     va_end (ap);
     NSString* tableName = NSStringFromClass([self class]);
     __block BOOL result;
-    [[BGFMDB shareManager] deleteWithTableName:tableName conditions:conditions complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] deleteWithTableName:tableName conditions:conditions complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -659,11 +659,11 @@
  */
 +(BOOL)bg_deleteForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
     __block BOOL result;
-    [[BGFMDB shareManager] deleteWithTableName:NSStringFromClass([self class]) forKeyPathAndValues:keyPathValues complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] deleteWithTableName:NSStringFromClass([self class]) forKeyPathAndValues:keyPathValues complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -702,11 +702,11 @@
  */
 +(BOOL)bg_clear{
     __block BOOL result;
-    [[BGFMDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess){
+    [[BGDB shareManager] clearWithClass:[self class] complete:^(BOOL isSuccess){
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -723,11 +723,11 @@
  */
 +(BOOL)bg_drop{
     __block BOOL result;
-    [[BGFMDB shareManager] dropWithClass:[self class] complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] dropWithClass:[self class] complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -745,9 +745,9 @@
  不支持keypath的key,即嵌套的自定义类, 形式如@[@"user.name",@"=",@"习大大"]暂不支持(有专门的keyPath查询条数接口).
  */
 +(NSInteger)bg_countWhere:(NSArray* _Nullable)where{
-    NSUInteger count = [[BGFMDB shareManager] countForTable:NSStringFromClass([self class]) where:where];
+    NSUInteger count = [[BGDB shareManager] countForTable:NSStringFromClass([self class]) where:where];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return count;
 }
 /**
@@ -766,9 +766,9 @@
     va_start (ap, format);
     NSString *conditions = [[NSString alloc] initWithFormat:format arguments:ap];
     va_end (ap);
-    NSInteger count = [[BGFMDB shareManager] countForTable:NSStringFromClass([self class]) conditions:conditions];
+    NSInteger count = [[BGDB shareManager] countForTable:NSStringFromClass([self class]) conditions:conditions];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return count;
 }
 
@@ -778,9 +778,9 @@
  即查询user.student.name=@"小芳" 和 user.student.content中包含@“书”这个字符串的对象的条数.
  */
 +(NSInteger)bg_countForKeyPathAndValues:(NSArray* _Nonnull)keyPathValues{
-    NSInteger count = [[BGFMDB shareManager] countForTable:NSStringFromClass([self class]) forKeyPathAndValues:keyPathValues];
+    NSInteger count = [[BGDB shareManager] countForTable:NSStringFromClass([self class]) forKeyPathAndValues:keyPathValues];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return count;
 }
 /**
@@ -793,9 +793,9 @@
     va_start (ap,where);
     NSString *conditions = where?[[NSString alloc] initWithFormat:where arguments:ap]:nil;
     va_end (ap);
-    NSInteger num = [[BGFMDB shareManager] sqliteMethodForTable:NSStringFromClass([self class]) type:methodType key:key where:conditions];
+    NSInteger num = [[BGDB shareManager] sqliteMethodForTable:NSStringFromClass([self class]) type:methodType key:key where:conditions];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return num;
 }
 /**
@@ -817,11 +817,11 @@
     if(version > oldVersion){
         [BGTool setIntegerWithKey:tableName value:version];
         __block bg_dealState state;
-        [[BGFMDB shareManager] refreshTable:tableName keys:[BGTool getClassIvarList:[self class] onlyKey:NO] complete:^(bg_dealState result) {
+        [[BGDB shareManager] refreshTable:tableName keys:[BGTool getClassIvarList:[self class] onlyKey:NO] complete:^(bg_dealState result) {
             state = result;
         }];
         //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        [[BGDB shareManager] closeDB];
         return state;
     }else{
         return  bg_error;
@@ -860,11 +860,11 @@
     if(version > oldVersion){
         [BGTool setIntegerWithKey:tableName value:version];
         __block bg_dealState state;
-        [[BGFMDB shareManager] refreshTable:tableName keyDict:keydict complete:^(bg_dealState result) {
+        [[BGDB shareManager] refreshTable:tableName keyDict:keydict complete:^(bg_dealState result) {
             state = result;
         }];
         //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        [[BGDB shareManager] closeDB];
         return state;
     }else{
         return bg_error;
@@ -901,11 +901,11 @@
  */
 +(bg_dealState)bg_copyToClass:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append{
     __block bg_dealState state;
-    [[BGFMDB shareManager] copyClass:[self class] to:destCla keyDict:keydict append:append complete:^(bg_dealState result) {
+    [[BGDB shareManager] copyClass:[self class] to:destCla keyDict:keydict append:append complete:^(bg_dealState result) {
         state = result;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return state;
 }
 /**
@@ -929,7 +929,7 @@
  */
 +(BOOL)bg_registerChangeWithName:(NSString* const _Nonnull)name block:(bg_changeBlock)block{
     NSString* uniqueName = [NSString stringWithFormat:@"%@*%@",NSStringFromClass([self class]),name];
-    return [[BGFMDB shareManager] registerChangeWithName:uniqueName block:block];
+    return [[BGDB shareManager] registerChangeWithName:uniqueName block:block];
 }
 /**
  移除数据变化监听.
@@ -938,7 +938,7 @@
  */
 +(BOOL)bg_removeChangeWithName:(NSString* const _Nonnull)name{
      NSString* uniqueName = [NSString stringWithFormat:@"%@*%@",NSStringFromClass([self class]),name];
-    return [[BGFMDB shareManager] removeChangeWithName:uniqueName];
+    return [[BGDB shareManager] removeChangeWithName:uniqueName];
 }
 
 /**
@@ -947,9 +947,9 @@
  提示：字段名要增加BG_前缀
  */
 id bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className){
-    id result = [[BGFMDB shareManager] bg_executeSql:sql className:className];
+    id result = [[BGDB shareManager] bg_executeSql:sql className:className];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 
@@ -995,11 +995,11 @@ id bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className){
 -(BOOL)bg_saveArrayWithName:(NSString* const _Nonnull)name{
     if([self isKindOfClass:[NSArray class]]) {
         __block BOOL result;
-        [[BGFMDB shareManager] saveArray:self name:name complete:^(BOOL isSuccess) {
+        [[BGDB shareManager] saveArray:self name:name complete:^(BOOL isSuccess) {
             result = isSuccess;
         }];
         //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        [[BGDB shareManager] closeDB];
         return result;
     }else{
         return NO;
@@ -1013,11 +1013,11 @@ id bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className){
 +(BOOL)bg_addObjectWithName:(NSString* const _Nonnull)name object:(id const _Nonnull)object{
     NSAssert(object,@"元素不能为空!");
     __block BOOL result;
-    [[BGFMDB shareManager] saveArray:@[object] name:name complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] saveArray:@[object] name:name complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -1025,9 +1025,9 @@ id bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className){
  @name 唯一标识名称.
  */
 +(NSInteger)bg_countWithName:(NSString* const _Nonnull)name{
-    NSUInteger count = [[BGFMDB shareManager] countForTable:name where:nil];
+    NSUInteger count = [[BGDB shareManager] countForTable:name where:nil];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return count;
 
 }
@@ -1036,13 +1036,13 @@ id bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className){
  */
 +(NSArray*)bg_arrayWithName:(NSString* const _Nonnull)name{
     __block NSMutableArray* results;
-    [[BGFMDB shareManager] queryArrayWithName:name complete:^(NSArray * _Nullable array) {
+    [[BGDB shareManager] queryArrayWithName:name complete:^(NSArray * _Nullable array) {
         if(array&&array.count){
             results = [NSMutableArray arrayWithArray:array];
         }
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return results;
 }
 /**
@@ -1051,9 +1051,9 @@ id bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className){
  @index 数组元素位置.
  */
 +(id _Nullable)bg_objectWithName:(NSString* const _Nonnull)name Index:(NSInteger)index{
-    id resultValue = [[BGFMDB shareManager] queryArrayWithName:name index:index];
+    id resultValue = [[BGDB shareManager] queryArrayWithName:name index:index];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return resultValue;
 }
 /**
@@ -1062,9 +1062,9 @@ id bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className){
  @index 数组元素位置.
  */
 +(BOOL)bg_updateObjectWithName:(NSString* const _Nonnull)name Object:(id _Nonnull)object Index:(NSInteger)index{
-    BOOL result = [[BGFMDB shareManager] updateObjectWithName:name object:object index:index];
+    BOOL result = [[BGDB shareManager] updateObjectWithName:name object:object index:index];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -1073,9 +1073,9 @@ id bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className){
  @index 数组元素位置.
  */
 +(BOOL)bg_deleteObjectWithName:(NSString* const _Nonnull)name Index:(NSInteger)index{
-    BOOL result = [[BGFMDB shareManager] deleteObjectWithName:name index:index];
+    BOOL result = [[BGDB shareManager] deleteObjectWithName:name index:index];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -1084,11 +1084,11 @@ id bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className){
  */
 +(BOOL)bg_clearArrayWithName:(NSString* const _Nonnull)name{
     __block BOOL result;
-    [[BGFMDB shareManager] dropSafeTable:name complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] dropSafeTable:name complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 @end
@@ -1101,11 +1101,11 @@ id bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className){
 -(BOOL)bg_saveDictionary{
     if([self isKindOfClass:[NSDictionary class]]) {
         __block BOOL result;
-        [[BGFMDB shareManager] saveDictionary:self complete:^(BOOL isSuccess) {
+        [[BGDB shareManager] saveDictionary:self complete:^(BOOL isSuccess) {
             result = isSuccess;
         }];
         //关闭数据库
-        [[BGFMDB shareManager] closeDB];
+        [[BGDB shareManager] closeDB];
         return result;
     }else{
         return NO;
@@ -1116,44 +1116,44 @@ id bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className){
  添加字典元素.
  */
 +(BOOL)bg_setValue:(id const _Nonnull)value forKey:(NSString* const _Nonnull)key{
-    BOOL result = [[BGFMDB shareManager] bg_setValue:value forKey:key];
+    BOOL result = [[BGDB shareManager] bg_setValue:value forKey:key];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
  更新字典元素.
  */
 +(BOOL)bg_updateValue:(id const _Nonnull)value forKey:(NSString* const _Nonnull)key{
-    BOOL result = [[BGFMDB shareManager] bg_updateValue:value forKey:key];
+    BOOL result = [[BGDB shareManager] bg_updateValue:value forKey:key];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
  遍历字典元素.
  */
 +(void)bg_enumerateKeysAndObjectsUsingBlock:(void (^ _Nonnull)(NSString* _Nonnull key, id _Nonnull value,BOOL *stop))block{
-    [[BGFMDB shareManager] bg_enumerateKeysAndObjectsUsingBlock:block];
+    [[BGDB shareManager] bg_enumerateKeysAndObjectsUsingBlock:block];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
 }
 /**
  获取字典元素.
  */
 +(id _Nullable)bg_valueForKey:(NSString* const _Nonnull)key{
-    id value = [[BGFMDB shareManager] bg_valueForKey:key];
+    id value = [[BGDB shareManager] bg_valueForKey:key];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return value;
 }
 /**
  移除字典某个元素.
  */
 +(BOOL)bg_removeValueForKey:(NSString* const _Nonnull)key{
-    BOOL result = [[BGFMDB shareManager] bg_deleteValueForKey:key];
+    BOOL result = [[BGDB shareManager] bg_deleteValueForKey:key];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 /**
@@ -1162,11 +1162,11 @@ id bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className){
 +(BOOL)bg_clearDictionary{
     __block BOOL result;
     NSString* const tableName = @"BG_Dictionary";
-    [[BGFMDB shareManager] dropSafeTable:tableName complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] dropSafeTable:tableName complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
-    [[BGFMDB shareManager] closeDB];
+    [[BGDB shareManager] closeDB];
     return result;
 }
 @end

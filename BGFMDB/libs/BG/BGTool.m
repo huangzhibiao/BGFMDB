@@ -1,6 +1,6 @@
 //
 //  BGTool.m
-//  BGFMDB
+//  BGDB
 //
 //  Created by huangzhibiao on 17/2/16.
 //  Copyright © 2017年 Biao. All rights reserved.
@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 #import "BGTool.h"
-#import "BGFMDB.h"
+#import "BGDB.h"
 #import "BGModelInfo.h"
 #import "NSCache+BGCache.h"
 
@@ -60,23 +60,23 @@ NSString* bg_keyPathValues(NSArray* keyPathValues){
  自定义数据库名称.
  */
 void bg_setSqliteName(NSString*_Nonnull sqliteName){
-    if (![sqliteName isEqualToString:[BGFMDB shareManager].sqliteName]) {
-        [BGFMDB shareManager].sqliteName = sqliteName;
+    if (![sqliteName isEqualToString:[BGDB shareManager].sqliteName]) {
+        [BGDB shareManager].sqliteName = sqliteName;
     }
 }
 /**
  删除数据库文件
  */
 BOOL bg_deleteSqlite(NSString*_Nonnull sqliteName){
-    return [BGFMDB deleteSqlite:sqliteName];
+    return [BGDB deleteSqlite:sqliteName];
 }
 /**
  设置操作过程中不可关闭数据库(即closeDB函数无效).
  默认是NO.
  */
 void bg_setDisableCloseDB(BOOL disableCloseDB){
-    if ([BGFMDB shareManager].disableCloseDB != disableCloseDB){//防止重复设置.
-        [BGFMDB shareManager].disableCloseDB = disableCloseDB;
+    if ([BGDB shareManager].disableCloseDB != disableCloseDB){//防止重复设置.
+        [BGDB shareManager].disableCloseDB = disableCloseDB;
     }
 }
 /**
@@ -84,8 +84,8 @@ void bg_setDisableCloseDB(BOOL disableCloseDB){
  @debug YES:打印调试信息, NO:不打印调试信息.
  */
 void bg_setDebug(BOOL debug){
-    if ([BGFMDB shareManager].debug != debug){//防止重复设置.
-        [BGFMDB shareManager].debug = debug;
+    if ([BGDB shareManager].debug != debug){//防止重复设置.
+        [BGDB shareManager].debug = debug;
     }
 }
 
@@ -94,7 +94,7 @@ void bg_setDebug(BOOL debug){
  @return 返回YES提交事务, 返回NO回滚事务.
  */
 void bg_inTransaction(BOOL (^ _Nonnull block)()){
-    [[BGFMDB shareManager] inTransaction:block];
+    [[BGDB shareManager] inTransaction:block];
 }
 /**
  清除缓存
@@ -937,7 +937,7 @@ void bg_cleanCache(){
     //获取"唯一约束"字段名
     NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(bg_uniqueKeySelector) forClass:[object class]];
     __block BOOL isExistTable;
-    [[BGFMDB shareManager] isExistWithTableName:tableName complete:^(BOOL isExist) {
+    [[BGDB shareManager] isExistWithTableName:tableName complete:^(BOOL isExist) {
         if (!isExist){//如果不存在就新建
             NSMutableArray* createKeys = [NSMutableArray arrayWithArray:[BGTool getClassIvarList:[object class] onlyKey:NO]];
             //判断是否有需要忽略的key集合.
@@ -953,7 +953,7 @@ void bg_cleanCache(){
                     }];
                 }
             }
-            [[BGFMDB shareManager] createTableWithTableName:tableName keys:createKeys uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
+            [[BGDB shareManager] createTableWithTableName:tableName keys:createKeys uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
                 isExistTable = isSuccess;
             }];
         }

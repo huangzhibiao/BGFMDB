@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NSObject+BGModel.h"//引入所需头文件.
+#import "BGFMDB.h"//引入所需头文件.
 
 @class Dog;
 
