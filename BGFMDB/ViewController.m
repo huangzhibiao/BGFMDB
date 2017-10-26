@@ -10,7 +10,6 @@
 #import "stockController.h"
 #import "dictToModelController.h"
 #import "people.h"
-#import "BGTool.h"
 
 @interface ViewController ()
 
@@ -33,7 +32,6 @@
 @end
 
 @implementation ViewController
-
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -125,7 +123,14 @@
 //        //[People bg_clear];//清除全部People的数据.
 //        return NO;
 //    });
-    
+    /**
+     异步事务
+     */
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+//        bg_inTransaction(^BOOL{
+//            return [p bg_save];
+//        });
+//    });
     /**
      将People类数据中name=@"标哥"，num=220.88的数据更新为当前对象的数据.
      */
@@ -214,8 +219,8 @@
      当数据量巨大时采用分页范围查询.
      */
     NSInteger count = [People bg_countWhere:nil];
-    for(int i=0;i<count;i+=10){
-        NSArray* arr = [People bg_findAllWithRange:NSMakeRange(i,10) orderBy:nil desc:NO];
+    for(int i=0;i<count;i+=50){
+        NSArray* arr = [People bg_findAllWithRange:NSMakeRange(i,50) orderBy:nil desc:NO];
         for(People* pp in arr){
             //具体数据请断点查看
             //库新增两个自带字段createTime和updateTime方便开发者使用和做参考对比.
@@ -605,6 +610,7 @@
             People* pp = [People bg_lastObject];
             NSLog(@"bg_id = %@",pp.bg_id);
         });
+        
     }
 
 }

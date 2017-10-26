@@ -15,7 +15,9 @@
  */
 #define SQLITE_NAME @"BGFMDB.db"
 
-// 日志输出
+/**
+ 日志输出
+ */
 #ifdef DEBUG
 #define bg_log(...) NSLog(__VA_ARGS__)
 #else
@@ -33,14 +35,24 @@ if(self.debug){bg_log(@"调试输出: %@",param);}\
 static const void * const BGFMDBDispatchQueueSpecificKey = &BGFMDBDispatchQueueSpecificKey;
 
 @interface BGDB()
-//数据库队列
+/**
+ 数据库队列
+ */
 @property (nonatomic, strong) FMDatabaseQueue *queue;
 @property (nonatomic, strong) FMDatabase* db;
 @property (nonatomic, assign) BOOL inTransaction;
-//递归锁.
+/**
+ 递归锁.
+ */
 //@property (nonatomic, strong) NSRecursiveLock *threadLock;
-
-@property (nonatomic,strong) NSMutableDictionary* changeBlocks;//记录注册监听数据变化的block.
+/**
+ 记录注册监听数据变化的block.
+ */
+@property (nonatomic,strong) NSMutableDictionary* changeBlocks;
+/**
+ 存放当队列处于忙时的事务block
+ */
+@property (nonatomic,strong) NSMutableArray* transactionBlocks;
 
 @end
 
@@ -54,8 +66,8 @@ static BGDB* BGdb = nil;
 
 
 -(void)destroy{
-    if (_changeBlocks){
-        [_changeBlocks removeAllObjects];//清除所有注册列表.
+    if (self.changeBlocks){
+        [self.changeBlocks removeAllObjects];//清除所有注册列表.
         _changeBlocks = nil;
     }
     if (_semaphore) {
@@ -71,7 +83,7 @@ static BGDB* BGdb = nil;
  关闭数据库.
  */
 -(void)closeDB{
-    if(_disableCloseDB)return;
+    if(_disableCloseDB)return;//不关闭数据库
     
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     if(!_inTransaction && _queue) {//没有事务的情况下就关闭数据库.
@@ -96,9 +108,8 @@ static BGDB* BGdb = nil;
 -(instancetype)init{
     self = [super init];
     if (self) {
-        
+        //创建递归锁.
         //self.threadLock = [[NSRecursiveLock alloc] init];
-        self.changeBlocks = [NSMutableDictionary dictionary];
         //创建信号量.
         self.semaphore = dispatch_semaphore_create(1);
     }
@@ -120,6 +131,28 @@ static BGDB* BGdb = nil;
     return _queue;
 }
 
+-(NSMutableDictionary *)changeBlocks{
+    if (_changeBlocks == nil) {
+        @synchronized(self){
+            if(_changeBlocks == nil){
+            _changeBlocks = [NSMutableDictionary dictionary];
+            }
+        }
+    }
+    return _changeBlocks;
+}
+
+-(NSMutableArray *)transactionBlocks{
+    if (_transactionBlocks == nil){
+        @synchronized(self){
+            if(_transactionBlocks == nil){
+            _transactionBlocks = [NSMutableArray array];
+            }
+        }
+    }
+    return _transactionBlocks;
+}
+
 /**
  获取单例函数.
  */
@@ -133,8 +166,20 @@ static BGDB* BGdb = nil;
 //事务操作
 -(void)inTransaction:(BOOL (^_Nonnull)())block{
     NSAssert(block, @"block is nil!");
+    
+    [self.transactionBlocks addObject:block];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.2*NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self executeTransationBlocks];
+    });
+
+}
+
+/*
+ 执行事务操作
+ */
+-(void)executeTransation:(BOOL (^_Nonnull)())block{
     [self executeDB:^(FMDatabase * _Nonnull db) {
-        _inTransaction = db.inTransaction;
+        _inTransaction = db.isInTransaction;
         if (!_inTransaction) {
             _inTransaction = [db beginTransaction];
         }
@@ -150,39 +195,62 @@ static BGDB* BGdb = nil;
         }
     }];
 }
+
+-(void)executeTransationBlocks{
+   //[self.threadLock lock];
+    @synchronized(self){
+        if(_inTransaction || _queue){
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.2*NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                [self executeTransationBlocks];
+            });
+            return;
+        }
+
+        if(self.transactionBlocks.count){
+            [self.transactionBlocks enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                if(obj){
+                    BOOL (^block)() = obj;
+                    [self executeTransation:block];
+                    [self.transactionBlocks removeObjectAtIndex:idx];
+                }
+            }];
+            [self closeDB];
+        }
+    }
+    //[self.threadLock unlock];
+}
+
 /**
  为了对象层的事物操作而封装的函数.
  */
 -(void)executeDB:(void (^_Nonnull)(FMDatabase *_Nonnull db))block{
     NSAssert(block, @"block is nil!");
-    //[self.threadLock lock];//加锁
     
-    if (_db){//为了事务操作防止死锁而设置.
-        block(_db);
-        return;
-    }
-    __weak typeof(self) weakSelf = self;
-    [self.queue inDatabase:^(FMDatabase *db){
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        strongSelf.db = db;
-        block(db);
-        strongSelf.db = nil;
-    }];
+        if (_db){//为了事务操作防止死锁而设置.
+            block(_db);
+            return;
+        }
+        __weak typeof(self) weakSelf = self;
+        [self.queue inDatabase:^(FMDatabase *db){
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            strongSelf.db = db;
+            block(db);
+            strongSelf.db = nil;
+        }];
     
-    //[self.threadLock unlock];//解锁
 }
 
 /**
  注册数据变化监听.
  */
 -(BOOL)registerChangeWithName:(NSString* const _Nonnull)name block:(bg_changeBlock)block{
-    if ([_changeBlocks.allKeys containsObject:name]){
+    if ([self.changeBlocks.allKeys containsObject:name]){
         NSArray* array = [name componentsSeparatedByString:@"*"];
         NSString* reason = [NSString stringWithFormat:@"%@类注册监听名称%@重复,注册监听失败!",array.firstObject,array.lastObject];
         bg_debug(reason);
         return NO;
     }else{
-        [_changeBlocks setObject:block forKey:name];
+        [self.changeBlocks setObject:block forKey:name];
         return YES;
     }
 }
@@ -190,8 +258,8 @@ static BGDB* BGdb = nil;
  移除数据变化监听.
  */
 -(BOOL)removeChangeWithName:(NSString* const _Nonnull)name{
-    if ([_changeBlocks.allKeys containsObject:name]){
-        [_changeBlocks removeObjectForKey:name];
+    if ([self.changeBlocks.allKeys containsObject:name]){
+        [self.changeBlocks removeObjectForKey:name];
         return YES;
     }else{
         NSArray* array = [name componentsSeparatedByString:@"*"];
@@ -201,10 +269,10 @@ static BGDB* BGdb = nil;
     }
 }
 -(void)doChangeWithName:(NSString* const _Nonnull)name flag:(BOOL)flag state:(bg_changeState)state{
-    if(flag && _changeBlocks.count>0){
+    if(flag && self.changeBlocks.count>0){
         //开一个子线程去执行block,防止死锁.
         dispatch_async(dispatch_get_global_queue(0,0), ^{
-            [_changeBlocks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop){
+            [self.changeBlocks enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop){
                 NSArray* array = [key componentsSeparatedByString:@"*"];
                 if([name isEqualToString:array.firstObject]){
                     void(^block)(bg_changeState) = obj;
@@ -1031,7 +1099,7 @@ static BGDB* BGdb = nil;
     NSString* BGTempTable = @"BGTempTable";
     //事务操作.
     __block int recordFailCount = 0;
-    [self inTransaction:^BOOL{
+    [self executeTransation:^BOOL{
         [self copyA:name toB:BGTempTable keys:keys complete:^(bg_dealState result) {
             if(result == bg_complete){
                 recordFailCount++;
@@ -1190,7 +1258,7 @@ static BGDB* BGdb = nil;
     //事务操作.
     NSString* BGTempTable = @"BGTempTable";
     __block int recordFailCount = 0;
-    [self inTransaction:^BOOL{
+    [self executeTransation:^BOOL{
         [self copyA:name toB:BGTempTable keyDict:keyDict complete:^(bg_dealState result) {
             if(result == bg_complete){
                 recordFailCount++;
@@ -1686,7 +1754,7 @@ static BGDB* BGdb = nil;
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
         //事务操作其过程.
-        [self inTransaction:^BOOL{
+        [self executeTransation:^BOOL{
             __block BOOL success = NO;
             [self copyQueueClass:srcCla to:destCla keyDict:keydict append:append complete:^(bg_dealState result) {
                 if (result == bg_complete) {
@@ -1758,7 +1826,7 @@ static BGDB* BGdb = nil;
         __block NSInteger sqlCount = [self countQueueForTable:name where:nil];
         
         __block NSInteger num = 0;
-        [self inTransaction:^BOOL{
+        [self executeTransation:^BOOL{
             for(id value in array){
                 NSString* type = [NSString stringWithFormat:@"@\"%@\"",NSStringFromClass([value class])];
                 id sqlValue = [BGTool getSqlValue:value type:type encode:YES];
@@ -1850,7 +1918,7 @@ static BGDB* BGdb = nil;
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     __block NSInteger flag = 0;
     @autoreleasepool {
-        [self inTransaction:^BOOL{
+        [self executeTransation:^BOOL{
             [self deleteQueueWithTableName:name conditions:[NSString stringWithFormat:@"where BG_index=%@",@(index)] complete:^(BOOL isSuccess) {
                 if(isSuccess) {
                     flag++;
@@ -1885,7 +1953,7 @@ static BGDB* BGdb = nil;
             }
         }];
         __block NSInteger num = 0;
-        [self inTransaction:^BOOL{
+        [self executeTransation:^BOOL{
             [dictionary enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull value, BOOL * _Nonnull stop){
                 NSString* type = [NSString stringWithFormat:@"@\"%@\"",NSStringFromClass([value class])];
                 id sqlValue = [BGTool getSqlValue:value type:type encode:YES];
