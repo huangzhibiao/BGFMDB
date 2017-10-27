@@ -597,15 +597,18 @@
  */
 - (IBAction)multithreadTestAction:(id)sender {
     People* p = [self people];
-    for(int i=0;i<20;i++){
+    for(int i=0;i<5;i++){
+        
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
             NSLog(@"存储...");
             [p bg_save];
         });
+        
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
             NSLog(@"更新...");
             [People bg_updateFormatSqlConditions:@"set %@=%@ where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"标哥"),bg_sqlKey(@"name"),bg_sqlValue(@"斯巴达")];
         });
+        
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
             People* pp = [People bg_lastObject];
             NSLog(@"bg_id = %@",pp.bg_id);

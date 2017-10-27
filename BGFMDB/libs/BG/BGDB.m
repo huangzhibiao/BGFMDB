@@ -30,7 +30,7 @@ if(self.debug){bg_log(@"调试输出: %@",param);}\
 
 #define MaxQueryPageNum 50
 
-#define CachePath(name) [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:name]
+#define CachePath(name) [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:name]
 
 static const void * const BGFMDBDispatchQueueSpecificKey = &BGFMDBDispatchQueueSpecificKey;
 
@@ -200,21 +200,18 @@ static BGDB* BGdb = nil;
    //[self.threadLock lock];
     @synchronized(self){
         if(_inTransaction || _queue){
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.2*NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                [self executeTransationBlocks];
-            });
+            if(self.transactionBlocks.count) {
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.2*NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    [self executeTransationBlocks];
+                });
+            }
             return;
         }
 
-        if(self.transactionBlocks.count){
-            [self.transactionBlocks enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                if(obj){
-                    BOOL (^block)() = obj;
-                    [self executeTransation:block];
-                    [self.transactionBlocks removeObjectAtIndex:idx];
-                }
-            }];
-            [self closeDB];
+        while(self.transactionBlocks.count) {
+            BOOL (^block)() = [self.transactionBlocks lastObject];
+            [self executeTransation:block];
+            [self.transactionBlocks removeLastObject];
         }
     }
     //[self.threadLock unlock];
