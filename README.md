@@ -172,7 +172,7 @@ NSArray* arrayConds3 = [People bg_findFormatSqlConditions:@"where %@ and %@=%@",
 /**
 将People类数据中name等于"马化腾"的数据更新为当前对象的数据.
 */
-[p bg_updateFormatSqlConditions:@"where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"爸爸")];
+[p bg_updateFormatSqlConditions:@"where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"马化腾")];
 ```
 ### 删除
 ```Objective-C
