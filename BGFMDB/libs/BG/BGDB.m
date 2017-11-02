@@ -166,11 +166,14 @@ static BGDB* BGdb = nil;
 //事务操作
 -(void)inTransaction:(BOOL (^_Nonnull)())block{
     NSAssert(block, @"block is nil!");
-    
-    [self.transactionBlocks addObject:block];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.2*NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self executeTransationBlocks];
-    });
+    if([NSThread currentThread].isMainThread){//主线程直接执行
+        [self executeTransation:block];
+    }else{//子线程则延迟执行
+        [self.transactionBlocks addObject:block];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.2*NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self executeTransationBlocks];
+        });
+    }
 
 }
 
