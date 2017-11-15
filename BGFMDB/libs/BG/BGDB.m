@@ -783,7 +783,9 @@ static BGDB* BGdb = nil;
  直接传入条件sql语句删除.
  */
 -(void)deleteWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nonnull)conditions complete:(bg_complete_B)complete{
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     [self deleteQueueWithTableName:name conditions:conditions complete:complete];
+    dispatch_semaphore_signal(self.semaphore);
 }
 
 -(void)deleteQueueWithTableName:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(bg_complete_B)complete{
@@ -804,7 +806,9 @@ static BGDB* BGdb = nil;
 
 //根据keypath删除表内容.
 -(void)deleteWithTableName:(NSString* _Nonnull)name forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues complete:(bg_complete_B)complete{
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     [self deleteQueueWithTableName:name forKeyPathAndValues:keyPathValues complete:complete];
+    dispatch_semaphore_signal(self.semaphore);
 }
 /**
  根据表名删除表格全部内容.
@@ -1621,12 +1625,16 @@ static BGDB* BGdb = nil;
  根据条件删除对象表中的对象数据.
  */
 -(void)deleteWithClass:(__unsafe_unretained _Nonnull Class)cla where:(NSArray* _Nonnull)where complete:(bg_complete_B)complete{
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     [self deleteQueueWithClass:cla where:where complete:complete];
+    dispatch_semaphore_signal(self.semaphore);
 }
 /**
  根据类删除此类所有表数据.
  */
 -(void)clearWithClass:(__unsafe_unretained _Nonnull Class)cla complete:(bg_complete_B)complete{
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    
     NSString* tableName = NSStringFromClass(cla);
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist) {
@@ -1637,11 +1645,15 @@ static BGDB* BGdb = nil;
             [strongSelf clearTable:tableName complete:complete];
         }
     }];
+    
+    dispatch_semaphore_signal(self.semaphore);
 }
 /**
  根据类,删除这个类的表.
  */
 -(void)dropWithClass:(__unsafe_unretained _Nonnull Class)cla complete:(bg_complete_B)complete{
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    
     NSString* tableName = NSStringFromClass(cla);
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){
@@ -1652,6 +1664,8 @@ static BGDB* BGdb = nil;
             [strongSelf dropTable:tableName complete:complete];
         }
     }];
+    
+    dispatch_semaphore_signal(self.semaphore);
 }
 
 -(void)copyQueueClass:(__unsafe_unretained _Nonnull Class)srcCla to:(__unsafe_unretained _Nonnull Class)destCla keyDict:(NSDictionary* const _Nonnull)keydict append:(BOOL)append complete:(bg_complete_I)complete{
