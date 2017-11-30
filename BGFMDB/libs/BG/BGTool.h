@@ -11,6 +11,12 @@
 
 #define bg_completeBlock(obj) !complete?:complete(obj);
 
+#define BG @"BG_"
+#define bg_tableNameKey @"bg_tableName"
+
+#define bg_uniqueKeysSelector NSSelectorFromString(@"bg_uniqueKeys")
+#define bg_ignoreKeysSelector NSSelectorFromString(@"bg_ignoreKeys")
+
 @interface BGTool : NSObject
 /**
  json字符转json格式数据 .
@@ -49,6 +55,10 @@
 //NSDate转字符串,格式: yyyy-MM-dd HH:mm:ss
 +(NSString* _Nonnull)stringWithDate:(NSDate* _Nonnull)date;
 /**
+ 根据传入的对象获取表名.
+ */
++(NSString* _Nonnull)getTableNameWithObject:(id _Nonnull)object;
+/**
  根据类属性值和属性类型返回数据库存储的值.
  @value 数值.
  @type 数组value的类型.
@@ -60,13 +70,13 @@
  @tableName 表名(即类名).
  @array 传入要转换的数组数据.
  */
-+(NSArray* _Nonnull)tansformDataFromSqlDataWithTableName:(NSString* _Nonnull)tableName array:(NSArray* _Nonnull)array;
++(NSArray* _Nonnull)tansformDataFromSqlDataWithTableName:(NSString* _Nonnull)tableName class:(__unsafe_unretained _Nonnull Class)cla array:(NSArray* _Nonnull)array;
 /**
  转换从数据库中读取出来的数据.
  @claName 类名.
  @valueDict 传入要转换的字典数据.
  */
-+(id _Nonnull)objectFromJsonStringWithClassName:(NSString* _Nonnull)claName valueDict:(NSDictionary* _Nonnull)valueDict;
++(id _Nonnull)objectFromJsonStringWithTableName:(NSString* _Nonnull)tablename class:(__unsafe_unretained _Nonnull Class)cla valueDict:(NSDictionary* _Nonnull)valueDict;
 /**
  字典或json格式字符转模型用的处理函数.
  */
@@ -76,17 +86,21 @@
  */
 +(NSMutableDictionary* _Nonnull)bg_keyValuesWithObject:(id _Nonnull)object ignoredKeys:(NSArray* _Nullable)ignoredKeys;
 /**
- 判断类是否实现了某个类方法.
+ 判断并执行类方法.
  */
-+(id _Nonnull)isRespondsToSelector:(SEL _Nonnull)selector forClass:(__unsafe_unretained _Nonnull Class)cla;
++(id _Nonnull)executeSelector:(SEL _Nonnull)selector forClass:(__unsafe_unretained _Nonnull Class)cla;
 /**
- 判断对象是否实现了某个方法.
+ 判断并执行对象方法.
  */
-+(id _Nonnull)isRespondsToSelector:(SEL _Nonnull)selector forObject:(id _Nonnull)object;
++(id _Nonnull)executeSelector:(SEL _Nonnull)selector forObject:(id _Nonnull)object;
 /**
  根据对象获取要更新或插入的字典.
  */
 +(NSDictionary* _Nonnull)getDictWithObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys isUpdate:(BOOL)update;
+/**
+ 过滤建表的key.
+ */
++(NSArray* _Nonnull)bg_filtCreateKeys:(NSArray* _Nonnull)createkeys ignoredkeys:(NSArray* _Nonnull)ignoredkeys;
 /**
  如果表格不存在就新建.
  */

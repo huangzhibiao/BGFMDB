@@ -47,7 +47,7 @@
     
     [my bg_save];
     
-    NSArray* myArr = [My bg_findAll];
+    NSArray* myArr = [My bg_findAll:nil];
     
     NSLog(@"断点察看结果");
 }

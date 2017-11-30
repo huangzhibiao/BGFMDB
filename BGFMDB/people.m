@@ -14,9 +14,18 @@
 
 @implementation People
 
-//如果需要指定“唯一约束”字段,就实现该函数,这里指定 name 为“唯一约束”.
-//+(NSString *)bg_uniqueKey{
-//    return @"name";
+/**
+ 如果需要指定“唯一约束”字段,就实现该函数,这里指定 name和age 为“唯一约束”.
+ */
+//+(NSArray *)bg_uniqueKeys{
+//    return @[@"name",@"age"];
+//}
+
+/**
+ 设置不需要存储的属性.
+ */
+//+(NSArray *)bg_ignoreKeys{
+//   return @[@"eye",@"sex",@"num"];
 //}
 
 @end

@@ -32,7 +32,7 @@
 
 -(void)dealloc{
     //移除数据变化监听.
-    [stockModel bg_removeChangeWithName:@"stock"];
+    [stockModel bg_removeChangeForTableName:nil identify:@"stock"];
     //恢复默认值.
     bg_setDisableCloseDB(NO);
 }
@@ -68,15 +68,18 @@
     //更新深市数据
     _shenData = [NSNumber numberWithFloat:(float)(rand()%300) + 10427.24];
     _shenStock.stockData = _shenData;
-    [_shenStock bg_updateWhere:@[@"name",@"=",@"深市"]];
+    NSString* where1 = [NSString stringWithFormat:@"%@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"深市")];
+    [_shenStock bg_updateWhere:where1];
     //更新沪市数据
     _huData = [NSNumber numberWithFloat:(float)(rand()%200) + 3013.56];
     _huStock.stockData = _huData;
-    [_huStock bg_updateWhere:@[@"name",@"=",@"沪市"]];
+    NSString* where2 = [NSString stringWithFormat:@"%@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"沪市")];
+    [_huStock bg_updateWhere:where2];
     //更新创业板数据
     _chuangData = [NSNumber numberWithFloat:(float)(rand()%500) + 1954.91];
     _chuangStock.stockData = _chuangData;
-    [_chuangStock bg_updateWhere:@[@"name",@"=",@"创业版"]];
+    NSString* where3 = [NSString stringWithFormat:@"%@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"创业版")];
+    [_chuangStock bg_updateWhere:where3];
     
     !_updateFlag?:[self performSelector:@selector(updateData) withObject:nil afterDelay:1.0];
 }
@@ -85,17 +88,20 @@
 -(void)registerChange{
     //注册数据变化监听.
     __weak typeof(self) BGSelf = self;
-    [stockModel bg_registerChangeWithName:@"stock" block:^(bg_changeState result) {
+    [stockModel bg_registerChangeForTableName:nil identify:@"stock" block:^(bg_changeState result) {
         NSLog(@"当前线程 = %@",[NSThread currentThread]);
         if ((result==bg_insert) || (result==bg_update)){
             //读取深市数据.
-            stockModel* shen = [stockModel bg_findWhere:@[@"name",@"=",@"深市"]].lastObject;
+            NSString* where1 = [NSString stringWithFormat:@"%@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"深市")];
+            stockModel* shen = [stockModel bg_find:nil where:where1].lastObject;
             BGSelf.shenLab.text = shen.stockData.stringValue;
             //读取沪市数据.
-            stockModel* hu = [stockModel bg_findWhere:@[@"name",@"=",@"沪市"]].lastObject;
+            NSString* where2 = [NSString stringWithFormat:@"%@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"沪市")];
+            stockModel* hu = [stockModel bg_find:nil where:where2].lastObject;
             BGSelf.huLab.text = hu.stockData.stringValue;
             //读取创业版数据.
-            stockModel* chuang = [stockModel bg_findWhere:@[@"name",@"=",@"创业版"]].lastObject;
+            NSString* where3 = [NSString stringWithFormat:@"%@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"创业版")];
+            stockModel* chuang = [stockModel bg_find:nil where:where3].lastObject;
             BGSelf.chuangLab.text = chuang.stockData.stringValue;
         }
     }];

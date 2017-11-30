@@ -209,7 +209,7 @@ void bg_cleanCache(){
         for(int i = 0; i < numIvars; i++) {
             Ivar thisIvar = vars[i];
             NSString* key = [NSString stringWithUTF8String:ivar_getName(thisIvar)];//获取成员变量的名
-            if ([key containsString:@"_"]) {
+            if ([key hasPrefix:@"_"]) {
                 key = [key substringFromIndex:1];
             }
             if (!onlyKey) {
@@ -284,7 +284,6 @@ void bg_cleanCache(){
         if ([relations[i] isEqualToString:bg_contains]){//包含关系
             [keyPathParam appendString:@"%"];
         }else{
-            //keypaths.count<=2?[keyPathParam appendString:@"\"%"]:[keyPathParam appendString:@"\\%"];
             if(keypaths.count<=2){
                 if([values[i] isKindOfClass:[NSString class]]){
                     [keyPathParam appendString:@"\"%"];
@@ -600,20 +599,30 @@ void bg_cleanCache(){
         }else{
             NSDictionary* dict = [self jsonWithString:value];
             type = [type substringWithRange:NSMakeRange(2,type.length-3)];
-            return [self objectFromJsonStringWithClassName:type valueDict:dict];
+            return [self objectFromJsonStringWithTableName:type class:NSClassFromString(type) valueDict:dict];
         }
     }
 }
 /**
+ 根据传入的对象获取表名.
+ */
++(NSString *)getTableNameWithObject:(id)object{
+    NSString* tablename = [object valueForKey:bg_tableNameKey];
+    if(tablename == nil) {
+        tablename = NSStringFromClass([object class]);
+    }
+    return tablename;
+}
+/**
  存储转换用的字典转化成对象处理函数.
  */
-+(id)objectFromJsonStringWithClassName:(NSString*)claName valueDict:(NSDictionary*)valueDict{
-    Class cla = NSClassFromString(claName);
++(id)objectFromJsonStringWithTableName:(NSString* _Nonnull)tablename class:(__unsafe_unretained _Nonnull Class)cla valueDict:(NSDictionary*)valueDict{
     id object = [cla new];
-    NSArray* valueDictKeys = valueDict.allKeys;
-    NSArray* keyAndTypes = [self getClassIvarList:cla onlyKey:NO];
+    NSMutableArray* valueDictKeys = [NSMutableArray arrayWithArray:valueDict.allKeys];
+    NSMutableArray* keyAndTypes = [NSMutableArray arrayWithArray:[self getClassIvarList:cla onlyKey:NO]];
     
-    [valueDictKeys enumerateObjectsUsingBlock:^(NSString*  _Nonnull sqlKey, NSUInteger idx, BOOL * _Nonnull stop) {
+    for(int i=0;i<valueDictKeys.count;i++){
+        NSString* sqlKey = valueDictKeys[i];
         NSString* tempSqlKey = sqlKey;
         if([sqlKey containsString:BG]){
             tempSqlKey = [sqlKey stringByReplacingOccurrencesOfString:BG withString:@""];
@@ -624,10 +633,15 @@ void bg_cleanCache(){
             if ([tempSqlKey isEqualToString:key]){
                 id ivarValue = [self getSqlValue:valueDict[sqlKey] type:arrKT.lastObject encode:NO];
                 !ivarValue?:[object setValue:ivarValue forKey:key];
+                [keyAndTypes removeObject:keyAndType];
+                [valueDictKeys removeObjectAtIndex:i];
+                i--;
                 break;//匹配处理完后跳出内循环.
             }
         }
-    }];
+    }
+    
+    [object setValue:tablename forKey:bg_tableNameKey];
     
     return object;
 }
@@ -648,9 +662,9 @@ void bg_cleanCache(){
     }else{
         NSAssert(NO,@"数据格式错误!, 只能转换字典或json格式数据.");
     }
-    NSDictionary* const objectClaInArr = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_objectClassInArray") forClass:[object class]];
-    NSDictionary* const objectClaForCustom = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_objectClassForCustom") forClass:[object class]];
-    NSDictionary* const bg_replacedKeyFromPropertyNameDict = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_replacedKeyFromPropertyName") forClass:[object class]];
+    NSDictionary* const objectClaInArr = [BGTool executeSelector:NSSelectorFromString(@"bg_objectClassInArray") forClass:[object class]];
+    NSDictionary* const objectClaForCustom = [BGTool executeSelector:NSSelectorFromString(@"bg_objectClassForCustom") forClass:[object class]];
+    NSDictionary* const bg_replacedKeyFromPropertyNameDict = [BGTool executeSelector:NSSelectorFromString(@"bg_replacedKeyFromPropertyName") forClass:[object class]];
     NSArray* const claKeys = [self getClassIvarList:cla onlyKey:YES];
     //遍历自定义变量集合信息.
     !objectClaForCustom?:[objectClaForCustom enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull customKey, id  _Nonnull customObj, BOOL * _Nonnull stop) {
@@ -721,8 +735,8 @@ void bg_cleanCache(){
     if (ignoredKeys) {
         [keys removeObjectsInArray:ignoredKeys];
     }
-    NSDictionary* const objectClaInArr = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_objectClassInArray") forClass:[object class]];
-    NSDictionary* const objectClaForCustom = [BGTool isRespondsToSelector:NSSelectorFromString(@"bg_dictForCustomClass") forClass:[object class]];
+    NSDictionary* const objectClaInArr = [BGTool executeSelector:NSSelectorFromString(@"bg_objectClassInArray") forClass:[object class]];
+    NSDictionary* const objectClaForCustom = [BGTool executeSelector:NSSelectorFromString(@"bg_dictForCustomClass") forClass:[object class]];
     NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
     
     [keys enumerateObjectsUsingBlock:^(NSString * _Nonnull key, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -773,7 +787,7 @@ void bg_cleanCache(){
     }else if ([key containsString:BGModel]){
         NSString* claName = [key componentsSeparatedByString:@"*"].lastObject;
         NSDictionary* valueDict = [self jsonWithString:dictionary[key]];
-        id object = [self objectFromJsonStringWithClassName:claName valueDict:valueDict];
+        id object = [self objectFromJsonStringWithTableName:claName class:NSClassFromString(claName) valueDict:valueDict];
         return object;
     }else{
         NSAssert(NO,@"没有找到匹配的解析类型");
@@ -814,7 +828,7 @@ void bg_cleanCache(){
     }else if([keyDest containsString:BGModel]){
         NSString* claName = [keyDest componentsSeparatedByString:@"*"].lastObject;
         NSDictionary* valueDict = [self jsonWithString:dictDest[keyDest]];
-        return [self objectFromJsonStringWithClassName:claName valueDict:valueDict];
+        return [self objectFromJsonStringWithTableName:claName class:NSClassFromString(claName) valueDict:valueDict];
     }else{
         NSAssert(NO,@"没有找到匹配的解析类型");
         return nil;
@@ -871,10 +885,10 @@ void bg_cleanCache(){
     return date;
 }
 //转换从数据库中读取出来的数据.
-+(NSArray*)tansformDataFromSqlDataWithTableName:(NSString*)tableName array:(NSArray*)array{
++(NSArray*)tansformDataFromSqlDataWithTableName:(NSString*)tableName class:(__unsafe_unretained _Nonnull Class)cla array:(NSArray*)array{
     NSMutableArray* arrM = [NSMutableArray array];
     for(NSDictionary* dict in array){
-        id object = [BGTool objectFromJsonStringWithClassName:tableName valueDict:dict];
+        id object = [BGTool objectFromJsonStringWithTableName:tableName class:cla valueDict:dict];
         [arrM addObject:object];
     }
     return arrM;
@@ -882,7 +896,7 @@ void bg_cleanCache(){
 /**
 判断类是否实现了某个类方法.
  */
-+(id)isRespondsToSelector:(SEL)selector forClass:(Class)cla{
++(id)executeSelector:(SEL)selector forClass:(Class)cla{
     id obj = nil;
     if([cla respondsToSelector:selector]){
 #pragma clang diagnostic push
@@ -895,7 +909,7 @@ void bg_cleanCache(){
 /**
  判断对象是否实现了某个方法.
  */
-+(id)isRespondsToSelector:(SEL)selector forObject:(id)object{
++(id)executeSelector:(SEL)selector forObject:(id)object{
     id obj = nil;
     if([object respondsToSelector:selector]){
 #pragma clang diagnostic push
@@ -929,31 +943,44 @@ void bg_cleanCache(){
     return valueDict;
 }
 /**
+ 过滤建表的key.
+ */
++(NSArray*)bg_filtCreateKeys:(NSArray*)bg_createkeys ignoredkeys:(NSArray*)bg_ignoredkeys{
+    NSMutableArray* createKeys = [NSMutableArray arrayWithArray:bg_createkeys];
+    NSMutableArray* ignoredKeys = [NSMutableArray arrayWithArray:bg_ignoredkeys];
+    //判断是否有需要忽略的key集合.
+    if (ignoredKeys.count){
+        for(__block int i=0;i<createKeys.count;i++){
+            if(ignoredKeys.count){
+                NSString* createKey = [createKeys[i] componentsSeparatedByString:@"*"][0];
+                [ignoredKeys enumerateObjectsUsingBlock:^(id  _Nonnull ignoreKey, NSUInteger idx, BOOL * _Nonnull stop) {
+                    if([createKey isEqualToString:ignoreKey]){
+                        [createKeys removeObjectAtIndex:i];
+                        [ignoredKeys removeObjectAtIndex:idx];
+                        i--;
+                        *stop = YES;
+                    }
+                }];
+            }else{
+                break;
+            }
+        }
+    }
+    return createKeys;
+}
+/**
  如果表格不存在就新建.
  */
 +(BOOL)ifNotExistWillCreateTableWithObject:(id)object ignoredKeys:(NSArray* const)ignoredKeys{
     //检查是否建立了跟对象相对应的数据表
-    NSString* tableName = NSStringFromClass([object class]);
+    NSString* tableName = [BGTool getTableNameWithObject:object];
     //获取"唯一约束"字段名
-    NSString* uniqueKey = [BGTool isRespondsToSelector:NSSelectorFromString(bg_uniqueKeySelector) forClass:[object class]];
+    NSArray* uniqueKeys = [BGTool executeSelector:bg_uniqueKeysSelector forClass:[object class]];
     __block BOOL isExistTable;
     [[BGDB shareManager] isExistWithTableName:tableName complete:^(BOOL isExist) {
         if (!isExist){//如果不存在就新建
-            NSMutableArray* createKeys = [NSMutableArray arrayWithArray:[BGTool getClassIvarList:[object class] onlyKey:NO]];
-            //判断是否有需要忽略的key集合.
-            if (ignoredKeys){
-                for(__block int i=0;i<createKeys.count;i++){
-                    NSString* createKey = [createKeys[i] componentsSeparatedByString:@"*"][0];
-                    [ignoredKeys enumerateObjectsUsingBlock:^(id  _Nonnull ignoreKey, NSUInteger idi, BOOL * _Nonnull stop) {
-                        if([createKey isEqualToString:ignoreKey]){
-                            [createKeys removeObjectAtIndex:i];
-                            i--;
-                            *stop = YES;
-                        }
-                    }];
-                }
-            }
-            [[BGDB shareManager] createTableWithTableName:tableName keys:createKeys uniqueKey:uniqueKey complete:^(BOOL isSuccess) {
+            NSArray* createKeys = [self bg_filtCreateKeys:[BGTool getClassIvarList:[object class] onlyKey:NO] ignoredkeys:ignoredKeys];
+            [[BGDB shareManager] createTableWithTableName:tableName keys:createKeys uniqueKeys:uniqueKeys complete:^(BOOL isSuccess) {
                 isExistTable = isSuccess;
             }];
         }

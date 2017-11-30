@@ -18,7 +18,7 @@
 }
 
 //实现该函数,返回指定的 “唯一约束” name.
-+(NSString *)bg_uniqueKey{
-    return @"name";
++(NSArray *)bg_uniqueKeys{
+    return @[@"name"];
 }
 @end

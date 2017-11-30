@@ -10,11 +10,8 @@
 #define BGFMDBConfig_h
 
 // 过期方法注释
-//#define BGFMDBDeprecated(instead) NS_DEPRECATED(2_0, 2_0, 2_0, 2_0, instead)
+#define BGFMDBDeprecated(instead) NS_DEPRECATED(2_0, 2_0, 2_0, 2_0, instead)
 
-#define bg_uniqueKeySelector @"bg_uniqueKey"
-
-#define BG @"BG_"
 #define bg_primaryKey @"bg_id"
 #define bg_createTimeKey @"bg_createTime"
 #define bg_updateTimeKey @"bg_updateTime"
@@ -64,10 +61,11 @@ extern NSString* _Nonnull bg_sqlValue(id _Nonnull value);
 extern NSString* _Nonnull bg_keyPathValues(NSArray* _Nonnull keyPathValues);
 /**
  直接执行sql语句;
- @className 要操作的类名.(如果不传入，那返回的结果是一个字典，里面包含了数据库字段名和字段值)
+ @tablename nil时以cla类名为表名.
+ @cla 要操作的类,nil时返回的结果是字典.
  提示：字段名要增加BG_前缀
  */
-extern id _Nullable bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable className);
+extern id _Nullable bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable tablename,__unsafe_unretained _Nullable Class cla);
 /**
  自定义数据库名称.
  */

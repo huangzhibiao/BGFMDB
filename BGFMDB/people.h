@@ -61,7 +61,7 @@
 @property(nonatomic,strong)User* user;//第一层类嵌套
 @property(nonatomic,strong)User* user1;
 
-@property(nonatomic,assign)int bint;
+@property(nonatomic,assign)int bint1;
 @property(nonatomic,assign)short bshort;
 @property(nonatomic,assign)signed bsigned;
 @property(nonatomic,assign)long long blonglong;
