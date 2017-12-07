@@ -18,9 +18,10 @@
 #define bg_ignoreKeysSelector NSSelectorFromString(@"bg_ignoreKeys")
 
 typedef NS_ENUM(NSInteger,bg_getModelInfoType){//过滤数据类型
-    bg_ModelInfoInsert,//插入
-    bg_ModelInfoSingleUpdate,//单条更新
-    bg_ModelInfoArrayUpdate//批量更新
+    bg_ModelInfoInsert,//插入过滤
+    bg_ModelInfoSingleUpdate,//单条更新过滤
+    bg_ModelInfoArrayUpdate,//批量更新过滤
+    bg_ModelInfoNone//无过滤
 };
 
 @interface BGTool : NSObject

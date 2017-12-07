@@ -950,9 +950,7 @@ void bg_cleanCache(){
         }
     }else if(filtModelInfoType == bg_ModelInfoArrayUpdate){//批量更新操作时,移除 创建时间 字段不做更新
         [valueDict removeObjectForKey:bg_sqlKey(bg_createTimeKey)];
-    }else{
-        NSAssert(NO,@"请传入正确的过滤类型!");
-    }
+    }else;
     
     return valueDict;
 }

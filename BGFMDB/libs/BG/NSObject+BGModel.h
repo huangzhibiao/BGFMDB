@@ -88,26 +88,16 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 -(void)bg_saveOrUpdateAsync:(bg_complete_B)complete;
 
 /**
- 同步存入对象数组.
+ 同步 存储或更新 数组元素.
  @array 存放对象的数组.(数组中存放的是同一种类型的数据)
- */
-+(BOOL)bg_saveArray:(NSArray* _Nonnull)array;
-/**
- 同上条件异步.
- */
-+(void)bg_saveArrayAsync:(NSArray* _Nonnull)array complete:(bg_complete_B)complete;
-
-/**
- 同步更新对象数组.
- @array 存放对象的数组.(数组中存放的是同一种类型的数据).
- 当类中定义了"唯一约束" 或 "主键"有值时,使用此API才有意义.
+ 当"唯一约束"或"主键"存在时，此接口会更新旧数据,没有则存储新数据.
  提示：“唯一约束”优先级高于"主键".
  */
-+(BOOL)bg_updateArray:(NSArray* _Nonnull)array;
++(BOOL)bg_saveOrUpdateArray:(NSArray* _Nonnull)array;
 /**
  同上条件异步.
  */
-+(void)bg_updateArrayAsync:(NSArray* _Nonnull)array complete:(bg_complete_B)complete;
++(void)bg_saveOrUpdateArrayAsync:(NSArray* _Nonnull)array complete:(bg_complete_B)complete;
 
 /**
  同步覆盖存储.
@@ -395,6 +385,27 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  判断这个类的数据表是否已经存在.
  */
 +(BOOL)bg_isExist BGFMDBDeprecated("此方法已过期(能正常使用,但不建议使用)，使用bg_isExistForTableName:替代.");
+/**
+ 同步存入对象数组.
+ @array 存放对象的数组.(数组中存放的是同一种类型的数据)
+ */
++(BOOL)bg_saveArray:(NSArray* _Nonnull)array BGFMDBDeprecated("此方法已过期(能正常使用,但不建议使用)，请使用bg_saveOrUpdateArray替代");
+/**
+ 同上条件异步.
+ */
++(void)bg_saveArrayAsync:(NSArray* _Nonnull)array complete:(bg_complete_B)complete BGFMDBDeprecated("此方法已过期(能正常使用,但不建议使用)，请使用bg_saveOrUpdateArray替代");
+
+/**
+ 同步更新对象数组.
+ @array 存放对象的数组.(数组中存放的是同一种类型的数据).
+ 当类中定义了"唯一约束" 或 "主键"有值时,使用此API才有意义.
+ 提示：“唯一约束”优先级高于"主键".
+ */
++(BOOL)bg_updateArray:(NSArray* _Nonnull)array BGFMDBDeprecated("此方法已过期(能正常使用,但不建议使用)，请使用bg_saveOrUpdateArray替代");
+/**
+ 同上条件异步.
+ */
++(void)bg_updateArrayAsync:(NSArray* _Nonnull)array complete:(bg_complete_B)complete BGFMDBDeprecated("此方法已过期(能正常使用,但不建议使用)，请使用bg_saveOrUpdateArray替代");
 /**
  同步存入对象数组.
  @array 存放对象的数组.(数组中存放的是同一种类型的数据)

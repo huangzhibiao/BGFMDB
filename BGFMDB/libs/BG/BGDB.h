@@ -61,8 +61,13 @@
 -(void)saveObjects:(NSArray* _Nonnull)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(bg_complete_B)complete;
 /**
  批量更新.
+ over
  */
 -(void)updateObjects:(NSArray* _Nonnull)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(bg_complete_B)complete;
+/**
+ 批量插入或更新.
+ */
+-(void)bg_saveOrUpateArray:(NSArray* _Nonnull)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(bg_complete_B)complete;
 /**
  根据条件查询对象.
  @tablename 要操作的表名称.

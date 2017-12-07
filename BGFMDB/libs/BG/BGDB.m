@@ -454,6 +454,7 @@ static BGDB* BGdb = nil;
 }
 /**
  批量更新
+ over
  */
 -(void)updateSetTableName:(NSString* _Nonnull)name class:(__unsafe_unretained _Nonnull Class)cla DictArray:(NSArray<NSDictionary*>* _Nonnull)dictArray complete:(bg_complete_B)complete{
     __block BOOL result;
@@ -521,6 +522,130 @@ static BGDB* BGdb = nil;
     [self doChangeWithName:name flag:result state:bg_update];
     bg_completeBlock(result);
 }
+
+/**
+ 批量插入或更新.
+ */
+-(void)bg_saveOrUpdateWithTableName:(NSString* _Nonnull)tablename class:(__unsafe_unretained _Nonnull Class)cla DictArray:(NSArray<NSDictionary*>* _Nonnull)dictArray complete:(bg_complete_B)complete{
+    __block BOOL result;
+    [self executeDB:^(FMDatabase * _Nonnull db) {
+        [db beginTransaction];
+        __block NSInteger counter = 0;
+        [dictArray enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull dict, NSUInteger idx, BOOL * _Nonnull stop) {
+            @autoreleasepool {
+                NSArray* uniqueKeys = [BGTool executeSelector:bg_uniqueKeysSelector forClass:cla];
+                NSMutableDictionary* tempDict = [[NSMutableDictionary alloc] initWithDictionary:dict];
+                NSMutableString* where = [NSMutableString new];
+                BOOL isSave = NO;//是否存储还是更新.
+                if(uniqueKeys.count){
+                    if(uniqueKeys.count == 1){
+                        NSString* uniqueKey = bg_sqlKey([uniqueKeys firstObject]);
+                        id uniqueKeyVlaue = tempDict[uniqueKey];
+                        [where appendFormat:@" where %@=%@",uniqueKey,bg_sqlValue(uniqueKeyVlaue)];
+                    }else{
+                        [where appendString:@" where"];
+                        [uniqueKeys enumerateObjectsUsingBlock:^(NSString*  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop){
+                            NSString* uniqueKey = bg_sqlKey(obj);
+                            id uniqueKeyVlaue = tempDict[uniqueKey];
+                            if(idx < (uniqueKeys.count-1)){
+                                [where appendFormat:@" %@=%@ or",uniqueKey,bg_sqlValue(uniqueKeyVlaue)];
+                            }else{
+                                [where appendFormat:@" %@=%@",uniqueKey,bg_sqlValue(uniqueKeyVlaue)];
+                            }
+                        }];
+                    }
+                    NSString* SQL = [NSString stringWithFormat:@"select count(*) from %@%@",tablename,where];
+                    __block NSInteger dataCount = 0;
+                    [db executeStatements:SQL withResultBlock:^int(NSDictionary *resultsDictionary) {
+                        dataCount = [[resultsDictionary.allValues lastObject] integerValue];
+                        return 0;
+                    }];
+                    if(dataCount){
+                        //更新操作
+                        [uniqueKeys enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                            [tempDict removeObjectForKey:bg_sqlKey(obj)];
+                        }];
+                    }else{
+                        //插入操作
+                        isSave = YES;
+                    }
+                }else{
+                    if([tempDict.allKeys containsObject:bg_sqlKey(bg_primaryKey)]){
+                        //更新操作
+                        NSString* primaryKey = bg_sqlKey(bg_primaryKey);
+                        id primaryKeyVlaue = tempDict[primaryKey];
+                        [where appendFormat:@" where %@=%@",primaryKey,bg_sqlValue(primaryKeyVlaue)];
+                    }else{
+                        //插入操作
+                        isSave = YES;
+                    }
+                }
+                
+                //不管是插入或更新都要移除主键.
+                if([tempDict.allKeys containsObject:bg_sqlKey(bg_primaryKey)]){
+                    [tempDict removeObjectForKey:bg_sqlKey(bg_primaryKey)];//移除主键
+                }
+                
+                NSMutableString* SQL = [[NSMutableString alloc] init];
+                NSMutableArray* arguments = [NSMutableArray array];
+                if(isSave){//存储操作
+                    [SQL appendFormat:@"insert into %@(",tablename];
+                    NSArray* keys = tempDict.allKeys;
+                    NSArray* values = tempDict.allValues;
+                    for(int i=0;i<keys.count;i++){
+                        [SQL appendFormat:@"%@",keys[i]];
+                        if(i == (keys.count-1)){
+                            [SQL appendString:@") "];
+                        }else{
+                            [SQL appendString:@","];
+                        }
+                    }
+                    [SQL appendString:@"values("];
+                    for(int i=0;i<values.count;i++){
+                        [SQL appendString:@"?"];
+                        if(i == (keys.count-1)){
+                            [SQL appendString:@");"];
+                        }else{
+                            [SQL appendString:@","];
+                        }
+                        [arguments addObject:values[i]];
+                    }
+                }else{//更新操作
+                    [tempDict removeObjectForKey:bg_sqlKey(bg_createTimeKey)];//移除创建时间
+                    [SQL appendFormat:@"update %@ set ",tablename];
+                    [tempDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+                        [SQL appendFormat:@"%@=?,",key];
+                        [arguments addObject:obj];
+                    }];
+                    SQL = [NSMutableString stringWithString:[SQL substringToIndex:SQL.length-1]];
+                    if(where.length) {
+                        [SQL appendString:where];
+                    }
+                }
+                
+                
+                bg_debug(SQL);
+                BOOL flag = [db executeUpdate:SQL withArgumentsInArray:arguments];
+                if(flag){
+                    counter++;
+                }
+            }
+        }];
+        
+        if (dictArray.count == counter){
+            result = YES;
+            [db commit];
+        }else{
+            result = NO;
+            [db rollback];
+        }
+        
+    }];
+    //数据监听执行函数
+    [self doChangeWithName:tablename flag:result state:bg_update];
+    bg_completeBlock(result);
+}
+
 -(void)queryQueueWithTableName:(NSString* _Nonnull)name conditions:(NSString* _Nullable)conditions complete:(bg_complete_A)complete{
     NSAssert(name,@"表名不能为空!");
     __block NSMutableArray* arrM = nil;
@@ -1402,6 +1527,7 @@ static BGDB* BGdb = nil;
 }
 /**
  批量更新数据.
+ over
  */
 -(void)updateSetWithObjects:(NSArray*)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(bg_complete_B)complete{
     NSArray* dictArray = [self getArray:array ignoredKeys:ignoredKeys filtModelInfoType:bg_ModelInfoArrayUpdate];
@@ -1427,6 +1553,7 @@ static BGDB* BGdb = nil;
 }
 /**
  批量更新.
+ over
  */
 -(void)updateObjects:(NSArray* _Nonnull)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(bg_complete_B)complete{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
@@ -1435,6 +1562,25 @@ static BGDB* BGdb = nil;
     }
     dispatch_semaphore_signal(self.semaphore);
 }
+/**
+ 批量插入或更新.
+ */
+-(void)bg_saveOrUpateArray:(NSArray* _Nonnull)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(bg_complete_B)complete{
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    @autoreleasepool {
+        //判断是否建表.
+        [BGTool ifNotExistWillCreateTableWithObject:array.firstObject ignoredKeys:ignoredKeys];
+        //自动判断是否有字段改变,自动刷新数据库.
+        [self ifIvarChangeForObject:array.firstObject ignoredKeys:ignoredKeys];
+        //转换模型数据
+        NSArray* dictArray = [self getArray:array ignoredKeys:ignoredKeys filtModelInfoType:bg_ModelInfoNone];
+        //获取自定义表名
+        NSString* tableName = [BGTool getTableNameWithObject:array.firstObject];
+        [self bg_saveOrUpdateWithTableName:tableName class:[array.firstObject class] DictArray:dictArray complete:complete];
+    }
+    dispatch_semaphore_signal(self.semaphore);
+}
+
 /**
  存储一个对象.
  */

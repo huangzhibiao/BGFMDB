@@ -81,39 +81,7 @@
  提示：“唯一约束”优先级高于"主键".
  */
 -(BOOL)bg_saveOrUpdate{
-    NSArray* uniqueKeys = [BGTool executeSelector:bg_uniqueKeysSelector forClass:[self class]];
-    if (uniqueKeys.count) {
-        NSMutableString* where = [NSMutableString new];
-        if(uniqueKeys.count > 1){
-            [where appendString:@"where"];
-            [uniqueKeys enumerateObjectsUsingBlock:^(NSString*  _Nonnull uniqueKey, NSUInteger idx, BOOL * _Nonnull stop) {
-                id uniqueKeyVlaue = [self valueForKey:uniqueKey];
-                if(idx < (uniqueKeys.count-1)){
-                    [where appendFormat:@" %@=%@ or",bg_sqlKey(uniqueKey),bg_sqlValue(uniqueKeyVlaue)];
-                }else{
-                    [where appendFormat:@" %@=%@",bg_sqlKey(uniqueKey),bg_sqlValue(uniqueKeyVlaue)];
-                }
-            }];
-        }else if(uniqueKeys.count == 1){
-            NSString* uniqueKey = [uniqueKeys firstObject];
-            id uniqueKeyVlaue = [self valueForKey:uniqueKey];
-            [where appendFormat:@"where %@=%@",bg_sqlKey(uniqueKey),bg_sqlValue(uniqueKeyVlaue)];
-        }else;
-        
-        NSInteger count = [[self class] bg_count:[self bg_tableName] where:where];
-        if (count){//有数据存在就更新.
-            return [self bg_updateWhere:where];
-        }else{//没有就存储.
-            return [self bg_save];
-        }
-    }else{
-        if(self.bg_id == nil){
-            return [self bg_save];
-        }else{
-            NSString* where = [NSString stringWithFormat:@"where %@=%@",bg_sqlKey(bg_primaryKey),bg_sqlValue(self.bg_id)];
-            return [self bg_updateWhere:where];
-        }
-    }
+    return [[self class] bg_saveOrUpdateArray:@[self]];
 }
 /**
  同上条件异步.
@@ -124,29 +92,17 @@
         bg_completeBlock(result);
     });
 }
+
 /**
- 同步存入对象数组.
- @array 存放对象的数组.(数组中存放的是同一种类型的数据)
- */
-+(BOOL)bg_saveArray:(NSArray* _Nonnull)array{
-    return [self bg_saveArray:array IgnoreKeys:bg_getIgnoreKeys];
-}
-/**
- 同上条件异步.
- */
-+(void)bg_saveArrayAsync:(NSArray* _Nonnull)array complete:(bg_complete_B)complete{
-    [self bg_saveArrayAsync:array IgnoreKeys:bg_getIgnoreKeys complete:complete];
-}
-/**
- 同步更新对象数组.
- @array 存放对象的数组.(数组中存放的是同一种类型的数据).
- 当类中定义了"唯一约束" 或 "主键"有值时,使用此API才有意义.
- 提示：“唯一约束”优先级高于"主键".
- */
-+(BOOL)bg_updateArray:(NSArray* _Nonnull)array{
+同步 存储或更新 数组元素.
+@array 存放对象的数组.(数组中存放的是同一种类型的数据)
+当"唯一约束"或"主键"存在时，此接口会更新旧数据,没有则存储新数据.
+提示：“唯一约束”优先级高于"主键".
+*/
++(BOOL)bg_saveOrUpdateArray:(NSArray* _Nonnull)array{
     NSAssert(array && array.count,@"数组没有元素!");
     __block BOOL result;
-    [[BGDB shareManager] updateObjects:array ignoredKeys:bg_getIgnoreKeys complete:^(BOOL isSuccess) {
+    [[BGDB shareManager] bg_saveOrUpateArray:array ignoredKeys:bg_getIgnoreKeys complete:^(BOOL isSuccess) {
         result = isSuccess;
     }];
     //关闭数据库
@@ -156,10 +112,10 @@
 /**
  同上条件异步.
  */
-+(void)bg_updateArrayAsync:(NSArray* _Nonnull)array complete:(bg_complete_B)complete{
-    NSAssert(array && array.count,@"数组没有元素!");
++(void)bg_saveOrUpdateArrayAsync:(NSArray* _Nonnull)array complete:(bg_complete_B)complete{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        [[BGDB shareManager] updateObjects:array ignoredKeys:bg_getIgnoreKeys complete:complete];
+        BOOL flag = [self bg_saveOrUpdateArray:array];
+        bg_completeBlock(flag);
     });
 }
 
@@ -794,6 +750,46 @@ extern id _Nullable bg_executeSql(NSString* _Nonnull sql,NSString* _Nullable tab
     [[BGDB shareManager] closeDB];
     return result;
 }
+
+/**
+ 同步存入对象数组.
+ @array 存放对象的数组.(数组中存放的是同一种类型的数据)
+ */
++(BOOL)bg_saveArray:(NSArray* _Nonnull)array{
+    return [self bg_saveArray:array IgnoreKeys:bg_getIgnoreKeys];
+}
+/**
+ 同上条件异步.
+ */
++(void)bg_saveArrayAsync:(NSArray* _Nonnull)array complete:(bg_complete_B)complete{
+    [self bg_saveArrayAsync:array IgnoreKeys:bg_getIgnoreKeys complete:complete];
+}
+/**
+ 同步更新对象数组.
+ @array 存放对象的数组.(数组中存放的是同一种类型的数据).
+ 当类中定义了"唯一约束" 或 "主键"有值时,使用此API才有意义.
+ 提示：“唯一约束”优先级高于"主键".
+ */
++(BOOL)bg_updateArray:(NSArray* _Nonnull)array{
+    NSAssert(array && array.count,@"数组没有元素!");
+    __block BOOL result;
+    [[BGDB shareManager] updateObjects:array ignoredKeys:bg_getIgnoreKeys complete:^(BOOL isSuccess) {
+        result = isSuccess;
+    }];
+    //关闭数据库
+    [[BGDB shareManager] closeDB];
+    return result;
+}
+/**
+ 同上条件异步.
+ */
++(void)bg_updateArrayAsync:(NSArray* _Nonnull)array complete:(bg_complete_B)complete{
+    NSAssert(array && array.count,@"数组没有元素!");
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+        [[BGDB shareManager] updateObjects:array ignoredKeys:bg_getIgnoreKeys complete:complete];
+    });
+}
+
 /**
  同步存入对象数组.
  @array 存放对象的数组.(数组中存放的是同一种类型的数据)
