@@ -341,7 +341,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  */
 +(void)bg_updateAsync:(NSString* _Nullable)tablename version:(NSInteger)version keyDict:(NSDictionary* const _Nonnull)keydict complete:(bg_complete_I)complete;
 /**
- 将某表的数据拷贝给另一个表
+ 将某表的数据拷贝给另一个表.
  同步复制.
  @tablename 源表名,当此参数为nil时,操作以此类名为表名的数据表，非nil时，操作以此参数为表名的数据表.
  @destCla 目标表名.
