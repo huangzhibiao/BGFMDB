@@ -139,7 +139,9 @@
 }
 /**
  同步更新对象数组.
- @array 存放对象的数组.(数组中存放的是同一种类型的数据)
+ @array 存放对象的数组.(数组中存放的是同一种类型的数据).
+ 当类中定义了"唯一约束" 或 "主键"有值时,使用此API才有意义.
+ 提示：“唯一约束”优先级高于"主键".
  */
 +(BOOL)bg_updateArray:(NSArray* _Nonnull)array{
     NSAssert(array && array.count,@"数组没有元素!");
@@ -373,7 +375,7 @@
  */
 -(BOOL)bg_updateWhere:(NSString* _Nonnull)where{
     NSAssert(where && where.length,@"条件语句不能为空!");
-    NSDictionary* valueDict = [BGTool getDictWithObject:self ignoredKeys:bg_getIgnoreKeys isUpdate:YES];
+    NSDictionary* valueDict = [BGTool getDictWithObject:self ignoredKeys:bg_getIgnoreKeys filtModelInfoType:bg_ModelInfoSingleUpdate];
     __block BOOL result;
     [[BGDB shareManager] updateWithObject:self valueDict:valueDict conditions:where complete:^(BOOL isSuccess) {
         result = isSuccess;

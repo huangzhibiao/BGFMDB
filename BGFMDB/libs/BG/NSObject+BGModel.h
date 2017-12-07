@@ -99,7 +99,9 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 
 /**
  同步更新对象数组.
- @array 存放对象的数组.(数组中存放的是同一种类型的数据)
+ @array 存放对象的数组.(数组中存放的是同一种类型的数据).
+ 当类中定义了"唯一约束" 或 "主键"有值时,使用此API才有意义.
+ 提示：“唯一约束”优先级高于"主键".
  */
 +(BOOL)bg_updateArray:(NSArray* _Nonnull)array;
 /**
@@ -403,16 +405,6 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  @array 存放对象的数组.(数组中存放的是同一种类型的数据)
  */
 +(void)bg_saveArrayAsync:(NSArray* _Nonnull)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(bg_complete_B)complete BGFMDBDeprecated("此方法已过期(能正常使用,但不建议使用)，在模型的.m文件中实现bg_ignoreKeys函数即可");
-/**
- 同步存储或更新数组.
- 当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
- */
-+(void)bg_saveOrUpdateArray:(NSArray* _Nonnull)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys BGFMDBDeprecated("此方法已过期(能正常使用,但不建议使用)，在模型的.m文件中实现bg_ignoreKeys函数即可");
-/**
- 异步存储或更新数组.
- 当自定义“唯一约束”时可以使用此接口存储更方便,当"唯一约束"的数据存在时，此接口会更新旧数据,没有则存储新数据.
- */
-+(void)bg_saveOrUpdateAsyncArray:(NSArray* _Nonnull)array IgnoreKeys:(NSArray* const _Nullable)ignoreKeys BGFMDBDeprecated("此方法已过期(能正常使用,但不建议使用)，在模型的.m文件中实现bg_ignoreKeys函数即可");
 /**
  同步存储.
  @ignoreKeys 忽略掉模型中的哪些key(即模型变量)不要存储.

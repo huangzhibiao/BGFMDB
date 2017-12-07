@@ -482,6 +482,11 @@ static BGDB* BGdb = nil;
                     id uniqueKeyVlaue = tempDict[uniqueKey];
                     [where appendFormat:@" where %@=%@",uniqueKey,bg_sqlValue(uniqueKeyVlaue)];
                     [tempDict removeObjectForKey:uniqueKey];
+                }else if([dict.allKeys containsObject:bg_sqlKey(bg_primaryKey)]){
+                    NSString* primaryKey = bg_sqlKey(bg_primaryKey);
+                    id primaryKeyVlaue = tempDict[primaryKey];
+                    [where appendFormat:@" where %@=%@",primaryKey,bg_sqlValue(primaryKeyVlaue)];
+                    [tempDict removeObjectForKey:primaryKey];
                 }else;
                 
                 NSMutableArray* arguments = [NSMutableArray array];
@@ -717,7 +722,7 @@ static BGDB* BGdb = nil;
         NSString* tableName = [BGTool getTableNameWithObject:object];
         //自动判断是否有字段改变,自动刷新数据库.
         [self ifIvarChangeForObject:object ignoredKeys:ignoreKeys];
-        NSDictionary* valueDict = [BGTool getDictWithObject:self ignoredKeys:ignoreKeys isUpdate:YES];
+        NSDictionary* valueDict = [BGTool getDictWithObject:self ignoredKeys:ignoreKeys filtModelInfoType:bg_ModelInfoSingleUpdate];
         [self updateQueueWithTableName:tableName valueDict:valueDict conditions:conditions complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
@@ -1368,19 +1373,7 @@ static BGDB* BGdb = nil;
  处理插入的字典数据并返回
  */
 -(void)insertWithObject:(id)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(bg_complete_B)complete{
-    NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:object];
-    NSMutableDictionary* dictM = [NSMutableDictionary dictionary];
-    if (ignoredKeys) {
-        for(BGModelInfo* info in infos){
-            if(![ignoredKeys containsObject:info.propertyName]){
-                dictM[info.sqlColumnName] = info.sqlColumnValue;
-            }
-        }
-    }else{
-        for(BGModelInfo* info in infos){
-            dictM[info.sqlColumnName] = info.sqlColumnValue;
-        }
-    }
+    NSDictionary* dictM = [BGTool getDictWithObject:object ignoredKeys:ignoredKeys filtModelInfoType:bg_ModelInfoInsert];
     //自动判断是否有字段改变,自动刷新数据库.
     [self ifIvarChangeForObject:object ignoredKeys:ignoredKeys];
     NSString* tableName = [BGTool getTableNameWithObject:object];
@@ -1388,10 +1381,10 @@ static BGDB* BGdb = nil;
     
 }
 
--(NSArray*)getArray:(NSArray*)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys isUpdate:(BOOL)update{
+-(NSArray*)getArray:(NSArray*)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys filtModelInfoType:(bg_getModelInfoType)filtModelInfoType{
     NSMutableArray* dictArray = [NSMutableArray array];
     [array enumerateObjectsUsingBlock:^(id  _Nonnull object, NSUInteger idx, BOOL * _Nonnull stop) {
-        NSDictionary* dict = [BGTool getDictWithObject:object ignoredKeys:ignoredKeys isUpdate:update];
+        NSDictionary* dict = [BGTool getDictWithObject:object ignoredKeys:ignoredKeys filtModelInfoType:filtModelInfoType];
         [dictArray addObject:dict];
     }];
     return dictArray;
@@ -1401,7 +1394,7 @@ static BGDB* BGdb = nil;
  批量插入数据
  */
 -(void)insertWithObjects:(NSArray*)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(bg_complete_B)complete{
-    NSArray* dictArray = [self getArray:array ignoredKeys:ignoredKeys isUpdate:NO];
+    NSArray* dictArray = [self getArray:array ignoredKeys:ignoredKeys filtModelInfoType:bg_ModelInfoInsert];
     //自动判断是否有字段改变,自动刷新数据库.
     [self ifIvarChangeForObject:array.firstObject ignoredKeys:ignoredKeys];
     NSString* tableName = [BGTool getTableNameWithObject:array.firstObject];
@@ -1411,7 +1404,7 @@ static BGDB* BGdb = nil;
  批量更新数据.
  */
 -(void)updateSetWithObjects:(NSArray*)array ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(bg_complete_B)complete{
-    NSArray* dictArray = [self getArray:array ignoredKeys:ignoredKeys isUpdate:YES];
+    NSArray* dictArray = [self getArray:array ignoredKeys:ignoredKeys filtModelInfoType:bg_ModelInfoArrayUpdate];
     NSString* tableName = [BGTool getTableNameWithObject:array.firstObject];
     [self updateSetTableName:tableName class:[array.firstObject class] DictArray:dictArray complete:complete];
 }
@@ -1481,7 +1474,7 @@ static BGDB* BGdb = nil;
 }
 
 -(void)updateQueueWithObject:(id _Nonnull)object where:(NSArray* _Nullable)where ignoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(bg_complete_B)complete{
-    NSDictionary* valueDict = [BGTool getDictWithObject:object ignoredKeys:ignoreKeys isUpdate:YES];
+    NSDictionary* valueDict = [BGTool getDictWithObject:object ignoredKeys:ignoreKeys filtModelInfoType:bg_ModelInfoSingleUpdate];
     NSString* tableName = [BGTool getTableNameWithObject:object];
     __block BOOL result = NO;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){
@@ -1511,7 +1504,7 @@ static BGDB* BGdb = nil;
 }
 
 -(void)updateQueueWithObject:(id _Nonnull)object forKeyPathAndValues:(NSArray* _Nonnull)keyPathValues ignoreKeys:(NSArray* const _Nullable)ignoreKeys complete:(bg_complete_B)complete{
-    NSDictionary* valueDict = [BGTool getDictWithObject:object ignoredKeys:ignoreKeys isUpdate:YES];
+    NSDictionary* valueDict = [BGTool getDictWithObject:object ignoredKeys:ignoreKeys filtModelInfoType:bg_ModelInfoSingleUpdate];
     NSString* tableName = [BGTool getTableNameWithObject:object];
     __weak typeof(self) BGSelf = self;
     [self isExistWithTableName:tableName complete:^(BOOL isExist){

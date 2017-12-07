@@ -30,7 +30,7 @@
         NSString* sqlType = [BGTool getSqlType:propertyType];
         [info setValue:sqlType forKey:@"sqlColumnType"];
         //读取属性值
-        if(![propertyName isEqualToString:bg_primaryKey]){
+        //if(![propertyName isEqualToString:bg_primaryKey]){
             
             id propertyValue;
             id sqlValue;
@@ -50,7 +50,8 @@
                 [info setValue:sqlValue forKey:@"sqlColumnValue"];
                 [modelInfos addObject:info];
             }
-        }
+        
+       // }
         
     }
     NSAssert(modelInfos.count,@"对象变量数据为空,不能存储!");

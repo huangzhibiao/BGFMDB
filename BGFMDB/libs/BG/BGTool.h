@@ -17,6 +17,12 @@
 #define bg_uniqueKeysSelector NSSelectorFromString(@"bg_uniqueKeys")
 #define bg_ignoreKeysSelector NSSelectorFromString(@"bg_ignoreKeys")
 
+typedef NS_ENUM(NSInteger,bg_getModelInfoType){//过滤数据类型
+    bg_ModelInfoInsert,//插入
+    bg_ModelInfoSingleUpdate,//单条更新
+    bg_ModelInfoArrayUpdate//批量更新
+};
+
 @interface BGTool : NSObject
 /**
  json字符转json格式数据 .
@@ -96,7 +102,7 @@
 /**
  根据对象获取要更新或插入的字典.
  */
-+(NSDictionary* _Nonnull)getDictWithObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys isUpdate:(BOOL)update;
++(NSDictionary* _Nonnull)getDictWithObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys filtModelInfoType:(bg_getModelInfoType)filtModelInfoType;
 /**
  过滤建表的key.
  */

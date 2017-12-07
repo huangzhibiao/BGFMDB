@@ -922,7 +922,7 @@ void bg_cleanCache(){
 /**
  根据对象获取要更新或插入的字典.
  */
-+(NSDictionary* _Nonnull)getDictWithObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys isUpdate:(BOOL)update{
++(NSDictionary* _Nonnull)getDictWithObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys filtModelInfoType:(bg_getModelInfoType)filtModelInfoType{
     NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:object];
     NSMutableDictionary* valueDict = [NSMutableDictionary dictionary];
     if (ignoredKeys) {
@@ -936,10 +936,24 @@ void bg_cleanCache(){
             valueDict[info.sqlColumnName] = info.sqlColumnValue;
         }
     }
-    //移除创建时间字段不做更新.
-    if (update) {
-         [valueDict removeObjectForKey:[NSString stringWithFormat:@"%@%@",BG,bg_createTimeKey]];
+    
+    if (filtModelInfoType == bg_ModelInfoSingleUpdate){//单条更新操作时,移除 创建时间和主键 字段不做更新
+        [valueDict removeObjectForKey:bg_sqlKey(bg_createTimeKey)];
+        NSString* bg_id = bg_sqlKey(bg_primaryKey);
+        if([valueDict.allKeys containsObject:bg_id]) {
+            [valueDict removeObjectForKey:bg_id];
+        }
+    }else if(filtModelInfoType == bg_ModelInfoInsert){//插入时要移除主键,不然会出错.
+        NSString* bg_id = bg_sqlKey(bg_primaryKey);
+        if([valueDict.allKeys containsObject:bg_id]) {
+            [valueDict removeObjectForKey:bg_id];
+        }
+    }else if(filtModelInfoType == bg_ModelInfoArrayUpdate){//批量更新操作时,移除 创建时间 字段不做更新
+        [valueDict removeObjectForKey:bg_sqlKey(bg_createTimeKey)];
+    }else{
+        NSAssert(NO,@"请传入正确的过滤类型!");
     }
+    
     return valueDict;
 }
 /**

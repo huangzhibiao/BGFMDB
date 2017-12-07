@@ -74,7 +74,6 @@
      存储.
      */
     [p bg_save];
-    
     /**
      批量存储
      */
@@ -87,26 +86,14 @@
 //    [People bg_saveArray:@[p,p1,p2]];
     
     /**
-     批量更新
-     */
-//    p.name = @"批量更新";
-//    People* pp1 = [self people];
-//    pp1.bg_tableName = bg_tablename;//自定义数据库表名称(库自带的字段).
-//    pp1.name = @"大哥";
-//    People* pp2 = [self people];
-//    pp2.bg_tableName = bg_tablename;//自定义数据库表名称(库自带的字段).
-//    pp2.name = @"小弟";
-//    [People bg_updateArray:@[p,pp1,pp2]];
-    
-    /**
      同步存储或更新.
      当"唯一约束"或"主键"存在时，此接口会更新旧数据,没有则存储新数据.
      */
     //[p bg_saveOrUpdate];
     
     /**
-     单个对象更新.
-     支持keyPath.
+     单个对象更新,支持keyPath.
+     根据user下的student下的human下的body是否等于小芳 或 age是否等于31 来更新当前对象的数据进入数据库.
      */
 //    NSString* where = [NSString stringWithFormat:@"where %@ or %@=%@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"]),bg_sqlKey(@"age"),bg_sqlValue(@(31))];
 //    p.name = @"天朝";
@@ -182,8 +169,18 @@
         for(People* pp in arr){
             //具体数据请断点查看
             //库新增两个自带字段createTime和updateTime方便开发者使用和做参考对比.
-             NSLog(@"主键 = %@, 表名 = %@, 创建时间 = %@, 更新时间 = %@",pp.bg_id,pp.bg_tableName,pp.bg_createTime,pp.bg_updateTime);
+            NSLog(@"主键 = %@, 表名 = %@, 创建时间 = %@, 更新时间 = %@",pp.bg_id,pp.bg_tableName,pp.bg_createTime,pp.bg_updateTime);
+            
+            //pp.name = [NSString stringWithFormat:@"%@",pp.bg_id];//测试批量更新用.
         }
+        
+        /**
+         批量更新.
+         当类中定义了"唯一约束" 或 "主键"有值时,使用此API才有意义.
+         提示：“唯一约束”优先级高于"主键".
+         */
+        //[People bg_updateArray:arr];
+        
         //顺便取第一个对象数据测试
         if(i==0){
             People* lastP = arr.lastObject;
