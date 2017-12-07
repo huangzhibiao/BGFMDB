@@ -1,7 +1,6 @@
 # BGFMDB让数据的增删改查分别只需要一行代码即可,就是这么简单任性.
 ## 最新重大更新:    
-1.增加直接存储数组功能.    
-2.增加直接存储字典功能.       
+进行了大重构，优化缩减API，支持多个'唯一约束'，ignoredKeys放到模型类.m文件实现bg_ignoreKeys类函数即可，增加自定义表名功能.       
 ## 广而告知
 '简约时尚强悍版'震撼出世,点击此处跳转-> ![BGDB_OC](https://github.com/huangzhibiao/BGDB_OC "简约时尚强悍版")       
 1.BGFMDB是多功能版,同时也由于BGFMDB是在FMDB的基础上进行封装,由于多了中间一层的转化,所以性能有所下降,为了能满足更高性能需求的app,所以我特意重构sqlite API层逻辑,打造这款‘简约时尚强悍版’存储框架,名为BGDB,此款是OC版,欢迎老鸟新鸟们测试使用,找出bug跟我交流😊. 
@@ -34,7 +33,7 @@ LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo
 platform :ios, '8.0'
 
 target '工程名称' do
-pod ‘BGFMDB’, '~> 1.51’
+pod ‘BGFMDB’, '~> 2.0.0’
 end
 ```
 ## 直接下载库代码使用方式.
@@ -65,14 +64,28 @@ libsqlite3
  */
 @property(nonatomic,copy)NSString* _Nonnull bg_createTime;//数据创建时间(即存入数据库的时间)
 @property(nonatomic,copy)NSString* _Nonnull bg_updateTime;//数据最后那次更新的时间.
+
+/**
+ 自定义表名
+ */
+@property(nonatomic,copy)NSString* _Nonnull bg_tableName;
 ```
 ### 唯一约束
 ```Objective-C
 /**
-如果需要指定“唯一约束”字段,就实现该函数,这里指定 name 为“唯一约束”.
-*/
-+(NSString *)bg_uniqueKey{
-    return @"name";
+ 如果需要指定“唯一约束”字段, 在模型.m文件中实现该函数,这里指定 name和age 为“唯一约束”.
+ */
++(NSArray *)bg_uniqueKeys{
+    return @[@"name",@"age"];
+}
+```
+### 设置不需要存储的属性
+```Objective-C
+/**
+ 设置不需要存储的属性, 在模型.m文件中实现该函数.
+ */
++(NSArray *)bg_ignoreKeys{
+   return @[@"eye",@"sex",@"num"];
 }
 ```
 ### 初始化对象
@@ -99,11 +112,6 @@ People* p = [self people];
 [p bg_cover];
 
 /**
- 忽略存储，即忽略掉 user,info,students 这三个变量不存储.
- */
-[p bg_saveIgnoredKeys:@[@"user",@"info",@"students"]];
-
-/**
  同步存储或更新.
  当"唯一约束"或"主键"存在时，此接口会更新旧数据,没有则存储新数据.
  提示：“唯一约束”优先级高于"主键".
@@ -113,146 +121,71 @@ People* p = [self people];
 ### 查询
 ```Objective-C
 /**
-同步查询所有People的数据.
+同步查询所有数据.
 */
-NSArray* finfAlls = [People bg_findAll];
+NSArray* finfAlls = [People bg_findAll:bg_tablename];
 
 /**
-异步查询所有People的数据.
+按条件查询.
 */
-[People bg_findAllAsync:^(NSArray * _Nullable array) {
-        // you code
-    }];
-    
-/**
-异步查询People类的数据,查询限制3条,通过age降序排列.
-*/
-[People bg_findAllAsyncWithLimit:3 orderBy:@"age" desc:YES complete:^(NSArray * _Nullable array) {
-    for(People* p in array){
-      // you code
-    }
-}];
+NSString* where = [NSString stringWithFormat:@"where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"斯巴达")];
+NSArray* arr = [People bg_find:bg_tablename where:where];
 
 /**
-异步查询People类的数据,查询范围从第10处开始的后面5条,不排序.
-*/
-[People bg_findAllAsyncWithRange:NSMakeRange(10,5) orderBy:nil desc:NO complete:^(NSArray * _Nullable array) {
-     for(People* p in array){
-        // you code
-     }
-}];
+ 直接写SQL语句操作.
+ */
+NSArray* arr = bg_executeSql(@"select * from yy", bg_tablename, [People class]);//查询时,后面两个参数必须要传入.
 
 /**
-查询name等于爸爸和age等于45,或者name等于马哥的数据.  此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
+ 根据范围查询.
 */
-NSArray* arrayConds1 = [People bg_findFormatSqlConditions:@"where %@=%@ and %@=%@ or %@=%@",bg_sqlKey(@"age"),bg_sqlValue(@(45)),bg_sqlKey(@"name"),bg_sqlValue(@"爸爸"),bg_sqlKey(@"name"),bg_sqlValue(@"马哥")];
-
-/**
-查询user.student.human.body等于小芳 和 user1.name中包含fuck这个字符串的数据.
-*/
-NSArray* arrayConds2 = [People bg_findFormatSqlConditions:@"where %@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳",@"user1.name",bg_contains,@"fuck"])];
-
-/**
-查询user.student.human.body等于小芳,user1.name中包含fuck这个字符串 和 name等于爸爸的数据.
-*/
-NSArray* arrayConds3 = [People bg_findFormatSqlConditions:@"where %@ and %@=%@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳",@"user1.name",bg_contains,@"fuck"]),bg_sqlKey(@"name"),bg_sqlValue(@"爸爸")];
+NSArray* arr = [People bg_find:bg_tablename range:NSMakeRange(i,50) orderBy:nil desc:NO];
 ```
 ### 更新
 ```Objective-C
 /**
-将People类数据中name=@"标哥"，num=220.88的数据更新为当前对象的数据.
-*/
-[p bg_updateWhere:@[@"name",@"=",@"标哥",@"num",@"=",@(220.88)]];
-
+ 单个对象更新.
+ 支持keyPath.
+ */
+ NSString* where = [NSString stringWithFormat:@"where %@ or %@=%@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"]),bg_sqlKey(@"age"),bg_sqlValue(@(31))];
+  [p bg_updateWhere:where];
+  
 /**
-将People类中name等于"马云爸爸"的数据的name更新为"马化腾",此接口是为了方便开发者自由扩展更深层次的更新条件逻辑.
-*/
-[People bg_updateFormatSqlConditions:@"set %@=%@ where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"马化腾"),bg_sqlKey(@"name"),bg_sqlValue(@"马云爸爸")];
-
+ sql语句批量更新.
+ */
+  NSString* where = [NSString stringWithFormat:@"set %@=%@ where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"马化腾"),bg_sqlKey(@"name"),bg_sqlValue(@"天朝")];
+  [People bg_update:bg_tablename where:where];  
+  
 /**
-将People类数据中name等于"马化腾"的数据更新为当前对象的数据.
-*/
-[p bg_updateFormatSqlConditions:@"where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"马化腾")];
+ 直接写SQL语句操作
+ */
+bg_executeSql(@"update yy set BG_name='标哥'", nil, nil);//更新或删除等操作时,后两个参数不必传入.
 ```
 ### 删除
 ```Objective-C
 /**
-同步删除People类数据中name=@"标哥"，num=220.88的数据.
-*/
-[People bg_deleteWhere:@[@"name",@"=",@"标哥",@"num",@"=",@(220.88)]];
+ 按条件删除.
+ */
+NSString* where = [NSString stringWithFormat:@"where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"斯巴达")];
+[People bg_delete:bg_tablename where:where];
 
 /**
-异步删除People类数据中name=@"标哥"，num=220.88的数据.
+清除表的所有数据.
 */
-[People bg_deleteAsync:@[@"name",@"=",@"标哥",@"num",@"=",@(220.88)] complete:^(BOOL isSuccess) {
-      // you code  
-}];
+[People bg_clear:bg_tablename];
 
 /**
-清除People表的所有数据.
+删除数据库表.
 */
-[People bg_clear];
+[People bg_drop:bg_tablename];
 
-/**
-删除People的数据库表.
-*/
-[People bg_drop];
-
-/**
-删除People类中name等于"美国队长"的数据,此接口是为了方便开发者自由扩展更深层次的删除条件逻辑.
-*/
-[People bg_deleteFormatSqlConditions:@"where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"美国队长")];
-
-/**
-删除People类中user.student.human.body等于"小芳"的数据
-*/
-[People bg_deleteFormatSqlConditions:@"where %@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"])];
-
-/**
-删除People类中name等于"美国队长" 和 user.student.human.body等于"小芳"的数据
-*/
-[People bg_deleteFormatSqlConditions:@"where %@=%@ and %@",bg_sqlKey(@"name"),bg_sqlValue(@"美国队长"),bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"])];
-```
-### keyPath(类嵌套的时候使用)   
-```Objective-C
-@interface Human : NSObject
-@property(nonatomic,copy)NSString* sex;
-@end
-
-@interface Student : NSObject
-@property(nonatomic,strong)Human* human;
-@end
-
-@interface User : NSObject
-@property(nonatomic,strong)Student* student;
-@end
-
-@interface People : NSObject
-@property(nonatomic,strong)User* user1;
-@property(nonatomic,strong)User* user2;
-@end
-
-/**
-查询People类中user2.student.human.sex中等于@“女”的数据.
-*/
-[People bg_findForKeyPathAndValues:@[@"user2.student.human.sex",bg_equal,@"女"]];
-
-/**
-将People类中user1.name包含@“小明”字符串 和 user2.student.human.sex中等于@“女”的数据 更新为当前对象的数据.
-*/
-[p bg_updateForKeyPathAndValues:@[@"user1.name",bg_contains,@"小明",@"user2.student.human.sex",bg_equal,@"女"]];
- 
-/**
-删除People类中user1.name包含@“小明”字符串的数据.
-*/
-[People bg_deleteForKeyPathAndValues:@[@"user1.name",bg_contains,@"小明"]];
 ```
 ### 获取类数据库版本
 ```Objective-C
 /**
  获取该类的数据库版本号;
 */
-NSInteger version = [People bg_version];
+NSInteger version = [People bg_version:bg_tablename];
 ```
 ### 类数据库版本手动升级('唯一约束'发生改变时调用)
 ```Objective-C
@@ -260,12 +193,12 @@ NSInteger version = [People bg_version];
 /**
  如果类'唯一约束'发生改变,则调用此API刷新该类数据库,不需要新旧映射的情况下使用此API.
 */
-[People bg_updateVersion:version];
+[People bg_update:bg_tablename version:version];
 
 /**
 如果类'唯一约束'发生改变,则调用此API刷新该类数据库.data2是新变量名,data是旧变量名,即将旧的值映射到新的变量名,其他不变的变量名会自动复制,只管写出变化的对应映射即可.
 */
-[People bg_updateVersion:version keyDict:@{@"data2":@"data"}];
+[People bg_update:bg_tablename version:version keyDict:@{@"data2":@"data"}];
 ```
 ### 事务操作
 ```Objective-C
@@ -274,47 +207,25 @@ NSInteger version = [People bg_version];
 */
 bg_inTransaction(^BOOL{
         [p bg_save];//存储
-        //[People bg_clear];//清除全部People的数据.
         return NO;
     });
 ```
 ### 快速查询数据条数
 ```Objective-C
 /**
-查询People类中所有数据的条数.
+按条件查询表中所有数据的条数.
 */
-NSInteger count = [People bg_countWhere:nil]
-
-/**
-查询People类中age>=21,name=@"马哥"的数据条数.
-*/
-NSInteger count = [People bg_countWhere:@[@"age",@">=",@(21),@"name",@"=",@"马哥"]];
-
-/**
-查询People类中name等于"美国队长"的数据条数,此接口是为了方便开发者自由扩展更深层次的查询条件逻辑.
-*/
-NSInteger count = [People bg_countFormatSqlConditions:@"where %@=%@",bg_sqlKey(@"name"),bg_sqlValue(@"美国队长")];
-
-/**
-查询People类中user.student.human.body等于"小芳"的数据条数.
- */
-NSInteger count = [People bg_countFormatSqlConditions:@"where %@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"])];
-
-/**
-查询People类中name等于"美国队长" 和 user.student.human.body等于"小芳"的数据条数.
-*/
-NSInteger count = [People bg_countFormatSqlConditions:@"where %@=%@ and %@",bg_sqlKey(@"name"),bg_sqlValue(@"美国队长"),bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"])];
+NSInteger count = [People bg_count:bg_tablename where:nil];
 ```
 ### 类数据之间的拷贝
 ```Objective-C
 /**
- 将People的name拷贝给Man的Man_name，其他同理.
+ 将People表的数据拷贝给bg_tablename表, name拷贝给Man的Man_name，其他同理.
  */
- [People bg_copyToClass:[Man class] keyDict:@{@"name":@"Man_name",
-                                           @"num":@"Man_num",
-                                           @"age":@"Man_age",
-                                           @"image":@"image"}
-                                           append:NO];
+ [People bg_copy:nil toTable:bg_tablename keyDict:@{@"name":@"Man_name",
+                                                       @"num":@"Man_num",
+                                                       @"age":@"Man_age",
+                                                       @"image":@"image"} append:NO];
 ```
 ### 直接存取数组
 ```Objective-C
@@ -391,33 +302,33 @@ NSDictionary* dict = @{@"one":@(1),@"key":@"value",@"array":@[@(1.2),@"哈哈"]}
 ### 注册数据变化监听
 ```Objective-C
 /**
-注册stockModel类数据变化监听.  
+注册监听bg_tablename表的数据变化，唯一识别标识是@"change".  
 */
-[stockModel bg_registerChangeWithName:@"stockModel" block:^(changeState result){  
-        switch (result) {  
-            case Insert:  
-                NSLog(@"有数据插入");  
-                break;  
-            case Update:  
-                NSLog(@"有数据更新");  
-                break;  
-            case Delete:  
-                NSLog(@"有数据删删除");  
-                break;  
-            case Drop:  
-                NSLog(@"有表删除");  
-                break;  
-            default:  
-                break;  
-        }  
-    }];  
+[People bg_registerChangeForTableName:bg_tablename identify:@"change" block:^(bg_changeState result) {
+        switch (result) {
+            case bg_insert:
+                NSLog(@"有数据插入");
+                break;
+            case bg_update:
+                NSLog(@"有数据更新");
+                break;
+            case bg_delete:
+                NSLog(@"有数据删删除");
+                break;
+            case bg_drop:
+                NSLog(@"有表删除");
+                break;
+            default:
+                break;
+        }
+    }];
 ```
 ### 移除数据监听
 ```Objective-C
 /**
-移除stockModel类数据变化的监听.  
+移除bg_tablename表数据变化的监听，唯一识别标识是@"change".  
 */
-[stockModel bg_removeChangeWithName:@"stockModel"];
+ [People bg_removeChangeForTableName:bg_tablename identify:@"change"];
 ```
 ### 字典转模型
 ```Objective-C
@@ -462,36 +373,13 @@ NSDictionary* dictBody = [body bg_keyValuesIgnoredKeys:@[@"hand"]];
 +(NSDictionary *)bg_objectClassForCustom{
     return @{@"body":[Body class]};
 }
+
+/**
+ 替换变量的功能(及当字典的key和属性名不一样时，进行映射对应起来)
+ 即将字典里key为descri的值 赋给 属性名为intro的变量,性别和sex同理.
+ */
++(NSDictionary *)bg_replacedKeyFromPropertyName{
+    return @{@"descri":@"intro",@"性别":@"sex"};
+}
 ```
-### 基本的使用
-```Objective-C
-stockModel* shenStock = [stockModel stockWithName:@"深市" stockData:_shenData];   
-[shenStock bg_save];//一句代码搞定存储.   
-[shenStock bg_updateWhere:@[@"name",@"=",@"深市"]];//一句代码搞定更新.   
-NSArray* array = [stockModel bg_findAll];//一句代码搞定查询.   
-[stockModel bg_deleteWhere:@[@"name",@"=",@"深市"]];//一句代码搞定删.  
-//注册数据变化监听.  
-[stockModel bg_registerChangeWithName:@"stockModel" block:^(changeState result){  
-        switch (result) {  
-            case Insert:  
-                NSLog(@"有数据插入");  
-                break;  
-            case Update:  
-                NSLog(@"有数据更新");  
-                break;  
-            case Delete:  
-                NSLog(@"有数据删删除");  
-                break;  
-            case Drop:  
-                NSLog(@"有表删除");  
-                break;  
-            default:  
-                break;  
-        }  
-    }];  
-  //移除数据变化监听.  
- [stockModel bg_removeChangeWithName:@"stockModel"]; 
- 
- //更多功能请下载demo使用了解.
-```   
 ### 更多功能请下载demo运行了解使用.   
