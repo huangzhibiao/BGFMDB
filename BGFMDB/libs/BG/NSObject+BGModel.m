@@ -519,11 +519,11 @@
  @key -> 要操作的属性,不支持keyPath.
  @where -> 条件参数,支持keyPath.
  */
-+(NSInteger)bg_sqliteMethodWithTableName:(NSString* _Nullable)tablename type:(bg_sqliteMethodType)methodType key:(NSString* _Nonnull)key where:(NSString* _Nullable)where{
++(double)bg_sqliteMethodWithTableName:(NSString* _Nullable)tablename type:(bg_sqliteMethodType)methodType key:(NSString* _Nonnull)key where:(NSString* _Nullable)where{
     if(tablename == nil) {
         tablename = NSStringFromClass([self class]);
     }
-    NSInteger num = [[BGDB shareManager] sqliteMethodForTable:tablename type:methodType key:key where:where];
+    double num = [[BGDB shareManager] sqliteMethodForTable:tablename type:methodType key:key where:where];
     //关闭数据库
     [[BGDB shareManager] closeDB];
     return num;

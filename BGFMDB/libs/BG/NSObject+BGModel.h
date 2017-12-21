@@ -300,7 +300,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  @key -> 要操作的属性,不支持keyPath.
  @where -> 条件参数,支持keyPath.
  */
-+(NSInteger)bg_sqliteMethodWithTableName:(NSString* _Nullable)tablename type:(bg_sqliteMethodType)methodType key:(NSString* _Nonnull)key where:(NSString* _Nullable)where;
++(double)bg_sqliteMethodWithTableName:(NSString* _Nullable)tablename type:(bg_sqliteMethodType)methodType key:(NSString* _Nonnull)key where:(NSString* _Nullable)where;
 /**
  获取数据表当前版本号.
  @tablename 当此参数为nil时,操作以此类名为表名的数据表，非nil时，操作以此参数为表名的数据表.

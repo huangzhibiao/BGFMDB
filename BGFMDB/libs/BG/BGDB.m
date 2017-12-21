@@ -1081,10 +1081,10 @@ static BGDB* BGdb = nil;
 /**
  直接调用sqliteb的原生函数计算sun,min,max,avg等.
  */
--(NSInteger)sqliteMethodQueueForTable:(NSString* _Nonnull)name type:(bg_sqliteMethodType)methodType key:(NSString*)key where:(NSString* _Nullable)where{
+-(double)sqliteMethodQueueForTable:(NSString* _Nonnull)name type:(bg_sqliteMethodType)methodType key:(NSString*)key where:(NSString* _Nullable)where{
     NSAssert(name,@"表名不能为空!");
     NSAssert(key,@"属性名不能为空!");
-    __block NSUInteger num = 0;
+    __block double num = 0;
     NSString* method;
     switch (methodType) {
         case bg_min:
@@ -1114,9 +1114,9 @@ static BGDB* BGdb = nil;
         [db executeStatements:SQL withResultBlock:^int(NSDictionary *resultsDictionary){
             id dbResult = [resultsDictionary.allValues lastObject];
             if(dbResult && ![dbResult isKindOfClass:[NSNull class]]) {
-                num = [dbResult integerValue];
+                num = [dbResult doubleValue];
             }else{
-                num = 0;
+                num = 0.0;
             }
             return 0;
         }];
@@ -1127,9 +1127,9 @@ static BGDB* BGdb = nil;
 /**
  直接调用sqliteb的原生函数计算sun,min,max,avg等.
  */
--(NSInteger)sqliteMethodForTable:(NSString* _Nonnull)name type:(bg_sqliteMethodType)methodType key:(NSString*)key where:(NSString* _Nullable)where{
+-(double)sqliteMethodForTable:(NSString* _Nonnull)name type:(bg_sqliteMethodType)methodType key:(NSString*)key where:(NSString* _Nullable)where{
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
-    NSInteger num = 0;
+    double num = 0.0;
     @autoreleasepool {
         num = [self sqliteMethodQueueForTable:name type:methodType key:key where:where];
     }
