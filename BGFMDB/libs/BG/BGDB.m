@@ -9,6 +9,7 @@
 #import "BGDB.h"
 #import "BGModelInfo.h"
 #import "BGTool.h"
+#import "NSCache+BGCache.h"
 
 /**
  默认数据库名称
@@ -1424,7 +1425,18 @@ static BGDB* BGdb = nil;
  判断类属性是否有改变,智能刷新.
  */
 -(void)ifIvarChangeForObject:(id)object ignoredKeys:(NSArray*)ignoredkeys{
+    //获取缓存的属性信息
+    NSCache* cache = [NSCache bg_cache];
+    NSString* cacheKey = [NSString stringWithFormat:@"%@_IvarChangeState",[object class]];
+    id IvarChangeState = [cache objectForKey:cacheKey];
+    if(IvarChangeState){
+        return;
+    }else{
+        [cache setObject:@(YES) forKey:cacheKey];
+    }
+    
     @autoreleasepool {
+        //获取表名
         NSString* tableName = [BGTool getTableNameWithObject:object];
         NSMutableArray* newKeys = [NSMutableArray array];
         NSMutableArray* sqlKeys = [NSMutableArray array];
@@ -1535,11 +1547,6 @@ static BGDB* BGdb = nil;
     [self updateSetTableName:tableName class:[array.firstObject class] DictArray:dictArray complete:complete];
 }
 
--(void)saveQueueObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys complete:(bg_complete_B)complete{
-    //插入数据
-    [self insertWithObject:object ignoredKeys:ignoredKeys complete:complete];
-    
-}
 /**
  批量存储.
  */
@@ -1588,7 +1595,7 @@ static BGDB* BGdb = nil;
     dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
     @autoreleasepool {
         [BGTool ifNotExistWillCreateTableWithObject:object ignoredKeys:ignoredKeys];
-        [self saveQueueObject:object ignoredKeys:ignoredKeys complete:complete];
+        [self insertWithObject:object ignoredKeys:ignoredKeys complete:complete];
     }
     dispatch_semaphore_signal(self.semaphore);
 }
