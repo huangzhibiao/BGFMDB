@@ -357,6 +357,11 @@
     NSMutableSet* set2 = [NSMutableSet set];
     [set2 addObject:@{@"key1":@"value"}];
     [set2 addObject:@{@"key2":user}];
+    
+    People* userP = [People new];
+    userP.name = @"互为属性测试";
+    user.userP = userP;
+    
     p.user = user;
     p.user1 = [User new];
     p.user1.name = @"小明_fuck2222";

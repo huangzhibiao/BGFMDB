@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import "BGFMDB.h" //添加该头文件,本类就具有了存储功能.
-
+@class People;
 @interface Human : NSObject
 
 @property(nonatomic,copy)NSString* sex;
@@ -40,6 +40,7 @@
 @property(nonatomic,strong)NSNumber* userNumer;
 @property(nonatomic,strong)Student* student;//第二层类嵌套 , 可以无穷嵌套...
 
+@property(nonatomic,strong)People *userP;
 @end
 
 @interface People : NSObject
