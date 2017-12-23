@@ -183,12 +183,13 @@
  @tablename 当此参数为nil时,查询以此类名为表名的数据，非nil时，查询以此参数为表名的数据.
  */
 +(id _Nullable)bg_lastObject:(NSString* _Nullable)tablename{
-    NSArray* array = [self bg_find:tablename limit:1 orderBy:bg_primaryKey desc:YES];
+    NSArray* array = [self bg_find:tablename limit:1 orderBy:nil desc:YES];
     return (array&&array.count)?array.firstObject:nil;
 }
 /**
  查询某一行数据
  @tablename 当此参数为nil时,查询以此类名为表名的数据，非nil时，查询以此参数为表名的数据.
+ @row 从第1行开始算起.
  */
 +(id _Nullable)bg_object:(NSString* _Nullable)tablename row:(NSInteger)row{
     NSArray* array = [self bg_find:tablename range:NSMakeRange(row,1) orderBy:nil desc:NO];
@@ -206,7 +207,7 @@
         tablename = NSStringFromClass([self class]);
     }
     NSMutableString* where = [NSMutableString string];
-    orderBy?[where appendFormat:@"order by %@%@ ",BG,orderBy]:[where appendFormat:@"order by %@%@ ",BG,bg_primaryKey];
+    orderBy?[where appendFormat:@"order by %@%@ ",BG,orderBy]:[where appendFormat:@"order by %@ ",bg_rowid];
     desc?[where appendFormat:@"desc"]:[where appendFormat:@"asc"];
     !limit?:[where appendFormat:@" limit %@",@(limit)];
     __block NSArray* results;
@@ -230,7 +231,7 @@
  同步查询所有结果.
  @tablename 当此参数为nil时,查询以此类名为表名的数据，非nil时，查询以此参数为表名的数据.
  @orderBy 要排序的key.
- @range 查询的范围(从location开始的后面length条).
+ @range 查询的范围(从location开始的后面length条，localtion要大于0).
  @desc YES:降序，NO:升序.
  */
 +(NSArray* _Nullable)bg_find:(NSString* _Nullable)tablename range:(NSRange)range orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc{
@@ -238,10 +239,10 @@
         tablename = NSStringFromClass([self class]);
     }
     NSMutableString* where = [NSMutableString string];
-    orderBy?[where appendFormat:@"order by %@%@ ",BG,orderBy]:[where appendFormat:@"order by %@%@ ",BG,bg_primaryKey];
+    orderBy?[where appendFormat:@"order by %@%@ ",BG,orderBy]:[where appendFormat:@"order by %@ ",bg_rowid];
     desc?[where appendFormat:@"desc"]:[where appendFormat:@"asc"];
-    NSAssert((range.location>=0)&&(range.length>0),@"range参数错误,location应该大于或等于零,length应该大于零");
-    [where appendFormat:@" limit %@,%@",@(range.location),@(range.length)];
+    NSAssert((range.location>0)&&(range.length>0),@"range参数错误,location应该大于零,length应该大于零");
+    [where appendFormat:@" limit %@,%@",@(range.location-1),@(range.length)];
     __block NSArray* results;
     [[BGDB shareManager] queryObjectWithTableName:tablename class:[self class] where:where complete:^(NSArray * _Nullable array) {
         results = array;
@@ -412,12 +413,14 @@
 /**
  删除某一行数据
  @tablename 当此参数为nil时,查询以此类名为表名的数据，非nil时，删除以此参数为表名的数据.
+ @row 第几行，从第1行算起.
  */
 +(BOOL)bg_delete:(NSString* _Nullable)tablename row:(NSInteger)row{
+    NSAssert(row,@"row要大于0");
     if(tablename == nil) {
         tablename = NSStringFromClass([self class]);
     }
-    NSString* where = [NSString stringWithFormat:@"where %@ in(select %@ from %@  limit %@,1)",bg_sqlKey(bg_primaryKey),bg_sqlKey(bg_primaryKey),tablename,@(row)];
+    NSString* where = [NSString stringWithFormat:@"where %@ in(select %@ from %@  limit 1 offset %@)",bg_rowid,bg_rowid,tablename,@(row-1)];
     return [self bg_delete:tablename where:where];
 }
 /**
@@ -428,7 +431,7 @@
     if(tablename == nil) {
         tablename = NSStringFromClass([self class]);
     }
-    NSString* where = [NSString stringWithFormat:@"where %@ in(select %@ from %@  limit 0,1)",bg_sqlKey(bg_primaryKey),bg_sqlKey(bg_primaryKey),tablename];
+    NSString* where = [NSString stringWithFormat:@"where %@ in(select %@ from %@  limit 1 offset 0)",bg_rowid,bg_rowid,tablename];
     return [self bg_delete:tablename where:where];
 }
 /**
@@ -439,7 +442,7 @@
     if(tablename == nil) {
         tablename = NSStringFromClass([self class]);
     }
-    NSString* where = [NSString stringWithFormat:@"where %@ in(select %@ from %@ order by %@ desc limit 0,1)",bg_sqlKey(bg_primaryKey),bg_sqlKey(bg_primaryKey),tablename,bg_sqlKey(bg_primaryKey)];
+    NSString* where = [NSString stringWithFormat:@"where %@ in(select %@ from %@ order by %@ desc limit 1 offset 0)",bg_rowid,bg_rowid,tablename,bg_rowid];
     return [self bg_delete:tablename where:where];
 }
 

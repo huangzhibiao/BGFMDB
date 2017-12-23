@@ -19,7 +19,13 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 //可选择操作
 @optional
 /**
- 自定义 “唯一约束” 函数,如果需要 “唯一约束”字段,则在自定类中自己实现该函数.
+ 自定义 “联合主键” 函数, 如果需要自定义 “联合主键”,则在类中自己实现该函数.
+ @return 返回值是 “联合主键” 的字段名(即相对应的变量名).
+ 注：当“联合主键”和“唯一约束”同时定义时，“联合主键”优先级大于“唯一约束”.
+ */
++(NSArray* _Nonnull)bg_unionPrimaryKeys;
+/**
+ 自定义 “唯一约束” 函数,如果需要 “唯一约束”字段,则在类中自己实现该函数.
  @return 返回值是 “唯一约束” 的字段名(即相对应的变量名).
  */
 +(NSArray* _Nonnull)bg_uniqueKeys;
@@ -52,7 +58,10 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 
 
 @interface NSObject (BGModel)<BGProtocol>
-@property(nonatomic,strong)NSNumber* _Nonnull bg_id;//本库自带的自动增长主键.
+/**
+ 本库自带的自动增长主键.
+ */
+@property(nonatomic,strong)NSNumber* _Nonnull bg_id;
 /**
  为了方便开发者，特此加入以下两个字段属性供开发者做参考.(自动记录数据的存入时间和更新时间)
  */
@@ -133,7 +142,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 /**
  查询某一行数据
  @tablename 当此参数为nil时,查询以此类名为表名的数据，非nil时，查询以此参数为表名的数据.
- @row 从第0行开始算起.
+ @row 从第1行开始算起.
  */
 +(id _Nullable)bg_object:(NSString* _Nullable)tablename row:(NSInteger)row;
 
@@ -153,7 +162,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  同步查询所有结果.
  @tablename 当此参数为nil时,查询以此类名为表名的数据，非nil时，查询以此参数为表名的数据.
  @orderBy 要排序的key.
- @range 查询的范围(从location开始的后面length条).
+ @range 查询的范围(从location开始的后面length条，localtion要大于0).
  @desc YES:降序，NO:升序.
  */
 +(NSArray* _Nullable)bg_find:(NSString* _Nullable)tablename range:(NSRange)range orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc;
@@ -239,7 +248,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
 /**
  删除某一行数据
  @tablename 当此参数为nil时,查询以此类名为表名的数据，非nil时，删除以此参数为表名的数据.
- @row 第几行，从第0行算起.
+ @row 第几行，从第1行算起.
  */
 +(BOOL)bg_delete:(NSString* _Nullable)tablename row:(NSInteger)row;
 /**

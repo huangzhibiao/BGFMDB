@@ -129,7 +129,7 @@
  @uniqueKeys '唯一约束'集合.
  @complete 回调的block
  */
--(void)createTableWithTableName:(NSString* _Nonnull)name keys:(NSArray<NSString*>* _Nonnull)keys uniqueKeys:(NSArray* _Nullable)uniqueKeys complete:(bg_complete_B)complete;
+-(void)createTableWithTableName:(NSString* _Nonnull)name keys:(NSArray<NSString*>* _Nonnull)keys unionPrimaryKeys:(NSArray* _Nullable)unionPrimaryKeys uniqueKeys:(NSArray* _Nullable)uniqueKeys complete:(bg_complete_B)complete;
 /**
  插入数据.
  @name 表名称.

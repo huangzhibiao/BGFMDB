@@ -939,14 +939,30 @@ void bg_cleanCache(){
     
     if (filtModelInfoType == bg_ModelInfoSingleUpdate){//单条更新操作时,移除 创建时间和主键 字段不做更新
         [valueDict removeObjectForKey:bg_sqlKey(bg_createTimeKey)];
+        //判断是否定义了“联合主键”.
+        NSArray* unionPrimaryKeys = [BGTool executeSelector:bg_unionPrimaryKeysSelector forClass:[object class]];
         NSString* bg_id = bg_sqlKey(bg_primaryKey);
-        if([valueDict.allKeys containsObject:bg_id]) {
-            [valueDict removeObjectForKey:bg_id];
+        if(unionPrimaryKeys.count == 0){
+            if([valueDict.allKeys containsObject:bg_id]) {
+                [valueDict removeObjectForKey:bg_id];
+            }
+        }else{
+            if(![valueDict.allKeys containsObject:bg_id]) {
+                valueDict[bg_id] = @(1);//没有就预备放入
+            }
         }
     }else if(filtModelInfoType == bg_ModelInfoInsert){//插入时要移除主键,不然会出错.
+        //判断是否定义了“联合主键”.
+        NSArray* unionPrimaryKeys = [BGTool executeSelector:bg_unionPrimaryKeysSelector forClass:[object class]];
         NSString* bg_id = bg_sqlKey(bg_primaryKey);
-        if([valueDict.allKeys containsObject:bg_id]) {
-            [valueDict removeObjectForKey:bg_id];
+        if(unionPrimaryKeys.count == 0){
+            if([valueDict.allKeys containsObject:bg_id]) {
+                [valueDict removeObjectForKey:bg_id];
+            }
+        }else{
+            if(![valueDict.allKeys containsObject:bg_id]) {
+                valueDict[bg_id] = @(1);//没有就预备放入
+            }
         }
     }else if(filtModelInfoType == bg_ModelInfoArrayUpdate){//批量更新操作时,移除 创建时间 字段不做更新
         [valueDict removeObjectForKey:bg_sqlKey(bg_createTimeKey)];
@@ -988,11 +1004,13 @@ void bg_cleanCache(){
     NSString* tableName = [BGTool getTableNameWithObject:object];
     //获取"唯一约束"字段名
     NSArray* uniqueKeys = [BGTool executeSelector:bg_uniqueKeysSelector forClass:[object class]];
+    //获取“联合主键”字段名
+    NSArray* unionPrimaryKeys = [BGTool executeSelector:bg_unionPrimaryKeysSelector forClass:[object class]];
     __block BOOL isExistTable;
     [[BGDB shareManager] isExistWithTableName:tableName complete:^(BOOL isExist) {
         if (!isExist){//如果不存在就新建
             NSArray* createKeys = [self bg_filtCreateKeys:[BGTool getClassIvarList:[object class] onlyKey:NO] ignoredkeys:ignoredKeys];
-            [[BGDB shareManager] createTableWithTableName:tableName keys:createKeys uniqueKeys:uniqueKeys complete:^(BOOL isSuccess) {
+            [[BGDB shareManager] createTableWithTableName:tableName keys:createKeys unionPrimaryKeys:unionPrimaryKeys uniqueKeys:uniqueKeys complete:^(BOOL isSuccess) {
                 isExistTable = isSuccess;
             }];
         }

@@ -79,7 +79,7 @@
      同步存储或更新.
      当"唯一约束"或"主键"存在时，此接口会更新旧数据,没有则存储新数据.
      */
-//     [p bg_saveOrUpdate];
+     //[p bg_saveOrUpdate];
     
     /**
      同步 存储或更新 数组元素.
@@ -172,7 +172,7 @@
      当数据量巨大时采用分页范围查询.
      */
     NSInteger count = [People bg_count:bg_tablename where:nil];
-    for(int i=0;i<count;i+=50){
+    for(int i=1;i<count;i+=50){
         NSArray* arr = [People bg_find:bg_tablename range:NSMakeRange(i,50) orderBy:nil desc:NO];
         for(People* pp in arr){
             //具体数据请断点查看
@@ -302,12 +302,12 @@
 -(People*)people{
     //存储对象使用示例
     People* p = [People new];
-    p.name = @"斯巴达";
+    p.name = @"斯巴达7";
     p.num = @(220.88);
-    p.age = 30;
+    p.age = 99;
     p.sex = @"男";
-    p.eye = @"末世眼皮";
-    p.Url = [NSURL URLWithString:@"http://www.gmjk.com"];
+    p.eye = @"末世眼皮111";
+    p.Url = [NSURL URLWithString:@"http://www.baidu.com"];
     p.addBool = YES;
     p.range = NSMakeRange(0,10);
     p.rect = CGRectMake(0,0,10,20);
