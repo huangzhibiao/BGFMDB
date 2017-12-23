@@ -127,7 +127,7 @@ static BGDB* BGdb = nil;
         name = SQLITE_NAME;
     }
     NSString *filename = CachePath(name);
-    NSLog(@"数据库路径 = %@",filename);
+    //NSLog(@"数据库路径 = %@",filename);
     _queue = [FMDatabaseQueue databaseQueueWithPath:filename];
     return _queue;
 }

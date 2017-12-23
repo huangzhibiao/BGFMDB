@@ -172,7 +172,7 @@
      当数据量巨大时采用分页范围查询.
      */
     NSInteger count = [People bg_count:bg_tablename where:nil];
-    for(int i=1;i<count;i+=50){
+    for(int i=1;i<=count;i+=50){
         NSArray* arr = [People bg_find:bg_tablename range:NSMakeRange(i,50) orderBy:nil desc:NO];
         for(People* pp in arr){
             //具体数据请断点查看
@@ -366,6 +366,7 @@
     p.user1 = [User new];
     p.user1.name = @"小明_fuck2222";
     p.bfloat = 8.88;
+    p.bdouble = 100.567;
     p.user.userAge = 13;
     p.user.userNumer = @(3.14);
     p.user.student.human.humanAge = 9999;
