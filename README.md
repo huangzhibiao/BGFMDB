@@ -1,6 +1,7 @@
 # BGFMDB让数据的增删改查分别只需要一行代码即可,就是这么简单任性.
-## 最新重大更新:    
-进行了大重构，优化缩减API，支持多个'唯一约束'，ignoredKeys放到模型类.m文件实现bg_ignoreKeys类函数即可，增加自定义表名功能.       
+## 最新重大更新:   
+1.增加了自定义“联合主键”的功能.
+2.进行了大重构，优化缩减API，支持多个'唯一约束'，ignoredKeys放到模型类.m文件实现bg_ignoreKeys类函数即可，增加自定义表名功能.       
 ## Swift工程中使用方式    
 目前可以存储Swift工程中的OC类model,在桥接文件导入OC类model的头文件即可, 但是不能解析存储Swift类model,后面会补上Swift类model解析部分😊.    
 ## 小伙伴们的使用反馈   
@@ -66,6 +67,15 @@ libsqlite3
  自定义表名
  */
 @property(nonatomic,copy)NSString* _Nonnull bg_tableName;
+```
+### 联合主键
+```Objective-C
+/**
+ 自定义“联合主键” ,这里指定 name和age 为“联合主键”.
+ */
++(NSArray *)bg_unionPrimaryKeys{
+    return @[@"name",@"age"];
+}
 ```
 ### 唯一约束
 ```Objective-C
