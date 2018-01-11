@@ -103,9 +103,12 @@
      单个对象更新,支持keyPath.
      根据user下的student下的human下的body是否等于小芳 或 age是否等于31 来更新当前对象的数据进入数据库.
      */
-//    NSString* where = [NSString stringWithFormat:@"where %@ or %@=%@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"]),bg_sqlKey(@"age"),bg_sqlValue(@(31))];
+//    NSString* where = [NSString stringWithFormat:@"where %@ and %@=%@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"]),bg_sqlKey(@"age"),bg_sqlValue(@(99))];
 //    p.name = @"天朝";
 //    [p bg_updateWhere:where];
+    
+//    NSString * update = [NSString stringWithFormat:@"set %@=%@ where %@=%@",bg_sqlKey(@"students"),bg_sqlValue(@[@"测试1",@"测试2"]),bg_sqlKey(bg_primaryKey),bg_sqlValue(@(1))];
+//    [People bg_update:bg_tablename where:update];
     
     /**
      使用SQL语句设置更新.

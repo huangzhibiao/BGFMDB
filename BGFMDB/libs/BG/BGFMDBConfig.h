@@ -54,6 +54,9 @@ typedef NS_ENUM(NSInteger,bg_dataTimeType){
  封装处理传入数据库的key和value.
  */
 extern NSString* _Nonnull bg_sqlKey(NSString* _Nonnull key);
+/**
+ 转换OC对象成数据库数据.
+ */
 extern NSString* _Nonnull bg_sqlValue(id _Nonnull value);
 /**
  根据keyPath和Value的数组, 封装成数据库语句，来操作库.

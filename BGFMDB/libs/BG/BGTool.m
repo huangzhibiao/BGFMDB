@@ -43,13 +43,20 @@ static NSSet *foundationClasses_;
 NSString* bg_sqlKey(NSString* key){
     return [NSString stringWithFormat:@"%@%@",BG,key];
 }
+
+/**
+ 转换OC对象成数据库数据.
+ */
 NSString* bg_sqlValue(id value){
+    NSString* type = [NSString stringWithFormat:@"@\"%@\"",NSStringFromClass([value class])];
+    value = [BGTool getSqlValue:value type:type encode:YES];
     if ([value isKindOfClass:[NSString class]]) {
         return [NSString stringWithFormat:@"'%@'",value];
     }else{
         return value;
     }
 }
+
 /**
  根据keyPath和Value的数组, 封装成数据库语句，来操作库.
  */
