@@ -107,15 +107,15 @@
 //    p.name = @"天朝";
 //    [p bg_updateWhere:where];
     
-//    NSString * update = [NSString stringWithFormat:@"set %@=%@ where %@=%@",bg_sqlKey(@"students"),bg_sqlValue(@[@"测试1",@"测试2"]),bg_sqlKey(bg_primaryKey),bg_sqlValue(@(1))];
-//    [People bg_update:bg_tablename where:update];
-    
     /**
      使用SQL语句设置更新.
      根据某个属性值去更改某个属性值，此处是当name等于@"天朝"时,设置age=100.
      */
 //    NSString* where = [NSString stringWithFormat:@"set %@=%@ where %@=%@",bg_sqlKey(@"age"),bg_sqlValue(@(100)),bg_sqlKey(@"name"),bg_sqlValue(@"斯巴达")];
 //    [People bg_update:bg_tablename where:where];
+    
+//    NSString * update = [NSString stringWithFormat:@"set %@=%@ where %@=%@",bg_sqlKey(@"students"),bg_sqlValue(@[@"测试1",@"测试2"]),bg_sqlKey(bg_primaryKey),bg_sqlValue(@(1))];
+//    [People bg_update:bg_tablename where:update];
     
     /**
      获取第一个元素.
