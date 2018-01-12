@@ -48,6 +48,11 @@ NSString* bg_sqlKey(NSString* key){
  转换OC对象成数据库数据.
  */
 NSString* bg_sqlValue(id value){
+    
+    if ([value isKindOfClass:[NSNumber class]]) {
+        return value;
+    }
+    
     NSString* type = [NSString stringWithFormat:@"@\"%@\"",NSStringFromClass([value class])];
     value = [BGTool getSqlValue:value type:type encode:YES];
     if ([value isKindOfClass:[NSString class]]) {
@@ -55,6 +60,7 @@ NSString* bg_sqlValue(id value){
     }else{
         return value;
     }
+    
 }
 
 /**
