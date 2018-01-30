@@ -80,6 +80,7 @@
 @property(nonatomic,assign)NSRange range;
 
 @property(nonatomic,strong)NSMutableArray* arrM;
+@property(nonatomic,strong)NSMutableArray* datasM;
 @property(nonatomic,strong)NSMutableDictionary* dictM;
 @property(nonatomic,strong)NSSet* nsset;
 @property(nonatomic,strong)NSMutableSet* setM;

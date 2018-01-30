@@ -114,7 +114,19 @@
 //    NSString* where = [NSString stringWithFormat:@"set %@=%@ where %@=%@",bg_sqlKey(@"age"),bg_sqlValue(@(100)),bg_sqlKey(@"name"),bg_sqlValue(@"斯巴达")];
 //    [People bg_update:bg_tablename where:where];
     
-//    NSString * update = [NSString stringWithFormat:@"set %@=%@ where %@=%@",bg_sqlKey(@"students"),bg_sqlValue(@[@"测试1",@"测试2"]),bg_sqlKey(bg_primaryKey),bg_sqlValue(@(1))];
+//    NSMutableArray* arrayM = [NSMutableArray array];
+//    Human* human = [Human new];
+//    human.sex = @"女";
+//    human.body = @"小芳";
+//    human.humanAge = 26;
+//    human.age = 15;
+//    human.num = 999;
+//    human.counts = 10001;
+//    human.food = @"大米";
+//    [arrayM addObject:@"111"];
+//    [arrayM addObject:@"222"];
+//    [arrayM addObject:human];
+//    NSString * update = [NSString stringWithFormat:@"set %@=%@ where %@=%@",bg_sqlKey(@"datasM"),bg_sqlValue(arrayM),bg_sqlKey(bg_primaryKey),bg_sqlValue(@(1))];
 //    [People bg_update:bg_tablename where:update];
     
     /**
@@ -157,7 +169,7 @@
     /**
      直接写SQL语句操作
      */
-//    NSArray* arr = bg_executeSql(@"select * from yy", bg_tablename, [People class]);//查询时,后面两个参数必须要传入.
+    //NSArray* arr = bg_executeSql(@"select * from yy", bg_tablename, [People class]);//查询时,后面两个参数必须要传入.
 //    bg_executeSql(@"update yy set BG_name='标哥'", nil, nil);//更新或删除等操作时,后两个参数不必传入.
     
     /**

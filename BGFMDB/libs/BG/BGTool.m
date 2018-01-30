@@ -899,6 +899,11 @@ void bg_cleanCache(){
 }
 //转换从数据库中读取出来的数据.
 +(NSArray*)tansformDataFromSqlDataWithTableName:(NSString*)tableName class:(__unsafe_unretained _Nonnull Class)cla array:(NSArray*)array{
+    //如果传入的class为空，则直接以字典的形式返回.
+    if(cla == nil){
+        return array;
+    }
+    
     NSMutableArray* arrM = [NSMutableArray array];
     for(NSDictionary* dict in array){
         id object = [BGTool objectFromJsonStringWithTableName:tableName class:cla valueDict:dict];

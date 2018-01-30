@@ -1483,17 +1483,25 @@ static BGDB* BGdb = nil;
         NSString* tableName = [BGTool getTableNameWithObject:object];
         NSMutableArray* newKeys = [NSMutableArray array];
         NSMutableArray* sqlKeys = [NSMutableArray array];
-        [self executeDB:^(FMDatabase * _Nonnull db){
-            NSString* SQL = [NSString stringWithFormat:@"select * from %@ limit 0,1;",tableName];
-            FMResultSet* rs = [db executeQuery:SQL];
-            // 2.遍历结果集
-            if(rs.next){
-                //获取数据库字段名集合.
-                int columnCount = [rs columnCount];
+        [self executeDB:^(FMDatabase * _Nonnull db) {
+                NSString* SQL = [NSString stringWithFormat:@"select sql from sqlite_master where tbl_name='%@' and type='table';",tableName];
                 NSMutableArray* tempArrayM = [NSMutableArray array];
-                for (int columnIdx = 0; columnIdx < columnCount; columnIdx++){
-                    [tempArrayM addObject:[rs columnNameForIndex:columnIdx]];
-                }
+                //获取表格所有列名.
+                [db executeStatements:SQL withResultBlock:^int(NSDictionary *resultsDictionary) {
+                    NSString* allName = [resultsDictionary.allValues lastObject];
+                    allName = [allName stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+                    NSRange range1 = [allName rangeOfString:@"("];
+                    allName = [allName substringFromIndex:range1.location+1];
+                    NSRange range2 = [allName rangeOfString:@")"];
+                    allName = [allName substringToIndex:range2.location];
+                    NSArray* sqlNames = [allName componentsSeparatedByString:@","];
+                    
+                    for(NSString* sqlName in sqlNames){
+                        NSString* columnName = [[sqlName componentsSeparatedByString:@" "] firstObject];
+                        [tempArrayM addObject:columnName];
+                    }
+                    return 0;
+                }];
                 NSArray* columNames = tempArrayM.count?tempArrayM:nil;
                 NSArray* keyAndtypes = [BGTool getClassIvarList:[object class] onlyKey:NO];
                 for(NSString* keyAndtype in keyAndtypes){
@@ -1516,9 +1524,6 @@ static BGDB* BGdb = nil;
                         [sqlKeys addObject:columName];
                     }
                 }];
-            }
-            //查询完后要关闭rs，不然会报@"Warning: there is at least one open result set around after performing
-            !rs?:[rs close];
             
         }];
         
