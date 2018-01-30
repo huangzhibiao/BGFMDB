@@ -31,7 +31,7 @@ LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo
 platform :ios, '8.0'
 
 target '工程名称' do
-pod ‘BGFMDB’, '~> 2.0.2’
+pod ‘BGFMDB’, '~> 2.0.4’
 end
 ```
 ## 直接下载库代码使用方式.
