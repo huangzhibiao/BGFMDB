@@ -193,7 +193,7 @@ void bg_cleanCache(){
  根据类获取变量名列表
  @onlyKey YES:紧紧返回key,NO:在key后面添加type.
  */
-+(NSArray*)getClassIvarList:(__unsafe_unretained Class)cla onlyKey:(BOOL)onlyKey{
++(NSArray*)getClassIvarList:(__unsafe_unretained Class)cla Object:(_Nullable id)object onlyKey:(BOOL)onlyKey{
     
     //获取缓存的属性信息
     NSCache* cache = [NSCache bg_cache];
@@ -228,7 +228,14 @@ void bg_cleanCache(){
             if (!onlyKey) {
                 //获取成员变量的数据类型
                 NSString* type = [NSString stringWithUTF8String:ivar_getTypeEncoding(thisIvar)];
-                //NSLog(@"key = %@ , type = %@",key,type);
+                if(![self isKindOfSystemType:type]){
+                    if(object){
+                        type = [NSString stringWithFormat:@"@\"%@\"",[[object valueForKey:key] class]];
+                        //NSLog(@"自定义  key = %@ , type = %@",key,type);
+                    }
+                }else{
+                        //NSLog(@"系统  key = %@ , type = %@",key,type);
+                }
                 key = [NSString stringWithFormat:@"%@*%@",key,type];
             }
             [keys addObject:key];//存储对象的变量名
@@ -363,7 +370,7 @@ void bg_cleanCache(){
 //对象转json字符
 +(NSString *)jsonStringWithObject:(id)object{
     NSMutableDictionary* keyValueDict = [NSMutableDictionary dictionary];
-    NSArray* keyAndTypes = [BGTool getClassIvarList:[object class] onlyKey:NO];
+    NSArray* keyAndTypes = [BGTool getClassIvarList:[object class] Object:object onlyKey:NO];
     for(NSString* keyAndType in keyAndTypes){
         NSArray* arr = [keyAndType componentsSeparatedByString:@"*"];
         NSString* propertyName = arr[0];
@@ -617,6 +624,41 @@ void bg_cleanCache(){
     }
 }
 /**
+ 判断系统类型与否
+ */
++(BOOL)isKindOfSystemType:(NSString*)type{
+    
+    if([type containsString:@"String"]||
+       [type containsString:@"Number"]||
+       [type containsString:@"Array"]||
+       [type containsString:@"Dictionary"]||
+       [type containsString:@"Set"]||
+       [type containsString:@"Data"]||
+       [type containsString:@"NSMapTable"]||
+       [type containsString:@"NSHashTable"]||
+       [type containsString:@"NSDate"]||
+       [type containsString:@"NSURL"]||
+       [type containsString:@"UIImage"]||
+       [type containsString:@"UIColor"]||
+       [type containsString:@"NSRange"]||
+       ([type containsString:@"CGRect"]&&[type containsString:@"CGPoint"]&&[type containsString:@"CGSize"])||
+       (![type containsString:@"CGRect"]&&[type containsString:@"CGPoint"]&&![type containsString:@"CGSize"])||
+       (![type containsString:@"CGRect"]&&![type containsString:@"CGPoint"]&&[type containsString:@"CGSize"])||
+       [type isEqualToString:@"i"]||[type isEqualToString:@"I"]||
+       [type isEqualToString:@"s"]||[type isEqualToString:@"S"]||
+       [type isEqualToString:@"q"]||[type isEqualToString:@"Q"]||
+       [type isEqualToString:@"b"]||[type isEqualToString:@"B"]||
+       [type isEqualToString:@"c"]||[type isEqualToString:@"C"]||
+       [type isEqualToString:@"l"]||[type isEqualToString:@"L"]||
+       [type isEqualToString:@"f"]||[type isEqualToString:@"F"]||
+       [type isEqualToString:@"d"]||[type isEqualToString:@"D"]){
+       return YES;
+    }else{
+       return NO;
+    }
+}
+
+/**
  根据传入的对象获取表名.
  */
 +(NSString *)getTableNameWithObject:(id)object{
@@ -632,7 +674,7 @@ void bg_cleanCache(){
 +(id)objectFromJsonStringWithTableName:(NSString* _Nonnull)tablename class:(__unsafe_unretained _Nonnull Class)cla valueDict:(NSDictionary*)valueDict{
     id object = [cla new];
     NSMutableArray* valueDictKeys = [NSMutableArray arrayWithArray:valueDict.allKeys];
-    NSMutableArray* keyAndTypes = [NSMutableArray arrayWithArray:[self getClassIvarList:cla onlyKey:NO]];
+    NSMutableArray* keyAndTypes = [NSMutableArray arrayWithArray:[self getClassIvarList:cla Object:nil onlyKey:NO]];
     
     for(int i=0;i<valueDictKeys.count;i++){
         NSString* sqlKey = valueDictKeys[i];
@@ -678,7 +720,7 @@ void bg_cleanCache(){
     NSDictionary* const objectClaInArr = [BGTool executeSelector:NSSelectorFromString(@"bg_objectClassInArray") forClass:[object class]];
     NSDictionary* const objectClaForCustom = [BGTool executeSelector:NSSelectorFromString(@"bg_objectClassForCustom") forClass:[object class]];
     NSDictionary* const bg_replacedKeyFromPropertyNameDict = [BGTool executeSelector:NSSelectorFromString(@"bg_replacedKeyFromPropertyName") forClass:[object class]];
-    NSArray* const claKeys = [self getClassIvarList:cla onlyKey:YES];
+    NSArray* const claKeys = [self getClassIvarList:cla Object:nil onlyKey:YES];
     //遍历自定义变量集合信息.
     !objectClaForCustom?:[objectClaForCustom enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull customKey, id  _Nonnull customObj, BOOL * _Nonnull stop) {
         if ([customKey containsString:@"."]){
@@ -744,7 +786,7 @@ void bg_cleanCache(){
  模型转字典.
  */
 +(NSMutableDictionary*)bg_keyValuesWithObject:(id)object ignoredKeys:(NSArray*)ignoredKeys{
-    NSMutableArray<NSString*>* keys = [[NSMutableArray alloc] initWithArray:[self getClassIvarList:[object class] onlyKey:YES]];
+    NSMutableArray<NSString*>* keys = [[NSMutableArray alloc] initWithArray:[self getClassIvarList:[object class] Object:nil onlyKey:YES]];
     if (ignoredKeys) {
         [keys removeObjectsInArray:ignoredKeys];
     }
@@ -1027,7 +1069,7 @@ void bg_cleanCache(){
     __block BOOL isExistTable;
     [[BGDB shareManager] isExistWithTableName:tableName complete:^(BOOL isExist) {
         if (!isExist){//如果不存在就新建
-            NSArray* createKeys = [self bg_filtCreateKeys:[BGTool getClassIvarList:[object class] onlyKey:NO] ignoredkeys:ignoredKeys];
+            NSArray* createKeys = [self bg_filtCreateKeys:[BGTool getClassIvarList:[object class] Object:object onlyKey:NO] ignoredkeys:ignoredKeys];
             [[BGDB shareManager] createTableWithTableName:tableName keys:createKeys unionPrimaryKeys:unionPrimaryKeys uniqueKeys:uniqueKeys complete:^(BOOL isSuccess) {
                 isExistTable = isSuccess;
             }];

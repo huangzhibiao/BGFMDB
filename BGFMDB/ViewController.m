@@ -393,6 +393,17 @@
     p.date = [NSDate date];
     return p;
 }
+-(void)testT{
+    testT* test = [testT new];
+    T2* t2 = [T2 new];
+    t2.t2 = @"t2";
+    test.t1 = t2;
+    [test bg_save];
+    
+    NSArray* arr = [testT bg_findAll:nil];
+    
+    NSLog(@"-------");
+}
 /**
  插入
  */

@@ -48,3 +48,19 @@
 @implementation Human
 
 @end
+
+@implementation testT
+
+@end
+
+@implementation T1
+
+@end
+
+@implementation T2
+
+@end
+
+@implementation T3
+
+@end

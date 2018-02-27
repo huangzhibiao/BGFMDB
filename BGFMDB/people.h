@@ -105,3 +105,20 @@
 @property(nonatomic,strong)UIImage* image;
 
 @end
+
+@class T1;
+@interface testT:NSObject
+@property(nonatomic,strong)T1* t1;
+@end
+
+@interface T1:  NSObject
+@property(nonatomic,copy)NSString* name;
+@end
+
+@interface T2: T1
+@property(nonatomic,copy) NSString* t2;
+@end
+
+@interface T3 : T1
+@property(nonatomic,copy) NSString* t3;
+@end

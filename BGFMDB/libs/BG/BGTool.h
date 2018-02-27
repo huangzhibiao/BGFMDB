@@ -39,7 +39,7 @@ typedef NS_ENUM(NSInteger,bg_getModelInfoType){//过滤数据类型
  根据类获取变量名列表
  @onlyKey YES:紧紧返回key,NO:在key后面添加type.
  */
-+(NSArray* _Nonnull)getClassIvarList:(__unsafe_unretained _Nonnull Class)cla onlyKey:(BOOL)onlyKey;
++(NSArray* _Nonnull)getClassIvarList:(__unsafe_unretained _Nonnull Class)cla Object:(_Nullable id)object onlyKey:(BOOL)onlyKey;
 
 /**
  抽取封装条件数组处理函数.

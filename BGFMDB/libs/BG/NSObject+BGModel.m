@@ -556,7 +556,7 @@
     NSInteger oldVersion = [BGTool getIntegerWithKey:tablename];
     if(version > oldVersion){
         [BGTool setIntegerWithKey:tablename value:version];
-        NSArray* keys = [BGTool bg_filtCreateKeys:[BGTool getClassIvarList:[self class] onlyKey:NO] ignoredkeys:bg_getIgnoreKeys];
+        NSArray* keys = [BGTool bg_filtCreateKeys:[BGTool getClassIvarList:[self class] Object:nil onlyKey:NO] ignoredkeys:bg_getIgnoreKeys];
         __block bg_dealState state;
         [[BGDB shareManager] refreshTable:tablename class:[self class] keys:keys complete:^(bg_dealState result) {
             state = result;
@@ -602,7 +602,7 @@
     NSInteger oldVersion = [BGTool getIntegerWithKey:tablename];
     if(version > oldVersion){
         [BGTool setIntegerWithKey:tablename value:version];
-        NSArray* keys = [BGTool bg_filtCreateKeys:[BGTool getClassIvarList:[self class] onlyKey:NO] ignoredkeys:bg_getIgnoreKeys];
+        NSArray* keys = [BGTool bg_filtCreateKeys:[BGTool getClassIvarList:[self class] Object:nil onlyKey:NO] ignoredkeys:bg_getIgnoreKeys];
         __block bg_dealState state;
         [[BGDB shareManager] refreshTable:tablename class:[self class] keys:keys keyDict:keydict complete:^(bg_dealState result) {
             state = result;

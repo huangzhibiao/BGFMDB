@@ -14,7 +14,7 @@
 
 +(NSArray<BGModelInfo*>*)modelInfoWithObject:(id)object{
     NSMutableArray* modelInfos = [NSMutableArray array];
-    NSArray* keyAndTypes = [BGTool getClassIvarList:[object class] onlyKey:NO];
+    NSArray* keyAndTypes = [BGTool getClassIvarList:[object class] Object:object onlyKey:NO];
     for(NSString* keyAndType in keyAndTypes){
         NSArray* keyTypes = [keyAndType componentsSeparatedByString:@"*"];
         NSString* propertyName = keyTypes[0];

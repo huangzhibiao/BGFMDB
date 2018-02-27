@@ -1333,7 +1333,7 @@ static BGDB* BGdb = nil;
     NSArray* uniqueKeys = [BGTool executeSelector:bg_uniqueKeysSelector forClass:NSClassFromString(A)];
     //获取“联合主键”字段名
     NSArray* unionPrimaryKeys = [BGTool executeSelector:bg_unionPrimaryKeysSelector forClass:NSClassFromString(A)];
-    __block NSArray* keys = [BGTool getClassIvarList:NSClassFromString(A) onlyKey:NO];
+    __block NSArray* keys = [BGTool getClassIvarList:NSClassFromString(A) Object:nil onlyKey:NO];
     NSArray* newKeys = keyDict.allKeys;
     NSArray* oldKeys = keyDict.allValues;
     //建立一张临时表
@@ -1503,7 +1503,7 @@ static BGDB* BGdb = nil;
                     return 0;
                 }];
                 NSArray* columNames = tempArrayM.count?tempArrayM:nil;
-                NSArray* keyAndtypes = [BGTool getClassIvarList:[object class] onlyKey:NO];
+                NSArray* keyAndtypes = [BGTool getClassIvarList:[object class] Object:object onlyKey:NO];
                 for(NSString* keyAndtype in keyAndtypes){
                     NSString* key = [[keyAndtype componentsSeparatedByString:@"*"] firstObject];
                     if(ignoredkeys && [ignoredkeys containsObject:key])continue;
@@ -1514,7 +1514,7 @@ static BGDB* BGdb = nil;
                     }
                 }
                 
-                NSMutableArray* keys = [NSMutableArray arrayWithArray:[BGTool getClassIvarList:[object class] onlyKey:YES]];
+                NSMutableArray* keys = [NSMutableArray arrayWithArray:[BGTool getClassIvarList:[object class] Object:nil onlyKey:YES]];
                 if (ignoredkeys) {
                     [keys removeObjectsInArray:ignoredkeys];
                 }
@@ -1535,7 +1535,7 @@ static BGDB* BGdb = nil;
             }
         }else if(sqlKeys.count>0){
             //字段发生改变,减少或名称变化,实行刷新数据库.
-            NSMutableArray* newTableKeys = [[NSMutableArray alloc] initWithArray:[BGTool getClassIvarList:[object class] onlyKey:NO]];
+            NSMutableArray* newTableKeys = [[NSMutableArray alloc] initWithArray:[BGTool getClassIvarList:[object class] Object:nil onlyKey:NO]];
             NSMutableArray* tempIgnoreKeys = [[NSMutableArray alloc] initWithArray:ignoredkeys];
             for(int i=0;i<newTableKeys.count;i++){
                 NSString* key = [[newTableKeys[i] componentsSeparatedByString:@"*"] firstObject];
