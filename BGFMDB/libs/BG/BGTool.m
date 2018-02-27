@@ -229,7 +229,7 @@ void bg_cleanCache(){
                 //获取成员变量的数据类型
                 NSString* type = [NSString stringWithUTF8String:ivar_getTypeEncoding(thisIvar)];
                 if(![self isKindOfSystemType:type]){
-                    if(object){
+                    if(object&&[object valueForKey:key]){
                         type = [NSString stringWithFormat:@"@\"%@\"",[[object valueForKey:key] class]];
                         //NSLog(@"自定义  key = %@ , type = %@",key,type);
                     }
