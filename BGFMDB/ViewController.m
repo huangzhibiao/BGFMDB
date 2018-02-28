@@ -393,11 +393,18 @@
     p.date = [NSDate date];
     return p;
 }
+/**
+ 测试子类对象指向父类引用的情况.
+ */
 -(void)testT{
     testT* test = [testT new];
     T2* t2 = [T2 new];
     t2.t2 = @"t2";
-    test.t1 = t2;
+    /*------*/
+    T3* t3 = [T3 new];
+    t3.t3 = @"t3";
+    
+    test.t1 = t3;
     [test bg_save];
     
     NSArray* arr = [testT bg_findAll:nil];

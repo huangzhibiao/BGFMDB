@@ -18,7 +18,8 @@
     for(NSString* keyAndType in keyAndTypes){
         NSArray* keyTypes = [keyAndType componentsSeparatedByString:@"*"];
         NSString* propertyName = keyTypes[0];
-        NSString *propertyType = keyTypes[1];
+        NSString* propertyType = keyTypes[1];
+        
         BGModelInfo* info = [BGModelInfo new];
         //设置属性名
         [info setValue:propertyName forKey:@"propertyName"];
@@ -29,29 +30,29 @@
         //设置列属性
         NSString* sqlType = [BGTool getSqlType:propertyType];
         [info setValue:sqlType forKey:@"sqlColumnType"];
-        //读取属性值
-        //if(![propertyName isEqualToString:bg_primaryKey]){
             
-            id propertyValue;
-            id sqlValue;
-            //crateTime和updateTime两个额外字段单独处理.
-            if([propertyName isEqualToString:bg_createTimeKey] ||
-               [propertyName isEqualToString:bg_updateTimeKey]){
-                propertyValue = [BGTool stringWithDate:[NSDate new]];
-            }else{
-                propertyValue = [object valueForKey:propertyName];
-            }
-            
-            if(propertyValue){
-                //设置属性值
-                [info setValue:propertyValue forKey:@"propertyValue"];
-                sqlValue = [BGTool getSqlValue:propertyValue type:propertyType encode:YES];        
-                //设置将要存储到数据库的值
-                [info setValue:sqlValue forKey:@"sqlColumnValue"];
-                [modelInfos addObject:info];
-            }
+        id propertyValue;
+        id sqlValue;
+        //crateTime和updateTime两个额外字段单独处理.
+        if([propertyName isEqualToString:bg_createTimeKey] ||
+           [propertyName isEqualToString:bg_updateTimeKey]){
+            propertyValue = [BGTool stringWithDate:[NSDate new]];
+        }else{
+            propertyValue = [object valueForKey:propertyName];
+        }
         
-       // }
+        if(propertyValue){
+            //设置属性值
+            [info setValue:propertyValue forKey:@"propertyValue"];
+            sqlValue = [BGTool getSqlValue:propertyValue type:propertyType encode:YES];
+            //非系统类型特殊处理sqlValue
+            if(![BGTool isKindOfSystemType:propertyType]){
+                //设置将要存储到数据库的值
+                sqlValue = [NSString stringWithFormat:@"%@%@%@",propertyType,BG_CUSTOM_TYPE_SEPARATOR,sqlValue];
+            }
+            [info setValue:sqlValue forKey:@"sqlColumnValue"];
+            [modelInfos addObject:info];
+        }
         
     }
     NSAssert(modelInfos.count,@"对象变量数据为空,不能存储!");

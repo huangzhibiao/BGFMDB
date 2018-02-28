@@ -326,6 +326,7 @@ static BGDB* BGdb = nil;
         NSMutableArray* tempUniqueKeys = [NSMutableArray arrayWithArray:uniqueKeys];
         for(int i=0;i<keys.count;i++){
             NSString* key = [keys[i] componentsSeparatedByString:@"*"][0];
+            
             if(tempUniqueKeys.count && [tempUniqueKeys containsObject:key]){
                 for(NSString* uniqueKey in tempUniqueKeys){
                     if([BGTool isUniqueKey:uniqueKey with:keys[i]]){

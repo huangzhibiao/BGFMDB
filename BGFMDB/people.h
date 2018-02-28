@@ -108,7 +108,7 @@
 
 @class T1;
 @interface testT:NSObject
-@property(nonatomic,strong)T1* t1;
+@property(nonatomic,strong)id t1;
 @end
 
 @interface T1:  NSObject

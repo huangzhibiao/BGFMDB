@@ -216,6 +216,8 @@ void bg_cleanCache(){
         [keys addObject:[NSString stringWithFormat:@"%@*@\"NSString\"",bg_createTimeKey]];
         [keys addObject:[NSString stringWithFormat:@"%@*@\"NSString\"",bg_updateTimeKey]];
     }
+    //判断是否有自定义类型标志，有则不缓存.
+    __block BOOL isKindOfCustomFlag = NO;
     [self bg_enumerateClasses:cla complete:^(__unsafe_unretained Class c, BOOL *stop) {
         unsigned int numIvars; //成员变量个数
         Ivar *vars = class_copyIvarList(c, &numIvars);
@@ -229,6 +231,7 @@ void bg_cleanCache(){
                 //获取成员变量的数据类型
                 NSString* type = [NSString stringWithUTF8String:ivar_getTypeEncoding(thisIvar)];
                 if(![self isKindOfSystemType:type]){
+                    isKindOfCustomFlag = YES;
                     if(object&&[object valueForKey:key]){
                         type = [NSString stringWithFormat:@"@\"%@\"",[[object valueForKey:key] class]];
                         //NSLog(@"自定义  key = %@ , type = %@",key,type);
@@ -242,8 +245,12 @@ void bg_cleanCache(){
         }
         free(vars);//释放资源
     }];
-    //缓存的属性信息
-    [cache setObject:keys forKey:cacheKey];
+    
+    if(!isKindOfCustomFlag) {
+        //缓存的属性信息
+        [cache setObject:keys forKey:cacheKey];
+    }
+    
     return keys;
 }
 
@@ -685,14 +692,23 @@ void bg_cleanCache(){
         for(NSString* keyAndType in keyAndTypes){
             NSArray* arrKT = [keyAndType componentsSeparatedByString:@"*"];
             NSString* key = [arrKT firstObject];
+            NSString* type = [arrKT lastObject];
+            
             if ([tempSqlKey isEqualToString:key]){
-                id ivarValue = [self getSqlValue:valueDict[sqlKey] type:arrKT.lastObject encode:NO];
+                NSString* tempValue = valueDict[sqlKey];
+                if([tempValue isKindOfClass:[NSString class]] && [tempValue containsString:BG_CUSTOM_TYPE_SEPARATOR]){
+                    NSArray* arrTempTV = [tempValue componentsSeparatedByString:BG_CUSTOM_TYPE_SEPARATOR];
+                    type = [arrTempTV firstObject];
+                    tempValue = [arrTempTV lastObject];
+                }
+                id ivarValue = [self getSqlValue:tempValue type:type encode:NO];
                 !ivarValue?:[object setValue:ivarValue forKey:key];
                 [keyAndTypes removeObject:keyAndType];
                 [valueDictKeys removeObjectAtIndex:i];
                 i--;
                 break;//匹配处理完后跳出内循环.
             }
+            
         }
     }
     

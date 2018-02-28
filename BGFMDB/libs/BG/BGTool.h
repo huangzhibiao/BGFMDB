@@ -15,6 +15,8 @@
 #define bg_tableNameKey @"bg_tableName"
 #define bg_rowid @"rowid"
 
+#define BG_CUSTOM_TYPE_SEPARATOR @":::BGCUSTOMTYPE:::"
+
 #define bg_uniqueKeysSelector NSSelectorFromString(@"bg_uniqueKeys")
 #define bg_ignoreKeysSelector NSSelectorFromString(@"bg_ignoreKeys")
 #define bg_unionPrimaryKeysSelector NSSelectorFromString(@"bg_unionPrimaryKeys")
@@ -40,7 +42,10 @@ typedef NS_ENUM(NSInteger,bg_getModelInfoType){//过滤数据类型
  @onlyKey YES:紧紧返回key,NO:在key后面添加type.
  */
 +(NSArray* _Nonnull)getClassIvarList:(__unsafe_unretained _Nonnull Class)cla Object:(_Nullable id)object onlyKey:(BOOL)onlyKey;
-
+/**
+ 判断系统类型与否
+ */
++(BOOL)isKindOfSystemType:(NSString* _Nonnull)type;
 /**
  抽取封装条件数组处理函数.
  */
