@@ -499,6 +499,12 @@ void bg_cleanCache(){
 +(id)getSqlValue:(id)value type:(NSString*)type encode:(BOOL)encode{
     if(!value || [value isKindOfClass:[NSNull class]])return nil;
     
+    if(!encode){//特殊处理被重复解码的问题.
+        if(![value isKindOfClass:[NSString class]]){
+            return value;
+        }
+    }
+    
     if([type containsString:@"String"]){
         if([type containsString:@"AttributedString"]){//处理富文本.
             if(encode) {
