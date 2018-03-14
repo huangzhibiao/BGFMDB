@@ -296,7 +296,9 @@ void bg_cleanCache(){
     }
     NSMutableString* likeM = [NSMutableString string];
     !where?:[likeM appendString:@" where "];
-    for(int i=0;i<keys.count;i++){
+    NSInteger keysCount = keys.count;
+    for(int i=0;i<keysCount;i++){
+        BOOL likeOr = NO;
         NSString* keyPath = keys[i];
         id value = values[i];
         NSAssert([keyPath containsString:@"."], @"keyPath错误,正确形式如: user.stident.name");
@@ -307,21 +309,46 @@ void bg_cleanCache(){
             [keyPathParam appendFormat:@"%@",keypaths[i]];
             [keyPathParam appendString:@"%"];
         }
-        [keyPathParam appendFormat:@"%@",value];
+        //[keyPathParam appendFormat:@"%@",value];
         if ([relations[i] isEqualToString:bg_contains]){//包含关系
+            if(![value isKindOfClass:[NSString class]]){
+                NSAssert(NO, @"非字符串不能设置包含关系!");
+            }
+            [keyPathParam appendFormat:@"%@",value];
             [keyPathParam appendString:@"%"];
         }else{
+            
+            if([value isKindOfClass:[NSString class]]){
+                [keyPathParam appendFormat:@"\"%@",value];
+            }else{
+                [keyPathParam appendFormat:@": %@",value];
+            }
+            
             if(keypaths.count<=2){
-                if([values[i] isKindOfClass:[NSString class]]){
+                if([value isKindOfClass:[NSString class]]){
                     [keyPathParam appendString:@"\"%"];
                 }else{
                     [keyPathParam appendString:@",%"];
+                    likeOr = YES;
                 }
             }else{
-                [keyPathParam appendString:@"\\%"];
+                if([value isKindOfClass:[NSString class]]){
+                    [keyPathParam appendString:@"\\%"];
+                }else{
+                    [keyPathParam appendString:@",%"];
+                    likeOr = YES;
+                }
             }
         }
-        [likeM appendFormat:@"%@%@ like '%@'",BG,keypaths[0],keyPathParam];
+        if(likeOr){
+            if(keypaths.count<=2){
+                [likeM appendFormat:@"((%@%@ like '%@') or (%@%@ like '%@'))",BG,keypaths[0],keyPathParam,BG,keypaths[0],[keyPathParam stringByReplacingOccurrencesOfString:@"," withString:@"\n}"]];
+            }else{
+                [likeM appendFormat:@"((%@%@ like '%@') or (%@%@ like '%@'))",BG,keypaths[0],keyPathParam,BG,keypaths[0],[keyPathParam stringByReplacingOccurrencesOfString:@"," withString:@"\\"]];
+            }
+        }else{
+            [likeM appendFormat:@"%@%@ like '%@'",BG,keypaths[0],keyPathParam];
+        }
         if(i != (keys.count-1)){
             [likeM appendString:@" and "];
         }

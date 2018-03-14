@@ -29,18 +29,17 @@
 @property(nonatomic,copy)NSString* num;
 @property(nonatomic,strong)NSArray* names;
 @property(nonatomic,strong)Human* human;
-
+@property(nonatomic,assign)int count;
 @end
 
 @interface User : NSObject
 
-@property(nonatomic,copy)NSString* name;
 @property(nonatomic,strong)NSDictionary* attri;
-@property(nonatomic,assign)int userAge;
 @property(nonatomic,strong)NSNumber* userNumer;
 @property(nonatomic,strong)Student* student;//第二层类嵌套 , 可以无穷嵌套...
-
 @property(nonatomic,strong)People *userP;
+@property(nonatomic,assign)int userAge;
+@property(nonatomic,copy)NSString* name;
 @end
 
 @interface People : NSObject

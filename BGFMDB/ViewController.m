@@ -103,9 +103,9 @@
      单个对象更新,支持keyPath.
      根据user下的student下的human下的body是否等于小芳 或 age是否等于31 来更新当前对象的数据进入数据库.
      */
-//    NSString* where = [NSString stringWithFormat:@"where %@ and %@=%@",bg_keyPathValues(@[@"user.student.human.body",bg_equal,@"小芳"]),bg_sqlKey(@"age"),bg_sqlValue(@(99))];
-//    p.name = @"天朝";
-//    [p bg_updateWhere:where];
+    //NSString* where = [NSString stringWithFormat:@"where %@ and %@=%@",bg_keyPathValues(@[@"user.student.num",bg_equal,@"标哥"]),bg_sqlKey(@"age"),bg_sqlValue(@(99))];
+    //p.name = @"天朝1";
+    //[p bg_updateWhere:where];
     
     /**
      使用SQL语句设置更新.
@@ -348,8 +348,9 @@
     user.name = @"陈浩南";
     user.attri = @{@"用户名":@"黄芝标",@"密码":@(123456),@"数组":@[@"数组1",@"数组2"],@"集合":@{@"集合1":@"集合2"}};
     Student* student = [[Student alloc] init];
-    student.num = @"测试学生数量...标哥";
+    student.num = @"标哥";
     student.names = @[@"小哥哥",@"小红",@(110),@[@"数组元素1",@"数组元素2"],@{@"集合key":@"集合value"}];
+    student.count = 199;
     Human* human = [[Human alloc] init];
     human.sex = @"女";
     human.body = @"小芳";
