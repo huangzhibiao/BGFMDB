@@ -30,6 +30,9 @@
 //100M大小限制.
 #define MaxData @(838860800)
 
+//如果有不确定的属性类型时，将此开关打开
+//#define HaveDynamicProperty
+
 /**
  *  遍历所有类的block（父类）
  */
@@ -246,10 +249,14 @@ void bg_cleanCache(){
         free(vars);//释放资源
     }];
     
+#ifdef HaveDynamicProperty
     if(!isKindOfCustomFlag) {
         //缓存的属性信息
         [cache setObject:keys forKey:cacheKey];
     }
+#else
+    [cache setObject:keys forKey:cacheKey];
+#endif
     
     return keys;
 }
