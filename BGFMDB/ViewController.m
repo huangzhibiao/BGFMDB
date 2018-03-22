@@ -401,9 +401,12 @@
     testT* test = [testT new];
     T2* t2 = [T2 new];
     t2.t2 = @"t2";
+    t2.name = @"t2_name";
     /*------*/
     T3* t3 = [T3 new];
     t3.t3 = @"t3";
+    t3.name = @"t3_name";
+    t3.t2 = t2;
     
     test.t1 = t3;
     [test bg_save];

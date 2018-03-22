@@ -107,11 +107,11 @@
 
 @class T1;
 @interface testT:NSObject
-@property(nonatomic,strong)id t1;
+@property(nonatomic,strong) id t1;
 @end
 
 @interface T1:  NSObject
-@property(nonatomic,copy)NSString* name;
+@property(nonatomic,copy) NSString* name;
 @end
 
 @interface T2: T1
@@ -120,4 +120,5 @@
 
 @interface T3 : T1
 @property(nonatomic,copy) NSString* t3;
+@property(nonatomic,strong) id t2;
 @end

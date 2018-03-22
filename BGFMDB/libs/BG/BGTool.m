@@ -30,9 +30,6 @@
 //100M大小限制.
 #define MaxData @(838860800)
 
-//如果有不确定的属性类型时，将此开关打开
-//#define HaveDynamicProperty
-
 /**
  *  遍历所有类的block（父类）
  */
@@ -219,8 +216,7 @@ void bg_cleanCache(){
         [keys addObject:[NSString stringWithFormat:@"%@*@\"NSString\"",bg_createTimeKey]];
         [keys addObject:[NSString stringWithFormat:@"%@*@\"NSString\"",bg_updateTimeKey]];
     }
-    //判断是否有自定义类型标志，有则不缓存.
-    __block BOOL isKindOfCustomFlag = NO;
+    
     [self bg_enumerateClasses:cla complete:^(__unsafe_unretained Class c, BOOL *stop) {
         unsigned int numIvars; //成员变量个数
         Ivar *vars = class_copyIvarList(c, &numIvars);
@@ -233,15 +229,6 @@ void bg_cleanCache(){
             if (!onlyKey) {
                 //获取成员变量的数据类型
                 NSString* type = [NSString stringWithUTF8String:ivar_getTypeEncoding(thisIvar)];
-                if(![self isKindOfSystemType:type]){
-                    isKindOfCustomFlag = YES;
-                    if(object&&[object valueForKey:key]){
-                        type = [NSString stringWithFormat:@"@\"%@\"",[[object valueForKey:key] class]];
-                        //NSLog(@"自定义  key = %@ , type = %@",key,type);
-                    }
-                }else{
-                        //NSLog(@"系统  key = %@ , type = %@",key,type);
-                }
                 key = [NSString stringWithFormat:@"%@*%@",key,type];
             }
             [keys addObject:key];//存储对象的变量名
@@ -249,14 +236,7 @@ void bg_cleanCache(){
         free(vars);//释放资源
     }];
     
-#ifdef HaveDynamicProperty
-    if(!isKindOfCustomFlag) {
-        //缓存的属性信息
-        [cache setObject:keys forKey:cacheKey];
-    }
-#else
     [cache setObject:keys forKey:cacheKey];
-#endif
     
     return keys;
 }
@@ -533,12 +513,6 @@ void bg_cleanCache(){
 +(id)getSqlValue:(id)value type:(NSString*)type encode:(BOOL)encode{
     if(!value || [value isKindOfClass:[NSNull class]])return nil;
     
-    if(!encode){//特殊处理被重复解码的问题.
-        if(![value isKindOfClass:[NSString class]]){
-            return value;
-        }
-    }
-    
     if([type containsString:@"String"]){
         if([type containsString:@"AttributedString"]){//处理富文本.
             if(encode) {
@@ -661,12 +635,9 @@ void bg_cleanCache(){
         return value;
     }else{
         if(encode){
-            NSString* jsonString = [self jsonStringWithObject:value];
-            return jsonString;
+            return [self jsonStringWithArray:@[value]];
         }else{
-            NSDictionary* dict = [self jsonWithString:value];
-            type = [type substringWithRange:NSMakeRange(2,type.length-3)];
-            return [self objectFromJsonStringWithTableName:type class:NSClassFromString(type) valueDict:dict];
+            return [self arrayFromJsonString:value].firstObject;
         }
     }
 }
@@ -736,11 +707,6 @@ void bg_cleanCache(){
             
             if ([tempSqlKey isEqualToString:key]){
                 NSString* tempValue = valueDict[sqlKey];
-                if([tempValue isKindOfClass:[NSString class]] && [tempValue containsString:BG_CUSTOM_TYPE_SEPARATOR]){
-                    NSArray* arrTempTV = [tempValue componentsSeparatedByString:BG_CUSTOM_TYPE_SEPARATOR];
-                    type = [arrTempTV firstObject];
-                    tempValue = [arrTempTV lastObject];
-                }
                 id ivarValue = [self getSqlValue:tempValue type:type encode:NO];
                 !ivarValue?:[object setValue:ivarValue forKey:key];
                 [keyAndTypes removeObject:keyAndType];

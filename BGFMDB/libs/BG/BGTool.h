@@ -15,8 +15,6 @@
 #define bg_tableNameKey @"bg_tableName"
 #define bg_rowid @"rowid"
 
-#define BG_CUSTOM_TYPE_SEPARATOR @":::BGCUSTOMTYPE:::"
-
 #define bg_uniqueKeysSelector NSSelectorFromString(@"bg_uniqueKeys")
 #define bg_ignoreKeysSelector NSSelectorFromString(@"bg_ignoreKeys")
 #define bg_unionPrimaryKeysSelector NSSelectorFromString(@"bg_unionPrimaryKeys")

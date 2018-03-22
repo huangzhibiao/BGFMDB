@@ -45,11 +45,6 @@
             //设置属性值
             [info setValue:propertyValue forKey:@"propertyValue"];
             sqlValue = [BGTool getSqlValue:propertyValue type:propertyType encode:YES];
-            //非系统类型特殊处理sqlValue
-            if(![BGTool isKindOfSystemType:propertyType]){
-                //设置将要存储到数据库的值
-                sqlValue = [NSString stringWithFormat:@"%@%@%@",propertyType,BG_CUSTOM_TYPE_SEPARATOR,sqlValue];
-            }
             [info setValue:sqlValue forKey:@"sqlColumnValue"];
             [modelInfos addObject:info];
         }
