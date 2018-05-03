@@ -16,15 +16,6 @@
  */
 #define SQLITE_NAME @"BGFMDB.db"
 
-/**
- 日志输出
- */
-#ifdef DEBUG
-#define bg_log(...) NSLog(__VA_ARGS__)
-#else
-#define bg_log(...)
-#endif
-
 #define bg_debug(param) do{\
 if(self.debug){bg_log(@"调试输出: %@",param);}\
 }while(0)

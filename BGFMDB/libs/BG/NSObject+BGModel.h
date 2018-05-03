@@ -198,6 +198,7 @@ NSMutableData,UIImage,NSDate,NSURL,NSRange,CGRect,CGSize,CGPoint,自定义对象
  2017-07-19 16 即查询2017年7月19日16时的数据
  2017-07-19 16:17 即查询2017年7月19日16时17分的数据
  2017-07-19 16:17:53 即查询2017年7月19日16时17分53秒的数据
+ 2017-07-19 16:17:53.350 即查询2017年7月19日16时17分53秒350毫秒的数据
  */
 +(NSArray* _Nullable)bg_find:(NSString* _Nullable)tablename type:(bg_dataTimeType)type dateTime:(NSString* _Nonnull)dateTime;
 

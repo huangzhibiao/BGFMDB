@@ -9,6 +9,15 @@
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
+/**
+ 日志输出
+ */
+#ifdef DEBUG
+#define bg_log(...) NSLog(__VA_ARGS__)
+#else
+#define bg_log(...)
+#endif
+
 #define bg_completeBlock(obj) !complete?:complete(obj);
 
 #define BG @"BG_"
@@ -40,10 +49,6 @@ typedef NS_ENUM(NSInteger,bg_getModelInfoType){//过滤数据类型
  @onlyKey YES:紧紧返回key,NO:在key后面添加type.
  */
 +(NSArray* _Nonnull)getClassIvarList:(__unsafe_unretained _Nonnull Class)cla Object:(_Nullable id)object onlyKey:(BOOL)onlyKey;
-/**
- 判断系统类型与否
- */
-+(BOOL)isKindOfSystemType:(NSString* _Nonnull)type;
 /**
  抽取封装条件数组处理函数.
  */

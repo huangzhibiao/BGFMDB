@@ -64,7 +64,6 @@
      直接存储字典.
     */
     //[self testSaveDictionary];
-    
     /**
      直接存储自定义对象.
      */
@@ -182,7 +181,6 @@
      说明: 本次更新版本号必须 大于 上次的版本号,否则不会更新.
      */
 //    [People bg_update:bg_tablename version:1];
-    
     /**
      当数据量巨大时采用分页范围查询.
      */
@@ -196,7 +194,7 @@
         }
         
         //顺便取第一个对象数据测试
-        if(i==0){
+        if(i==1){
             People* lastP = arr.lastObject;
             _showImage.image = lastP.image;
             _showLab.attributedText = lastP.attriStr;

@@ -38,7 +38,9 @@
 @end
 
 @implementation User
-
+//+(NSArray *)bg_ignoreKeys{
+//   return @[@"attri",@"userNumer",@"student",@"userP"];
+//}
 @end
 
 @implementation Student
