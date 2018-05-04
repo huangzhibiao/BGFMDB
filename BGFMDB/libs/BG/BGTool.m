@@ -27,6 +27,13 @@
 #define BGMapTable @"BGMapTable"
 #define BGHashTable @"BGHashTable"
 
+#define bg_typeHead_NS @"@\"NS"
+#define bg_typeHead__NS @"@\"__NS"
+
+#define bg_typeHead_UI @"@\"UI"
+#define bg_typeHead__UI @"@\"__UI"
+
+
 //100M大小限制.
 #define MaxData @(838860800)
 
@@ -519,7 +526,7 @@ void bg_cleanCache(){
 +(id)getSqlValue:(id)value type:(NSString*)type encode:(BOOL)encode{
     if(!value || [value isKindOfClass:[NSNull class]])return nil;
     
-    if(([type hasPrefix:@"@\"NS"]||[type hasPrefix:@"@\"__NS"])&&[type containsString:@"String"]){
+    if(([type hasPrefix:bg_typeHead_NS]||[type hasPrefix:bg_typeHead__NS])&&[type containsString:@"String"]){
         if([type containsString:@"AttributedString"]){//处理富文本.
             if(encode) {
                 return [[NSKeyedArchiver archivedDataWithRootObject:value] base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
@@ -530,31 +537,31 @@ void bg_cleanCache(){
         }else{
             return value;
         }
-    }else if(([type hasPrefix:@"@\"NS"]||[type hasPrefix:@"@\"__NS"])&&[type containsString:@"Number"]){
+    }else if(([type hasPrefix:bg_typeHead_NS]||[type hasPrefix:bg_typeHead__NS])&&[type containsString:@"Number"]){
         if(encode) {
             return [NSString stringWithFormat:@"%@",value];
         }else{
             return [[NSNumberFormatter new] numberFromString:value];
         }
-    }else if(([type hasPrefix:@"@\"NS"]||[type hasPrefix:@"@\"__NS"])&&[type containsString:@"Array"]){
+    }else if(([type hasPrefix:bg_typeHead_NS]||[type hasPrefix:bg_typeHead__NS])&&[type containsString:@"Array"]){
         if(encode){
             return [self jsonStringWithArray:value];
         }else{
             return [self arrayFromJsonString:value];
         }
-    }else if(([type hasPrefix:@"@\"NS"]||[type hasPrefix:@"@\"__NS"])&&[type containsString:@"Dictionary"]){
+    }else if(([type hasPrefix:bg_typeHead_NS]||[type hasPrefix:bg_typeHead__NS])&&[type containsString:@"Dictionary"]){
         if(encode){
             return [self jsonStringWithDictionary:value];
         }else{
             return [self dictionaryFromJsonString:value];
         }
-    }else if(([type hasPrefix:@"@\"NS"]||[type hasPrefix:@"@\"__NS"])&&[type containsString:@"Set"]){
+    }else if(([type hasPrefix:bg_typeHead_NS]||[type hasPrefix:bg_typeHead__NS])&&[type containsString:@"Set"]){
         if(encode){
             return [self jsonStringWithArray:value];
         }else{
             return [self arrayFromJsonString:value];
         }
-    }else if(([type hasPrefix:@"@\"NS"]||[type hasPrefix:@"@\"__NS"])&&[type containsString:@"Data"]){
+    }else if(([type hasPrefix:bg_typeHead_NS]||[type hasPrefix:bg_typeHead__NS])&&[type containsString:@"Data"]){
         if(encode){
             NSData* data = value;
             NSNumber* maxLength = MaxData;
@@ -563,31 +570,31 @@ void bg_cleanCache(){
         }else{
             return [[NSData alloc] initWithBase64EncodedString:value options:NSDataBase64DecodingIgnoreUnknownCharacters];
         }
-    }else if(([type hasPrefix:@"@\"NS"]||[type hasPrefix:@"@\"__NS"])&&[type containsString:@"MapTable"]){
+    }else if(([type hasPrefix:bg_typeHead_NS]||[type hasPrefix:bg_typeHead__NS])&&[type containsString:@"MapTable"]){
         if(encode){
             return [self jsonStringWithMapTable:value];
         }else{
             return [self mapTableFromJsonString:value];
         }
-    }else if(([type hasPrefix:@"@\"NS"]||[type hasPrefix:@"@\"__NS"])&&[type containsString:@"HashTable"]){
+    }else if(([type hasPrefix:bg_typeHead_NS]||[type hasPrefix:bg_typeHead__NS])&&[type containsString:@"HashTable"]){
         if(encode){
             return [self jsonStringWithNSHashTable:value];
         }else{
             return [self hashTableFromJsonString:value];
         }
-    }else if(([type hasPrefix:@"@\"NS"]||[type hasPrefix:@"@\"__NS"])&&[type containsString:@"Date"]){
+    }else if(([type hasPrefix:bg_typeHead_NS]||[type hasPrefix:bg_typeHead__NS])&&[type containsString:@"Date"]){
         if(encode){
             return [self stringWithDate:value];
         }else{
             return [self dateFromString:value];
         }
-    }else if(([type hasPrefix:@"@\"NS"]||[type hasPrefix:@"@\"__NS"])&&[type containsString:@"URL"]){
+    }else if(([type hasPrefix:bg_typeHead_NS]||[type hasPrefix:bg_typeHead__NS])&&[type containsString:@"URL"]){
         if(encode){
             return [value absoluteString];
         }else{
             return [NSURL URLWithString:value];
         }
-    }else if(([type hasPrefix:@"@\"UI"]||[type hasPrefix:@"@\"__UI"])&&[type containsString:@"Image"]){
+    }else if(([type hasPrefix:bg_typeHead_UI]||[type hasPrefix:bg_typeHead__UI])&&[type containsString:@"Image"]){
         if(encode){
             NSData* data = UIImageJPEGRepresentation(value, 1);
             NSNumber* maxLength = MaxData;
@@ -596,7 +603,7 @@ void bg_cleanCache(){
         }else{
             return [UIImage imageWithData:[[NSData alloc] initWithBase64EncodedString:value options:NSDataBase64DecodingIgnoreUnknownCharacters]];
         }
-    }else if(([type hasPrefix:@"@\"UI"]||[type hasPrefix:@"@\"__UI"])&&[type containsString:@"Color"]){
+    }else if(([type hasPrefix:bg_typeHead_UI]||[type hasPrefix:bg_typeHead__UI])&&[type containsString:@"Color"]){
         if(encode){
             CGFloat r, g, b, a;
             [value getRed:&r green:&g blue:&b alpha:&a];
