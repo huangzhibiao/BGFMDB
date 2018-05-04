@@ -49,9 +49,9 @@ NSString* bg_sqlKey(NSString* key){
  */
 NSString* bg_sqlValue(id value){
     
-    if ([value isKindOfClass:[NSNumber class]]) {
+    if([value isKindOfClass:[NSNumber class]]) {
         return value;
-    }else if ([value isKindOfClass:[NSNumber class]]){
+    }else if([value isKindOfClass:[NSString class]]){
         return [NSString stringWithFormat:@"'%@'",value];
     }else{
         NSString* type = [NSString stringWithFormat:@"@\"%@\"",NSStringFromClass([value class])];
