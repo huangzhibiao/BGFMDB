@@ -7,7 +7,6 @@
 //
 
 #import "BGDB.h"
-#import "BGModelInfo.h"
 #import "BGTool.h"
 #import "NSCache+BGCache.h"
 

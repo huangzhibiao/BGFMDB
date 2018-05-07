@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		078119871F960F77008D9288 /* BGModelInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119701F960E88008D9288 /* BGModelInfo.m */; };
 		078119891F960F77008D9288 /* BGTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119721F960E88008D9288 /* BGTool.m */; };
 		0781198B1F960F77008D9288 /* NSCache+BGCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119741F960E88008D9288 /* NSCache+BGCache.m */; };
 		0781198D1F960F77008D9288 /* NSObject+BGModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119761F960E88008D9288 /* NSObject+BGModel.m */; };
@@ -68,8 +67,6 @@
 
 /* Begin PBXFileReference section */
 		0781196E1F960E88008D9288 /* BGFMDBConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BGFMDBConfig.h; sourceTree = "<group>"; };
-		0781196F1F960E88008D9288 /* BGModelInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BGModelInfo.h; sourceTree = "<group>"; };
-		078119701F960E88008D9288 /* BGModelInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BGModelInfo.m; sourceTree = "<group>"; };
 		078119711F960E88008D9288 /* BGTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BGTool.h; sourceTree = "<group>"; };
 		078119721F960E88008D9288 /* BGTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BGTool.m; sourceTree = "<group>"; };
 		078119731F960E88008D9288 /* NSCache+BGCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSCache+BGCache.h"; sourceTree = "<group>"; };
@@ -157,8 +154,6 @@
 			children = (
 				078119D11F96F66F008D9288 /* BGFMDB.h */,
 				0781196E1F960E88008D9288 /* BGFMDBConfig.h */,
-				0781196F1F960E88008D9288 /* BGModelInfo.h */,
-				078119701F960E88008D9288 /* BGModelInfo.m */,
 				078119711F960E88008D9288 /* BGTool.h */,
 				078119721F960E88008D9288 /* BGTool.m */,
 				078119731F960E88008D9288 /* NSCache+BGCache.h */,
@@ -443,7 +438,6 @@
 				078119C01F961502008D9288 /* FMDatabasePool.m in Sources */,
 				078119C11F961502008D9288 /* FMDatabaseQueue.m in Sources */,
 				078119C21F961502008D9288 /* FMResultSet.m in Sources */,
-				078119871F960F77008D9288 /* BGModelInfo.m in Sources */,
 				078119891F960F77008D9288 /* BGTool.m in Sources */,
 				0781198B1F960F77008D9288 /* NSCache+BGCache.m in Sources */,
 				0781198D1F960F77008D9288 /* NSObject+BGModel.m in Sources */,

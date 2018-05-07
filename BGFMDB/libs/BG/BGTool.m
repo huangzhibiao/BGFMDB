@@ -10,7 +10,6 @@
 #import <CoreData/CoreData.h>
 #import "BGTool.h"
 #import "BGDB.h"
-#import "BGModelInfo.h"
 #import "NSCache+BGCache.h"
 
 #define SqlText @"text" //数据库的字符类型
@@ -993,22 +992,51 @@ void bg_cleanCache(){
     return obj;
 }
 /**
+ 获取存储数据
+ */
++(NSMutableDictionary*)getDictWithObject:(id)object ignoredKeys:(NSArray* const)ignoredKeys{
+    NSMutableDictionary* modelInfoDictM = [NSMutableDictionary dictionary];
+    NSArray* keyAndTypes = [BGTool getClassIvarList:[object class] Object:object onlyKey:NO];
+    for(NSString* keyAndType in keyAndTypes){
+        NSArray* keyTypes = [keyAndType componentsSeparatedByString:@"*"];
+        NSString* propertyName = keyTypes[0];
+        NSString* propertyType = keyTypes[1];
+        
+        if(![ignoredKeys containsObject:propertyName]){
+            
+            //数据库表列名(BG_ + 属性名),加BG_是为了防止和数据库关键字发生冲突.
+            NSString* sqlColumnName = [NSString stringWithFormat:@"%@%@",BG,propertyName];
+            
+            id propertyValue;
+            id sqlValue;
+            //crateTime和updateTime两个额外字段单独处理.
+            if([propertyName isEqualToString:bg_createTimeKey] ||
+               [propertyName isEqualToString:bg_updateTimeKey]){
+                propertyValue = [BGTool stringWithDate:[NSDate new]];
+            }else{
+                propertyValue = [object valueForKey:propertyName];
+            }
+            
+            if(propertyValue){
+                //列值
+                sqlValue = [BGTool getSqlValue:propertyValue type:propertyType encode:YES];
+                modelInfoDictM[sqlColumnName] = sqlValue;
+            }
+            
+        }
+        
+    }
+    NSAssert(modelInfoDictM.allKeys.count,@"对象变量数据为空,不能存储!");
+    return modelInfoDictM;
+    
+}
+/**
  根据对象获取要更新或插入的字典.
  */
 +(NSDictionary* _Nonnull)getDictWithObject:(id _Nonnull)object ignoredKeys:(NSArray* const _Nullable)ignoredKeys filtModelInfoType:(bg_getModelInfoType)filtModelInfoType{
-    NSArray<BGModelInfo*>* infos = [BGModelInfo modelInfoWithObject:object];
-    NSMutableDictionary* valueDict = [NSMutableDictionary dictionary];
-    if (ignoredKeys) {
-        for(BGModelInfo* info in infos){
-            if(![ignoredKeys containsObject:info.propertyName]){
-                valueDict[info.sqlColumnName] = info.sqlColumnValue;
-            }
-        }
-    }else{
-        for(BGModelInfo* info in infos){
-            valueDict[info.sqlColumnName] = info.sqlColumnValue;
-        }
-    }
+    
+    //获取存到数据库的数据.
+    NSMutableDictionary* valueDict = [self getDictWithObject:object ignoredKeys:ignoredKeys];
     
     if (filtModelInfoType == bg_ModelInfoSingleUpdate){//单条更新操作时,移除 创建时间和主键 字段不做更新
         [valueDict removeObjectForKey:bg_sqlKey(bg_createTimeKey)];
