@@ -83,6 +83,10 @@ extern BOOL bg_deleteSqlite(NSString*_Nonnull sqliteName);
  */
 extern void bg_setDisableCloseDB(BOOL disableCloseDB);
 /**
+ 手动关闭数据库.
+ */
+extern void bg_closeDB();
+/**
  设置调试模式
  @debug YES:打印调试信息, NO:不打印调试信息.
  */

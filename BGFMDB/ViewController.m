@@ -43,9 +43,14 @@
     bg_setDebug(YES);//打开调试模式,打印输出调试信息.
     
     /**
-     如果频繁操作数据库时,建议进行此设置(即在操作过程不关闭数据库);
+     如果频繁操作数据库时,建议进行此设置(即在操作过程不关闭数据库).
      */
     //bg_setDisableCloseDB(YES);
+    
+    /**
+     手动关闭数据库(如果设置了bg_setDisableCloseDB(YES)，则在切换bg_setSqliteName前，需要手动关闭数据库一下).
+     */
+    //bg_closeDB();
     
     /**
      自定义数据库名称，否则默认为BGFMDB

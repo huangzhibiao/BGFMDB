@@ -20,11 +20,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "BGFMDB/ViewController.m"
-            timestampString = "547375856.0714869"
+            timestampString = "547616983.575495"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "412"
-            endingLineNumber = "412"
+            startingLineNumber = "417"
+            endingLineNumber = "417"
             landmarkName = "-testT"
             landmarkType = "7">
          </BreakpointContent>
@@ -84,11 +84,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "BGFMDB/ViewController.m"
-            timestampString = "547375856.071879"
+            timestampString = "547616983.575909"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "193"
-            endingLineNumber = "193"
+            startingLineNumber = "198"
+            endingLineNumber = "198"
             landmarkName = "-viewDidLoad"
             landmarkType = "7">
          </BreakpointContent>
@@ -100,12 +100,91 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "BGFMDB/libs/BG/BGDB.m"
-            timestampString = "547380507.667094"
+            timestampString = "547616983.5761631"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1554"
-            endingLineNumber = "1554"
-            landmarkName = "-insertWithObject:ignoredKeys:complete:"
+            startingLineNumber = "1562"
+            endingLineNumber = "1562"
+            landmarkName = "-getArray:ignoredKeys:filtModelInfoType:"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[BGDB getArray:ignoredKeys:filtModelInfoType:]"
+                  moduleName = "BGFMDB"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/biao/Documents/GitHub/BGFMDB/BGFMDB/libs/BG/BGDB.m"
+                  timestampString = "547616983.640916"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1562"
+                  endingLineNumber = "1562"
+                  offsetFromSymbolStart = "136">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "__47-[BGDB getArray:ignoredKeys:filtModelInfoType:]_block_invoke"
+                  moduleName = "BGFMDB"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/biao/Documents/GitHub/BGFMDB/BGFMDB/libs/BG/BGDB.m"
+                  timestampString = "547616983.642628"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1562"
+                  endingLineNumber = "1562"
+                  offsetFromSymbolStart = "24">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "__destroy_helper_block_.656"
+                  moduleName = "BGFMDB"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/biao/Documents/GitHub/BGFMDB/BGFMDB/libs/BG/BGDB.m"
+                  timestampString = "547616983.644307"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1562"
+                  endingLineNumber = "1562"
+                  offsetFromSymbolStart = "20">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "BGFMDB/libs/BG/BGDB.m"
+            timestampString = "547616983.576219"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "111"
+            endingLineNumber = "111"
+            landmarkName = "-queue"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "BGFMDB/libs/BG/BGDB.m"
+            timestampString = "547616983.5764869"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "77"
+            endingLineNumber = "77"
+            landmarkName = "-closeDB"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
