@@ -205,12 +205,14 @@ NSInteger version = [People bg_version:bg_tablename];
 ```Objective-C
 //注: 版本号从1开始,依次往后递增,本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
 /**
- 如果类'唯一约束'发生改变,则调用此API刷新该类数据库,不需要新旧映射的情况下使用此API.
+ 如果类'唯一约束','联合主键','属性类型'发生改变.
+ 则调用此API刷新该类数据库,不需要新旧映射的情况下使用此API.
 */
 [People bg_update:bg_tablename version:version];
 
 /**
-如果类'唯一约束'发生改变,则调用此API刷新该类数据库.data2是新变量名,data是旧变量名,即将旧的值映射到新的变量名,其他不变的变量名会自动复制,只管写出变化的对应映射即可.
+如果类'唯一约束','联合主键','属性类型'发生改变.
+则调用此API刷新该类数据库.data2是新变量名,data是旧变量名,即将旧的值映射到新的变量名,其他不变的变量名会自动复制,只管写出变化的对应映射即可.
 */
 [People bg_update:bg_tablename version:version keyDict:@{@"data2":@"data"}];
 ```
