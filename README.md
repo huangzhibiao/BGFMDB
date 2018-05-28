@@ -31,7 +31,7 @@ LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo
 platform :ios, '8.0'
 
 target '工程名称' do
-pod 'BGFMDB', '~> 2.0.7'
+pod 'BGFMDB', '~> 2.0.9'
 end
 ```
 ## 直接下载库代码使用方式.
@@ -201,7 +201,7 @@ NSString* where = [NSString stringWithFormat:@"where %@=%@",bg_sqlKey(@"name"),b
 */
 NSInteger version = [People bg_version:bg_tablename];
 ```
-### 类数据库版本手动升级('唯一约束'发生改变时调用)
+### 类数据库版本手动升级(当'唯一约束','联合主键','属性类型改变',发生改变时需要手动调用升级,其他情况库自动检测升级)
 ```Objective-C
 //注: 版本号从1开始,依次往后递增,本次更新版本号不得 低于或等于 上次的版本号,否则不会更新.
 /**
