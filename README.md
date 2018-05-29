@@ -25,6 +25,7 @@ LKDBHelper好一点,但也要复写不少的函数,而且LKDBHelper的使用demo
 ## 综合上述原因后,我决定写一款适合国内初中级开发者使用的存储封装库(BGFMDB),不管是从使用步骤还是支持的存储类型上,都比JRDB,LKDB简单好用和全面.    
 ## 本库几乎支持存储ios所有基本的自带数据类型.    
 ## 使用介绍(喜欢的话别忘了给本库一个Star😊).   
+## 想加密数据库的,请借鉴此demo:![SQLCipherDemo](https://github.com/huangzhibiao/SQLCipherDemo)     
 ## CocoaPods的方式.
 ### Podfile
 ```Podfile
