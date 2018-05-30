@@ -329,7 +329,7 @@ void bg_cleanCache(){
             
             if(keypaths.count<=2){
                 if([value isKindOfClass:[NSString class]]){
-                    [keyPathParam appendString:@"\"%"];
+                    [keyPathParam appendString:@"\\%"];
                 }else{
                     [keyPathParam appendString:@",%"];
                     likeOr = YES;

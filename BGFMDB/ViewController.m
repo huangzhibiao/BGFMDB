@@ -186,6 +186,13 @@
      说明: 本次更新版本号必须 大于 上次的版本号,否则不会更新.
      */
 //    [People bg_update:bg_tablename version:1];
+    
+    /**
+     使用keyPath查询嵌套类信息.
+     */
+//    NSString* where = [NSString stringWithFormat:@"where %@",bg_keyPathValues(@[@"user.name",bg_equal,@"陈浩"])];
+//    NSArray* arrFind = [People bg_find:bg_tablename where:where];
+    
     /**
      当数据量巨大时采用分页范围查询.
      */

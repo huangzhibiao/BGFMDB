@@ -20,11 +20,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "BGFMDB/ViewController.m"
-            timestampString = "547616983.575495"
+            timestampString = "549363504.2298599"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "417"
-            endingLineNumber = "417"
+            startingLineNumber = "421"
+            endingLineNumber = "421"
             landmarkName = "-testT"
             landmarkType = "7">
          </BreakpointContent>
@@ -84,11 +84,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "BGFMDB/ViewController.m"
-            timestampString = "547616983.575909"
+            timestampString = "549363504.23026"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "198"
-            endingLineNumber = "198"
+            startingLineNumber = "202"
+            endingLineNumber = "202"
             landmarkName = "-viewDidLoad"
             landmarkType = "7">
          </BreakpointContent>
@@ -100,7 +100,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "BGFMDB/libs/BG/BGDB.m"
-            timestampString = "547616983.5761631"
+            timestampString = "549362450.501228"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "1562"
@@ -116,7 +116,7 @@
                   moduleName = "BGFMDB"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/biao/Documents/GitHub/BGFMDB/BGFMDB/libs/BG/BGDB.m"
-                  timestampString = "547616983.640916"
+                  timestampString = "549363504.304498"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "1562"
@@ -131,7 +131,7 @@
                   moduleName = "BGFMDB"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/biao/Documents/GitHub/BGFMDB/BGFMDB/libs/BG/BGDB.m"
-                  timestampString = "547616983.642628"
+                  timestampString = "549363504.306389"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "1562"
@@ -146,7 +146,7 @@
                   moduleName = "BGFMDB"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/biao/Documents/GitHub/BGFMDB/BGFMDB/libs/BG/BGDB.m"
-                  timestampString = "547616983.644307"
+                  timestampString = "549363504.308177"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "1562"
@@ -154,38 +154,6 @@
                   offsetFromSymbolStart = "20">
                </Location>
             </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "BGFMDB/libs/BG/BGDB.m"
-            timestampString = "547616983.576219"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "111"
-            endingLineNumber = "111"
-            landmarkName = "-queue"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "BGFMDB/libs/BG/BGDB.m"
-            timestampString = "547616983.5764869"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "77"
-            endingLineNumber = "77"
-            landmarkName = "-closeDB"
-            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
