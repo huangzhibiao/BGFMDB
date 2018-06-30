@@ -55,7 +55,7 @@
     /**
      自定义数据库名称，否则默认为BGFMDB
      */
-    //bg_setSqliteName(@"Tencent");
+    bg_setSqliteName(@"Tencent");
     
     //删除自定义数据库.
     //bg_deleteSqlite(@"Tencent");
