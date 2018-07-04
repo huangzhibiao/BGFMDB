@@ -1461,7 +1461,9 @@ static BGDB* BGdb = nil;
 -(void)ifIvarChangeForObject:(id)object ignoredKeys:(NSArray*)ignoredkeys{
     //获取缓存的属性信息
     NSCache* cache = [NSCache bg_cache];
-    NSString* cacheKey = [NSString stringWithFormat:@"%@_IvarChangeState",[object class]];
+    NSString *tableName = [object valueForKey:bg_tableNameKey];
+    tableName = tableName.length ? tableName : NSStringFromClass([object class]);
+    NSString* cacheKey = [NSString stringWithFormat:@"%@_IvarChangeState",tableName];
     id IvarChangeState = [cache objectForKey:cacheKey];
     if(IvarChangeState){
         return;
