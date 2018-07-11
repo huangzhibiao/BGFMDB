@@ -33,6 +33,15 @@ static const void * const BGFMDBDispatchQueueSpecificKey = &BGFMDBDispatchQueueS
 @property (nonatomic, strong) FMDatabase* db;
 @property (nonatomic, assign) BOOL inTransaction;
 /**
+ 多线程池
+ */
+@property(nonatomic,strong)NSMutableArray* _Nullable mulThreadPool;
+@property(nonatomic,strong)dispatch_queue_t mulThreadPoolQueue;
+/**
+ 线程池执行状态标识
+ */
+@property(nonatomic,assign)BOOL threadPoolFlag;
+/**
  递归锁.
  */
 //@property (nonatomic, strong) NSRecursiveLock *threadLock;
@@ -69,6 +78,18 @@ static BGDB* BGdb = nil;
         BGdb = nil;
     }
     
+}
+-(NSMutableArray *)mulThreadPool{
+    if (_mulThreadPool == nil) {
+        _mulThreadPool = [NSMutableArray array];
+    }
+    return _mulThreadPool;
+}
+-(dispatch_queue_t)mulThreadPoolQueue{
+    if (_mulThreadPoolQueue == nil) {
+        _mulThreadPoolQueue = dispatch_queue_create("BGFMDB.excuteThreadPool", DISPATCH_QUEUE_SERIAL);
+    }
+    return _mulThreadPoolQueue;
 }
 /**
  关闭数据库.
@@ -154,6 +175,40 @@ static BGDB* BGdb = nil;
     });
     return BGdb;
 }
+
+/**
+ 添加操作到线程池
+ */
+-(void)addToThreadPool:(void (^_Nonnull)())block{
+    NSAssert(block, @"block is nil!");
+    NSString* key = [NSString stringWithFormat:@"b_%@",@(self.mulThreadPool.count)];
+    NSDictionary* dict = @{key:block};
+    [self.mulThreadPool addObject:dict];
+    [self excuteThreadPool];
+}
+/**
+ 执行线程池操作
+ */
+-(void)excuteThreadPool{
+    if (!_threadPoolFlag) {
+        _threadPoolFlag = YES;
+        dispatch_async(self.mulThreadPoolQueue, ^{
+            do{
+                if(self.mulThreadPool.count>0){
+                    NSDictionary* dict = self.mulThreadPool.firstObject;
+                    NSString* key = [dict.allKeys firstObject];
+                    void(^block)(void) = dict[key];
+                    if(block){
+                        block();
+                    }
+                    [self.mulThreadPool removeObjectAtIndex:0];//移除任务
+                }
+            }while(self.mulThreadPool.count>0);
+        _threadPoolFlag = NO;
+        });
+    }
+}
+
 //事务操作
 -(void)inTransaction:(BOOL (^_Nonnull)())block{
     NSAssert(block, @"block is nil!");
@@ -161,7 +216,7 @@ static BGDB* BGdb = nil;
         [self executeTransation:block];
     }else{//子线程则延迟执行
         [self.transactionBlocks addObject:block];
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.2*NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.2*NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [self executeTransationBlocks];
         });
     }
@@ -260,7 +315,7 @@ static BGDB* BGdb = nil;
 -(void)doChangeWithName:(NSString* const _Nonnull)name flag:(BOOL)flag state:(bg_changeState)state{
     if(flag && self.changeBlocks.count>0){
         //开一个子线程去执行block,防止死锁.
-        dispatch_async(dispatch_get_global_queue(0,0), ^{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH,0), ^{
             [self.changeBlocks enumerateKeysAndObjectsUsingBlock:^(NSString*  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop){
                 NSString* tablename = [key componentsSeparatedByString:@"*"].firstObject;
                 if([name isEqualToString:tablename]){

@@ -20,7 +20,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "BGFMDB/ViewController.m"
-            timestampString = "549363504.2298599"
+            timestampString = "552992015.768521"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "421"
@@ -84,76 +84,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "BGFMDB/ViewController.m"
-            timestampString = "549363504.23026"
+            timestampString = "552992015.769009"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "202"
-            endingLineNumber = "202"
+            startingLineNumber = "199"
+            endingLineNumber = "199"
             landmarkName = "-viewDidLoad"
             landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "BGFMDB/libs/BG/BGDB.m"
-            timestampString = "549362450.501228"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1562"
-            endingLineNumber = "1562"
-            landmarkName = "-getArray:ignoredKeys:filtModelInfoType:"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "-[BGDB getArray:ignoredKeys:filtModelInfoType:]"
-                  moduleName = "BGFMDB"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/biao/Documents/GitHub/BGFMDB/BGFMDB/libs/BG/BGDB.m"
-                  timestampString = "549363504.304498"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1562"
-                  endingLineNumber = "1562"
-                  offsetFromSymbolStart = "136">
-               </Location>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__47-[BGDB getArray:ignoredKeys:filtModelInfoType:]_block_invoke"
-                  moduleName = "BGFMDB"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/biao/Documents/GitHub/BGFMDB/BGFMDB/libs/BG/BGDB.m"
-                  timestampString = "549363504.306389"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1562"
-                  endingLineNumber = "1562"
-                  offsetFromSymbolStart = "24">
-               </Location>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__destroy_helper_block_.656"
-                  moduleName = "BGFMDB"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/biao/Documents/GitHub/BGFMDB/BGFMDB/libs/BG/BGDB.m"
-                  timestampString = "549363504.308177"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1562"
-                  endingLineNumber = "1562"
-                  offsetFromSymbolStart = "20">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

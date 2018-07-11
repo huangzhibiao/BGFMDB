@@ -13,9 +13,17 @@
 @interface BGDB : NSObject
 //信号量.
 @property(nonatomic, strong)dispatch_semaphore_t _Nullable semaphore;
+/**
+ 调试标志
+ */
 @property(nonatomic,assign)BOOL debug;
+/**
+ 自定义数据库名称
+ */
 @property(nonatomic,copy)NSString* _Nonnull sqliteName;
-//设置操作过程中不可关闭数据库(即closeDB函数无效).
+/**
+ 设置操作过程中不可关闭数据库(即closeDB函数无效).
+ */
 @property(nonatomic,assign)BOOL disableCloseDB;
 /**
  获取单例函数.
@@ -29,8 +37,14 @@
  删除数据库文件.
  */
 +(BOOL)deleteSqlite:(NSString*_Nonnull)sqliteName;
-//事务操作
+/**
+ 事务操作.
+ */
 -(void)inTransaction:(BOOL (^_Nonnull)())block;
+/**
+ 添加操作到线程池
+ */
+-(void)addToThreadPool:(void (^_Nonnull)())block;
 /**
  注册数据变化监听.
  @claName 注册监听的类名.

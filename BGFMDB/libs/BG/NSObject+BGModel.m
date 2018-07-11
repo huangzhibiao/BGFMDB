@@ -70,10 +70,10 @@
  异步存储.
  */
 -(void)bg_saveAsync:(bg_complete_B)complete{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL flag = [self bg_save];
-        bg_completeBlock(flag);
-    });
+    [[BGDB shareManager] addToThreadPool:^{
+        BOOL result = [self bg_save];
+        bg_completeBlock(result);
+    }];
 }
 /**
  同步存储或更新.
@@ -87,10 +87,10 @@
  同上条件异步.
  */
 -(void)bg_saveOrUpdateAsync:(bg_complete_B)complete{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+    [[BGDB shareManager] addToThreadPool:^{
         BOOL result = [self bg_saveOrUpdate];
         bg_completeBlock(result);
-    });
+    }];
 }
 
 /**
@@ -113,10 +113,10 @@
  同上条件异步.
  */
 +(void)bg_saveOrUpdateArrayAsync:(NSArray* _Nonnull)array complete:(bg_complete_B)complete{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL flag = [self bg_saveOrUpdateArray:array];
-        bg_completeBlock(flag);
-    });
+    [[BGDB shareManager] addToThreadPool:^{
+        BOOL result = [self bg_saveOrUpdateArray:array];
+        bg_completeBlock(result);
+    }];
 }
 
 /**
@@ -137,11 +137,10 @@
  同上条件异步.
  */
 -(void)bg_coverAsync:(bg_complete_B)complete{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        BOOL flag = [self bg_cover];
-        bg_completeBlock(flag);
-    });
-    
+    [[BGDB shareManager] addToThreadPool:^{
+        BOOL result = [self bg_cover];
+        bg_completeBlock(result);
+    }];
 }
 
 /**
@@ -165,10 +164,10 @@
  同上条件异步.
  */
 +(void)bg_findAllAsync:(NSString* _Nullable)tablename complete:(bg_complete_A)complete{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+    [[BGDB shareManager] addToThreadPool:^{
         NSArray* array = [self bg_findAll:tablename];
         bg_completeBlock(array);
-    });
+    }];
 }
 /**
  查找第一条数据
@@ -222,10 +221,10 @@
  同上条件异步.
  */
 +(void)bg_findAsync:(NSString* _Nullable)tablename limit:(NSInteger)limit orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc complete:(bg_complete_A)complete{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        NSArray* results = [self bg_find:tablename limit:limit orderBy:orderBy desc:desc];
-        bg_completeBlock(results);
-    });
+    [[BGDB shareManager] addToThreadPool:^{
+        NSArray* array = [self bg_find:tablename limit:limit orderBy:orderBy desc:desc];
+        bg_completeBlock(array);
+    }];
 }
 /**
  同步查询所有结果.
@@ -255,10 +254,10 @@
  同上条件异步.
  */
 +(void)bg_findAsync:(NSString* _Nullable)tablename range:(NSRange)range orderBy:(NSString* _Nullable)orderBy desc:(BOOL)desc complete:(bg_complete_A)complete{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-        NSArray* results = [self bg_find:tablename range:range orderBy:orderBy desc:desc];
-        bg_completeBlock(results);
-    });
+    [[BGDB shareManager] addToThreadPool:^{
+        NSArray* array = [self bg_find:tablename range:range orderBy:orderBy desc:desc];
+        bg_completeBlock(array);
+    }];
 }
 /**
  @tablename 当此参数为nil时,查询以此类名为表名的数据，非nil时，查询以此参数为表名的数据.
@@ -288,10 +287,10 @@
  同上条件异步.
  */
 +(void)bg_findAsync:(NSString* _Nullable)tablename where:(NSString* _Nullable)where complete:(bg_complete_A)complete{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+    [[BGDB shareManager] addToThreadPool:^{
         NSArray* array = [self bg_find:tablename where:where];
         bg_completeBlock(array);
-    });
+    }];
 }
 
 
@@ -346,10 +345,10 @@
  同上条件异步.
  */
 -(void)bg_updateAsyncWhere:(NSString* _Nonnull)where complete:(bg_complete_B)complete{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+    [[BGDB shareManager] addToThreadPool:^{
         BOOL flag = [self bg_updateWhere:where];
         bg_completeBlock(flag);
-    });
+    }];
 }
 /**
  @tablename 当此参数为nil时,查询以此类名为表名的数据，非nil时，更新以此参数为表名的数据.
@@ -404,10 +403,10 @@
  同上条件异步.
  */
 +(void)bg_deleteAsync:(NSString* _Nullable)tablename where:(NSString* _Nullable)where complete:(bg_complete_B)complete{
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
-            BOOL flag = [self bg_delete:tablename where:where];
-            bg_completeBlock(flag);
-        });
+    [[BGDB shareManager] addToThreadPool:^{
+        BOOL flag = [self bg_delete:tablename where:where];
+        bg_completeBlock(flag);
+    }];
 }
 
 
@@ -458,10 +457,10 @@
  同上条件异步.
  */
 +(void)bg_clearAsync:(NSString* _Nullable)tablename complete:(bg_complete_B)complete{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+    [[BGDB shareManager] addToThreadPool:^{
         BOOL flag = [self bg_delete:tablename where:nil];
         bg_completeBlock(flag);
-    });
+    }];
 }
 
 
@@ -485,10 +484,10 @@
  同上条件异步.
  */
 +(void)bg_dropAsync:(NSString* _Nullable)tablename complete:(bg_complete_B)complete{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+    [[BGDB shareManager] addToThreadPool:^{
         BOOL flag = [self bg_drop:tablename];
         bg_completeBlock(flag);
-    });
+    }];
 }
 
 
@@ -579,10 +578,10 @@
     NSInteger oldVersion = [BGTool getIntegerWithKey:tablename];
     if(version > oldVersion){
         [BGTool setIntegerWithKey:tablename value:version];
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+        [[BGDB shareManager] addToThreadPool:^{
             bg_dealState state = [self bg_update:tablename version:version];
             bg_completeBlock(state);
-        });
+        }];
     }else{
         bg_completeBlock(bg_error);;
     }
@@ -626,10 +625,10 @@
     NSInteger oldVersion = [BGTool getIntegerWithKey:tablename];
     if(version > oldVersion){
         [BGTool setIntegerWithKey:tablename value:version];
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+        [[BGDB shareManager] addToThreadPool:^{
             bg_dealState state = [self bg_update:tablename version:version keyDict:keydict];
             bg_completeBlock(state);
-        });
+        }];
     }else{
         bg_completeBlock(bg_error);;
     }
@@ -661,10 +660,10 @@
     if(tablename == nil) {
         tablename = NSStringFromClass([self class]);
     }
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), ^{
+    [[BGDB shareManager] addToThreadPool:^{
         bg_dealState state = [self bg_copy:tablename toTable:destTable keyDict:keydict append:append];
         bg_completeBlock(state);
-    });
+    }];
 }
 
 /**
