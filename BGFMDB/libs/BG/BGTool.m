@@ -968,7 +968,19 @@ void bg_cleanCache(){
     }
     
     NSMutableArray* arrM = [NSMutableArray array];
-    for(NSDictionary* dict in array){
+    for(NSMutableDictionary* dict in array){
+        
+#warning 测试
+        [dict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+            if([obj isKindOfClass:[NSString class]]){
+                if ([obj containsString:BGModel]) {
+                    obj = [obj stringByReplacingOccurrencesOfString:@"^*" withString:@"\\\\\\\\\\\\"];
+                    obj= [obj stringByReplacingOccurrencesOfString:@"#$" withString:@"\\\\\\\\\\"];
+                    dict[key]= [obj stringByReplacingOccurrencesOfString:@"~+" withString:@"\\\\\\\\"];
+                }
+            }
+        }];
+        
         id object = [BGTool objectFromJsonStringWithTableName:tableName class:cla valueDict:dict];
         [arrM addObject:object];
     }
@@ -1077,6 +1089,17 @@ void bg_cleanCache(){
     }else if(filtModelInfoType == bg_ModelInfoArrayUpdate){//批量更新操作时,移除 创建时间 字段不做更新
         [valueDict removeObjectForKey:bg_sqlKey(bg_createTimeKey)];
     }else;
+    
+#warning 测试
+    [valueDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if([obj isKindOfClass:[NSString class]]){
+            if ([obj containsString:BGModel]) {
+                obj = [obj stringByReplacingOccurrencesOfString:@"\\\\\\\\\\\\" withString:@"^*"];
+                obj= [obj stringByReplacingOccurrencesOfString:@"\\\\\\\\\\" withString:@"#$"];
+                valueDict[key]= [obj stringByReplacingOccurrencesOfString:@"\\\\\\\\" withString:@"~+"];
+            }
+        }
+    }];
     
     return valueDict;
 }
