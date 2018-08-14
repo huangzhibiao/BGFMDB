@@ -974,9 +974,10 @@ void bg_cleanCache(){
         [dict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
             if([obj isKindOfClass:[NSString class]]){
                 if ([obj containsString:BGModel]) {
-                    obj = [obj stringByReplacingOccurrencesOfString:@"^*" withString:@"\\\\\\\\\\\\"];
-                    obj= [obj stringByReplacingOccurrencesOfString:@"#$" withString:@"\\\\\\\\\\"];
-                    dict[key]= [obj stringByReplacingOccurrencesOfString:@"~+" withString:@"\\\\\\\\"];
+                    obj = [obj stringByReplacingOccurrencesOfString:@"+&" withString:@"~-~-~-"];
+                    obj = [obj stringByReplacingOccurrencesOfString:@"~-" withString:@"$#$#$#$#$#"];
+                    obj = [obj stringByReplacingOccurrencesOfString:@"$#" withString:@"^*^*^*^*^*^*^*^*^*^*"];
+                    dict[key] = [obj stringByReplacingOccurrencesOfString:@"^*" withString:@"\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"];
                 }
             }
         }];
@@ -1094,9 +1095,10 @@ void bg_cleanCache(){
     [valueDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         if([obj isKindOfClass:[NSString class]]){
             if ([obj containsString:BGModel]) {
-                obj = [obj stringByReplacingOccurrencesOfString:@"\\\\\\\\\\\\" withString:@"^*"];
-                obj= [obj stringByReplacingOccurrencesOfString:@"\\\\\\\\\\" withString:@"#$"];
-                valueDict[key]= [obj stringByReplacingOccurrencesOfString:@"\\\\\\\\" withString:@"~+"];
+                obj = [obj stringByReplacingOccurrencesOfString:@"\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\" withString:@"^*"];
+                obj = [obj stringByReplacingOccurrencesOfString:@"^*^*^*^*^*^*^*^*^*^*" withString:@"$#"];
+                obj = [obj stringByReplacingOccurrencesOfString:@"$#$#$#$#$#" withString:@"~-"];
+                valueDict[key] = [obj stringByReplacingOccurrencesOfString:@"~-~-~-" withString:@"+&"];
             }
         }
     }];

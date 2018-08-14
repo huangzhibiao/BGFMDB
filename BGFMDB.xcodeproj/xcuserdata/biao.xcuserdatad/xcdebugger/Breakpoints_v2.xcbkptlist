@@ -100,12 +100,28 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "BGFMDB/libs/BG/BGTool.m"
-            timestampString = "555933269.829212"
+            timestampString = "555939985.652741"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1104"
-            endingLineNumber = "1104"
+            startingLineNumber = "1106"
+            endingLineNumber = "1106"
             landmarkName = "+getDictWithObject:ignoredKeys:filtModelInfoType:"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "BGFMDB/libs/BG/BGTool.m"
+            timestampString = "555939985.653103"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "988"
+            endingLineNumber = "988"
+            landmarkName = "+tansformDataFromSqlDataWithTableName:class:array:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
