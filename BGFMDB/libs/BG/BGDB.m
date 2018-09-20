@@ -181,7 +181,7 @@ static BGDB* BGdb = nil;
  */
 -(void)addToThreadPool:(void (^_Nonnull)())block{
     NSAssert(block, @"block is nil!");
-    NSString* key = [NSString stringWithFormat:@"b_%@",@(self.mulThreadPool.count)];
+    NSString* key = [NSString stringWithFormat:@"b_%@_%@",@([[NSDate new] timeIntervalSince1970]),@(random())];
     NSDictionary* dict = @{key:block};
     [self.mulThreadPool addObject:dict];
     [self excuteThreadPool];

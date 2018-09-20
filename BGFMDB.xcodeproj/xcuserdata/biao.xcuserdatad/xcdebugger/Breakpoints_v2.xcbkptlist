@@ -100,12 +100,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "BGFMDB/libs/BG/BGTool.m"
-            timestampString = "555943127.807601"
+            timestampString = "556546713.069203"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1116"
-            endingLineNumber = "1116"
-            landmarkName = "+getDictWithObject:ignoredKeys:filtModelInfoType:"
+            startingLineNumber = "1021"
+            endingLineNumber = "1021"
+            landmarkName = "+executeSelector:forObject:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -116,13 +116,61 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "BGFMDB/libs/BG/BGTool.m"
-            timestampString = "555943127.807961"
+            timestampString = "556546713.069649"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "997"
-            endingLineNumber = "997"
-            landmarkName = "+tansformDataFromSqlDataWithTableName:class:array:"
+            startingLineNumber = "1140"
+            endingLineNumber = "1140"
+            landmarkName = "+bg_filtCreateKeys:ignoredkeys:"
             landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "BGFMDB/libs/BG/BGTool.m"
+            timestampString = "556546713.069923"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "145"
+            endingLineNumber = "145"
+            landmarkName = "+jsonWithString:"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "+[BGTool jsonWithString:]"
+                  moduleName = "BGFMDB"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/biao/Documents/GitHub/BGFMDB/BGFMDB/libs/BG/BGTool.m"
+                  timestampString = "556546713.17602"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "145"
+                  endingLineNumber = "145"
+                  offsetFromSymbolStart = "44">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "+[BGTool jsonWithString:]"
+                  moduleName = "BGFMDB"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/biao/Documents/GitHub/BGFMDB/BGFMDB/libs/BG/BGTool.m"
+                  timestampString = "556546713.177927"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "145"
+                  endingLineNumber = "145"
+                  offsetFromSymbolStart = "100">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
