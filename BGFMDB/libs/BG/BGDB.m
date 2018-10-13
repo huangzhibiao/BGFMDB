@@ -181,10 +181,12 @@ static BGDB* BGdb = nil;
  */
 -(void)addToThreadPool:(void (^_Nonnull)())block{
     NSAssert(block, @"block is nil!");
-    NSString* key = [NSString stringWithFormat:@"b_%@_%@",@([[NSDate new] timeIntervalSince1970]),@(random())];
-    NSDictionary* dict = @{key:block};
-    [self.mulThreadPool addObject:dict];
-    [self excuteThreadPool];
+    dispatch_async(self.mulThreadPoolQueue, ^{
+        NSString* key = [NSString stringWithFormat:@"b_%@_%@",@([[NSDate new] timeIntervalSince1970]),@(random())];
+        NSDictionary* dict = @{key:block};
+        [self.mulThreadPool addObject:dict];
+        [self excuteThreadPool];
+    });
 }
 /**
  执行线程池操作
@@ -192,7 +194,6 @@ static BGDB* BGdb = nil;
 -(void)excuteThreadPool{
     if (!_threadPoolFlag) {
         _threadPoolFlag = YES;
-        dispatch_async(self.mulThreadPoolQueue, ^{
             do{
                 if(self.mulThreadPool.count>0){
                     NSDictionary* dict = self.mulThreadPool.firstObject;
@@ -205,7 +206,6 @@ static BGDB* BGdb = nil;
                 }
             }while(self.mulThreadPool.count>0);
         _threadPoolFlag = NO;
-        });
     }
 }
 
