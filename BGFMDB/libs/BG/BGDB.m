@@ -1272,36 +1272,40 @@ static BGDB* BGdb = nil;
     __block BOOL recordSuccess = NO;
     __weak typeof(self) BGSelf = self;
     NSInteger count = [self countQueueForTable:A where:nil];
-    for(NSInteger i=0;i<count;i+=MaxQueryPageNum){
-        @autoreleasepool{//由于查询出来的数据量可能巨大,所以加入自动释放池.
-            NSString* param = [NSString stringWithFormat:@"limit %@,%@",@(i),@(MaxQueryPageNum)];
-            [self queryWithTableName:A where:param complete:^(NSArray * _Nullable array) {
-                for(NSDictionary* oldDict in array){
-                    NSMutableDictionary* newDict = [NSMutableDictionary dictionary];
-                    for(NSString* keyAndType in keys){
-                        NSString* key = [keyAndType componentsSeparatedByString:@"*"][0];
-                        //字段名前加上 @"BG_"
-                        key = [NSString stringWithFormat:@"%@%@",BG,key];
-                        if (oldDict[key]){
-                            newDict[key] = oldDict[key];
+    if(count > 0){
+        for(NSInteger i=0;i<count;i+=MaxQueryPageNum){
+            @autoreleasepool{//由于查询出来的数据量可能巨大,所以加入自动释放池.
+                NSString* param = [NSString stringWithFormat:@"limit %@,%@",@(i),@(MaxQueryPageNum)];
+                [self queryWithTableName:A where:param complete:^(NSArray * _Nullable array) {
+                    for(NSDictionary* oldDict in array){
+                        NSMutableDictionary* newDict = [NSMutableDictionary dictionary];
+                        for(NSString* keyAndType in keys){
+                            NSString* key = [keyAndType componentsSeparatedByString:@"*"][0];
+                            //字段名前加上 @"BG_"
+                            key = [NSString stringWithFormat:@"%@%@",BG,key];
+                            if (oldDict[key]){
+                                newDict[key] = oldDict[key];
+                            }
                         }
+                        //将旧表的数据插入到新表
+                        [BGSelf insertIntoTableName:B Dict:newDict complete:^(BOOL isSuccess){
+                            if (isSuccess){
+                                if (!recordSuccess) {
+                                    recordSuccess = YES;
+                                }
+                            }else{
+                                if (!recordError) {
+                                    recordError = YES;
+                                }
+                            }
+                            
+                        }];
                     }
-                    //将旧表的数据插入到新表
-                    [BGSelf insertIntoTableName:B Dict:newDict complete:^(BOOL isSuccess){
-                        if (isSuccess){
-                            if (!recordSuccess) {
-                                recordSuccess = YES;
-                            }
-                        }else{
-                            if (!recordError) {
-                                recordError = YES;
-                            }
-                        }
-                        
-                    }];
-                }
-            }];
+                }];
+            }
         }
+    }else{
+        recordSuccess = YES;
     }
     
     if (complete){
