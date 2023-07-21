@@ -93,7 +93,7 @@ s.source       = { :git => 'https://github.com/ladybirdDEV/BGFMDB.git', :tag => 
 
 
 s.source_files = 'BGFMDB/libs/BG/*.{h,m}'
-s.public_header_files = 'BGFMDB/libs/BG/BGFMDB.h'
+s.public_header_files = 'BGFMDB/libs/BG/*.h'
 s.dependency 'FMDB'
 
 #s.source_files  = 'BGFMDB/libs/BG/*.{h,m}', 'BGFMDB/libs/FMDB/*.{h,m}'
