@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
 #
 
 s.name         = "BGFMDB"
-s.version      = "2.0.13"
+s.version      = "2.1.0"
 s.summary      = "完美支持iOS大部分类型数据的存储,同时带有 字典转模型 功能模块."
 
 # This description is used to generate tags and improve search results.
@@ -91,17 +91,10 @@ s.source       = { :git => 'https://github.com/huangzhibiao/BGFMDB.git', :tag =>
 #  Not including the public_header_files will make all headers public.
 #
 
+
+s.source_files = 'BGFMDB/libs/BG/*.{h,m}'
 s.public_header_files = 'BGFMDB/libs/BG/BGFMDB.h'
-s.source_files = 'BGFMDB/libs/BG/BGFMDB.h'
-
-s.subspec 'FMDB' do |ss|
-ss.source_files = 'BGFMDB/libs/FMDB/*.{h,m}'
-end
-
-s.subspec 'BG' do |ss|
-ss.source_files = 'BGFMDB/libs/BG/*.{h,m}'
-ss.dependency 'BGFMDB/FMDB'
-end
+s.dependency 'FMDB'
 
 #s.source_files  = 'BGFMDB/libs/BG/*.{h,m}', 'BGFMDB/libs/FMDB/*.{h,m}'
 #s.exclude_files = "BGFMDB/BGFMDB/libs"

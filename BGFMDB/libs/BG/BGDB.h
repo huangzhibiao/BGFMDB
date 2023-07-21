@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "BGFMDBConfig.h"
-#import "FMDB.h"
+#import <FMDB/FMDB.h>
 
 @interface BGDB : NSObject
 //信号量.

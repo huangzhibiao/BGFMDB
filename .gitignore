@@ -22,3 +22,4 @@ DerivedData
 *.lock
 *.xcworkspacedata
 *.xcscmblueprint
+Pods

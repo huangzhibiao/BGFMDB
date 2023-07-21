@@ -10,12 +10,9 @@
 		078119891F960F77008D9288 /* BGTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119721F960E88008D9288 /* BGTool.m */; };
 		0781198B1F960F77008D9288 /* NSCache+BGCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119741F960E88008D9288 /* NSCache+BGCache.m */; };
 		0781198D1F960F77008D9288 /* NSObject+BGModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119761F960E88008D9288 /* NSObject+BGModel.m */; };
-		078119BE1F961502008D9288 /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119BD1F9614E3008D9288 /* FMDatabase.m */; };
-		078119BF1F961502008D9288 /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119B41F9614E2008D9288 /* FMDatabaseAdditions.m */; };
-		078119C01F961502008D9288 /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119B51F9614E2008D9288 /* FMDatabasePool.m */; };
-		078119C11F961502008D9288 /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119B61F9614E2008D9288 /* FMDatabaseQueue.m */; };
-		078119C21F961502008D9288 /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119B81F9614E2008D9288 /* FMResultSet.m */; };
 		078119CF1F96ED4A008D9288 /* BGDB.m in Sources */ = {isa = PBXBuildFile; fileRef = 078119CE1F96ED4A008D9288 /* BGDB.m */; };
+		53CFD641DFCD513532AED527 /* Pods_BGFMDB_BGFMDBUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21784C21B9E7553C98110BF3 /* Pods_BGFMDB_BGFMDBUITests.framework */; };
+		70AA7D935DC5F2CD2C3082BD /* Pods_BGFMDBTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B036BFD8F8A6C379CA2D7ADF /* Pods_BGFMDBTests.framework */; };
 		D70663121CD1EF67009E4B4D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D70663111CD1EF67009E4B4D /* main.m */; };
 		D70663151CD1EF67009E4B4D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D70663141CD1EF67009E4B4D /* AppDelegate.m */; };
 		D70663181CD1EF67009E4B4D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D70663171CD1EF67009E4B4D /* ViewController.m */; };
@@ -33,6 +30,7 @@
 		D78A0D7C1E70F92400511A6D /* stockController.m in Sources */ = {isa = PBXBuildFile; fileRef = D78A0D7A1E70F92400511A6D /* stockController.m */; };
 		D78A0D7D1E70F92400511A6D /* stockController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D78A0D7B1E70F92400511A6D /* stockController.xib */; };
 		D78A0D801E70F95700511A6D /* stockModel.m in Sources */ = {isa = PBXBuildFile; fileRef = D78A0D7F1E70F95700511A6D /* stockModel.m */; };
+		F5B27214ED534E23A7B892F6 /* Pods_BGFMDB.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D13A3777E4A80BF16C939DAF /* Pods_BGFMDB.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,21 +71,17 @@
 		078119741F960E88008D9288 /* NSCache+BGCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSCache+BGCache.m"; sourceTree = "<group>"; };
 		078119751F960E88008D9288 /* NSObject+BGModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+BGModel.h"; sourceTree = "<group>"; };
 		078119761F960E88008D9288 /* NSObject+BGModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSObject+BGModel.m"; sourceTree = "<group>"; };
-		078119B21F9614E2008D9288 /* FMDatabaseAdditions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDatabaseAdditions.h; sourceTree = "<group>"; };
-		078119B31F9614E2008D9288 /* FMDatabasePool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDatabasePool.h; sourceTree = "<group>"; };
-		078119B41F9614E2008D9288 /* FMDatabaseAdditions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseAdditions.m; sourceTree = "<group>"; };
-		078119B51F9614E2008D9288 /* FMDatabasePool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMDatabasePool.m; sourceTree = "<group>"; };
-		078119B61F9614E2008D9288 /* FMDatabaseQueue.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseQueue.m; sourceTree = "<group>"; };
-		078119B71F9614E2008D9288 /* FMDatabase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDatabase.h; sourceTree = "<group>"; };
-		078119B81F9614E2008D9288 /* FMResultSet.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMResultSet.m; sourceTree = "<group>"; };
-		078119B91F9614E3008D9288 /* FMDB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDB.h; sourceTree = "<group>"; };
-		078119BA1F9614E3008D9288 /* FMResultSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMResultSet.h; sourceTree = "<group>"; };
-		078119BB1F9614E3008D9288 /* FMDatabaseQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FMDatabaseQueue.h; sourceTree = "<group>"; };
-		078119BC1F9614E3008D9288 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		078119BD1F9614E3008D9288 /* FMDatabase.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FMDatabase.m; sourceTree = "<group>"; };
 		078119CD1F96ED4A008D9288 /* BGDB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BGDB.h; sourceTree = "<group>"; };
 		078119CE1F96ED4A008D9288 /* BGDB.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BGDB.m; sourceTree = "<group>"; };
 		078119D11F96F66F008D9288 /* BGFMDB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BGFMDB.h; sourceTree = "<group>"; };
+		153110C73A9A419CCC29A48F /* Pods-BGFMDB.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BGFMDB.debug.xcconfig"; path = "Target Support Files/Pods-BGFMDB/Pods-BGFMDB.debug.xcconfig"; sourceTree = "<group>"; };
+		21784C21B9E7553C98110BF3 /* Pods_BGFMDB_BGFMDBUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BGFMDB_BGFMDBUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EE2C2811E834D3186324AB1 /* Pods-BGFMDB.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BGFMDB.release.xcconfig"; path = "Target Support Files/Pods-BGFMDB/Pods-BGFMDB.release.xcconfig"; sourceTree = "<group>"; };
+		7A0BDADA925D5F7CDA617CE2 /* Pods-BGFMDBTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BGFMDBTests.debug.xcconfig"; path = "Target Support Files/Pods-BGFMDBTests/Pods-BGFMDBTests.debug.xcconfig"; sourceTree = "<group>"; };
+		B036BFD8F8A6C379CA2D7ADF /* Pods_BGFMDBTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BGFMDBTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BC8CBA9E549914969453B6A3 /* Pods-BGFMDBTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BGFMDBTests.release.xcconfig"; path = "Target Support Files/Pods-BGFMDBTests/Pods-BGFMDBTests.release.xcconfig"; sourceTree = "<group>"; };
+		C1EC564E8C874F05D5C06A80 /* Pods-BGFMDB-BGFMDBUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BGFMDB-BGFMDBUITests.release.xcconfig"; path = "Target Support Files/Pods-BGFMDB-BGFMDBUITests/Pods-BGFMDB-BGFMDBUITests.release.xcconfig"; sourceTree = "<group>"; };
+		D13A3777E4A80BF16C939DAF /* Pods_BGFMDB.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BGFMDB.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D706630D1CD1EF67009E4B4D /* BGFMDB.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BGFMDB.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D70663111CD1EF67009E4B4D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D70663131CD1EF67009E4B4D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -121,6 +115,7 @@
 		D78A0D7E1E70F95700511A6D /* stockModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stockModel.h; sourceTree = "<group>"; };
 		D78A0D7F1E70F95700511A6D /* stockModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = stockModel.m; sourceTree = "<group>"; };
 		D7E1C0761E8F885300F0BA5F /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
+		E8C1EB9FF948F25221F0DF70 /* Pods-BGFMDB-BGFMDBUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BGFMDB-BGFMDBUITests.debug.xcconfig"; path = "Target Support Files/Pods-BGFMDB-BGFMDBUITests/Pods-BGFMDB-BGFMDBUITests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,6 +124,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D77E3C1F1E72B88900137471 /* libsqlite3.tbd in Frameworks */,
+				F5B27214ED534E23A7B892F6 /* Pods_BGFMDB.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,6 +132,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				70AA7D935DC5F2CD2C3082BD /* Pods_BGFMDBTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -143,6 +140,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				53CFD641DFCD513532AED527 /* Pods_BGFMDB_BGFMDBUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -166,23 +164,17 @@
 			path = BG;
 			sourceTree = "<group>";
 		};
-		078119771F960E88008D9288 /* FMDB */ = {
+		D4AF9C32E0CCC993D38B4ACB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				078119B71F9614E2008D9288 /* FMDatabase.h */,
-				078119BD1F9614E3008D9288 /* FMDatabase.m */,
-				078119B21F9614E2008D9288 /* FMDatabaseAdditions.h */,
-				078119B41F9614E2008D9288 /* FMDatabaseAdditions.m */,
-				078119B31F9614E2008D9288 /* FMDatabasePool.h */,
-				078119B51F9614E2008D9288 /* FMDatabasePool.m */,
-				078119BB1F9614E3008D9288 /* FMDatabaseQueue.h */,
-				078119B61F9614E2008D9288 /* FMDatabaseQueue.m */,
-				078119B91F9614E3008D9288 /* FMDB.h */,
-				078119BA1F9614E3008D9288 /* FMResultSet.h */,
-				078119B81F9614E2008D9288 /* FMResultSet.m */,
-				078119BC1F9614E3008D9288 /* Info.plist */,
+				153110C73A9A419CCC29A48F /* Pods-BGFMDB.debug.xcconfig */,
+				4EE2C2811E834D3186324AB1 /* Pods-BGFMDB.release.xcconfig */,
+				E8C1EB9FF948F25221F0DF70 /* Pods-BGFMDB-BGFMDBUITests.debug.xcconfig */,
+				C1EC564E8C874F05D5C06A80 /* Pods-BGFMDB-BGFMDBUITests.release.xcconfig */,
+				7A0BDADA925D5F7CDA617CE2 /* Pods-BGFMDBTests.debug.xcconfig */,
+				BC8CBA9E549914969453B6A3 /* Pods-BGFMDBTests.release.xcconfig */,
 			);
-			path = FMDB;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		D70663041CD1EF67009E4B4D = {
@@ -193,6 +185,7 @@
 				D70663341CD1EF67009E4B4D /* BGFMDBUITests */,
 				D706630E1CD1EF67009E4B4D /* Products */,
 				D77E3C191E72B74D00137471 /* Frameworks */,
+				D4AF9C32E0CCC993D38B4ACB /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -273,6 +266,9 @@
 				D77E3C1E1E72B88900137471 /* libsqlite3.tbd */,
 				D77E3C1C1E72B84100137471 /* libsqlite3.dylib */,
 				D77E3C1A1E72B74E00137471 /* libstdc++.tbd */,
+				D13A3777E4A80BF16C939DAF /* Pods_BGFMDB.framework */,
+				21784C21B9E7553C98110BF3 /* Pods_BGFMDB_BGFMDBUITests.framework */,
+				B036BFD8F8A6C379CA2D7ADF /* Pods_BGFMDBTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -281,7 +277,6 @@
 			isa = PBXGroup;
 			children = (
 				0781196B1F960E88008D9288 /* BG */,
-				078119771F960E88008D9288 /* FMDB */,
 			);
 			path = libs;
 			sourceTree = "<group>";
@@ -305,10 +300,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D706633A1CD1EF67009E4B4D /* Build configuration list for PBXNativeTarget "BGFMDB" */;
 			buildPhases = (
+				ABFC3EE123101040C4306701 /* [CP] Check Pods Manifest.lock */,
 				D70663091CD1EF67009E4B4D /* Sources */,
 				D706630A1CD1EF67009E4B4D /* Frameworks */,
 				D706630B1CD1EF67009E4B4D /* Resources */,
 				D78F23711CD9F68F0013C725 /* Embed Frameworks */,
+				25B364A8342F246CDECFA14C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -323,6 +320,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D706633D1CD1EF67009E4B4D /* Build configuration list for PBXNativeTarget "BGFMDBTests" */;
 			buildPhases = (
+				78A264477E53DDD5C0D650AC /* [CP] Check Pods Manifest.lock */,
 				D70663221CD1EF67009E4B4D /* Sources */,
 				D70663231CD1EF67009E4B4D /* Frameworks */,
 				D70663241CD1EF67009E4B4D /* Resources */,
@@ -341,9 +339,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = D70663401CD1EF67009E4B4D /* Build configuration list for PBXNativeTarget "BGFMDBUITests" */;
 			buildPhases = (
+				CCB17474881C7080886FCD69 /* [CP] Check Pods Manifest.lock */,
 				D706632D1CD1EF67009E4B4D /* Sources */,
 				D706632E1CD1EF67009E4B4D /* Frameworks */,
 				D706632F1CD1EF67009E4B4D /* Resources */,
+				712B02C90E330C7332F64AE0 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -383,6 +383,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -428,16 +429,120 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		25B364A8342F246CDECFA14C /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-BGFMDB/Pods-BGFMDB-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BGFMDB/BGFMDB.framework",
+				"${BUILT_PRODUCTS_DIR}/FMDB/FMDB.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BGFMDB.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FMDB.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BGFMDB/Pods-BGFMDB-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		712B02C90E330C7332F64AE0 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-BGFMDB-BGFMDBUITests/Pods-BGFMDB-BGFMDBUITests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BGFMDB/BGFMDB.framework",
+				"${BUILT_PRODUCTS_DIR}/FMDB/FMDB.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BGFMDB.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FMDB.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BGFMDB-BGFMDBUITests/Pods-BGFMDB-BGFMDBUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		78A264477E53DDD5C0D650AC /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-BGFMDBTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		ABFC3EE123101040C4306701 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-BGFMDB-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CCB17474881C7080886FCD69 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-BGFMDB-BGFMDBUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		D70663091CD1EF67009E4B4D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				078119BE1F961502008D9288 /* FMDatabase.m in Sources */,
-				078119BF1F961502008D9288 /* FMDatabaseAdditions.m in Sources */,
-				078119C01F961502008D9288 /* FMDatabasePool.m in Sources */,
-				078119C11F961502008D9288 /* FMDatabaseQueue.m in Sources */,
-				078119C21F961502008D9288 /* FMResultSet.m in Sources */,
 				078119891F960F77008D9288 /* BGTool.m in Sources */,
 				0781198B1F960F77008D9288 /* NSCache+BGCache.m in Sources */,
 				0781198D1F960F77008D9288 /* NSObject+BGModel.m in Sources */,
@@ -588,6 +693,7 @@
 		};
 		D706633B1CD1EF67009E4B4D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 153110C73A9A419CCC29A48F /* Pods-BGFMDB.debug.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -609,6 +715,7 @@
 		};
 		D706633C1CD1EF67009E4B4D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4EE2C2811E834D3186324AB1 /* Pods-BGFMDB.release.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -630,6 +737,7 @@
 		};
 		D706633E1CD1EF67009E4B4D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7A0BDADA925D5F7CDA617CE2 /* Pods-BGFMDBTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				INFOPLIST_FILE = BGFMDBTests/Info.plist;
@@ -642,6 +750,7 @@
 		};
 		D706633F1CD1EF67009E4B4D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BC8CBA9E549914969453B6A3 /* Pods-BGFMDBTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				INFOPLIST_FILE = BGFMDBTests/Info.plist;
@@ -654,6 +763,7 @@
 		};
 		D70663411CD1EF67009E4B4D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E8C1EB9FF948F25221F0DF70 /* Pods-BGFMDB-BGFMDBUITests.debug.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = BGFMDBUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -665,6 +775,7 @@
 		};
 		D70663421CD1EF67009E4B4D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C1EC564E8C874F05D5C06A80 /* Pods-BGFMDB-BGFMDBUITests.release.xcconfig */;
 			buildSettings = {
 				INFOPLIST_FILE = BGFMDBUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
