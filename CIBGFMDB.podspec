@@ -80,7 +80,7 @@ s.platform     = :ios, "8.0"
 #  Supports git, hg, bzr, svn and HTTP.
 #
 
-s.source       = { :git => 'https://github.com/huangzhibiao/BGFMDB.git', :tag => s.version, :submodules => true }
+s.source       = { :git => 'https://github.com/ladybirdDEV/BGFMDB.git', :tag => s.version, :submodules => true }
 
 
 # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
