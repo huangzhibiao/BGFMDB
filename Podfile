@@ -6,7 +6,7 @@ target 'BGFMDB' do
   use_frameworks!
 
   # Pods for BGFMDB
-pod 'BGFMDB', :path => './'
+pod 'CIBGFMDB', :path => './'
 
   target 'BGFMDBTests' do
     inherit! :search_paths

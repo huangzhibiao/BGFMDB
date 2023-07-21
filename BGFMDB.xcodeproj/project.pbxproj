@@ -79,6 +79,7 @@
 		4EE2C2811E834D3186324AB1 /* Pods-BGFMDB.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BGFMDB.release.xcconfig"; path = "Target Support Files/Pods-BGFMDB/Pods-BGFMDB.release.xcconfig"; sourceTree = "<group>"; };
 		7A0BDADA925D5F7CDA617CE2 /* Pods-BGFMDBTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BGFMDBTests.debug.xcconfig"; path = "Target Support Files/Pods-BGFMDBTests/Pods-BGFMDBTests.debug.xcconfig"; sourceTree = "<group>"; };
 		B036BFD8F8A6C379CA2D7ADF /* Pods_BGFMDBTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BGFMDBTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B503836F2A6A70A400FDED8E /* CIBGFMDB.podspec */ = {isa = PBXFileReference; lastKnownFileType = file; path = CIBGFMDB.podspec; sourceTree = SOURCE_ROOT; };
 		BC8CBA9E549914969453B6A3 /* Pods-BGFMDBTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BGFMDBTests.release.xcconfig"; path = "Target Support Files/Pods-BGFMDBTests/Pods-BGFMDBTests.release.xcconfig"; sourceTree = "<group>"; };
 		C1EC564E8C874F05D5C06A80 /* Pods-BGFMDB-BGFMDBUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BGFMDB-BGFMDBUITests.release.xcconfig"; path = "Target Support Files/Pods-BGFMDB-BGFMDBUITests/Pods-BGFMDB-BGFMDBUITests.release.xcconfig"; sourceTree = "<group>"; };
 		D13A3777E4A80BF16C939DAF /* Pods_BGFMDB.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BGFMDB.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -202,6 +203,7 @@
 		D706630F1CD1EF67009E4B4D /* BGFMDB */ = {
 			isa = PBXGroup;
 			children = (
+				B503836F2A6A70A400FDED8E /* CIBGFMDB.podspec */,
 				D77E3C5F1E72CBA500137471 /* libs */,
 				D70663131CD1EF67009E4B4D /* AppDelegate.h */,
 				D70663141CD1EF67009E4B4D /* AppDelegate.m */,
@@ -437,12 +439,12 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BGFMDB/Pods-BGFMDB-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/BGFMDB/BGFMDB.framework",
+				"${BUILT_PRODUCTS_DIR}/CIBGFMDB/CIBGFMDB.framework",
 				"${BUILT_PRODUCTS_DIR}/FMDB/FMDB.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BGFMDB.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CIBGFMDB.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FMDB.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -457,12 +459,12 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BGFMDB-BGFMDBUITests/Pods-BGFMDB-BGFMDBUITests-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/BGFMDB/BGFMDB.framework",
+				"${BUILT_PRODUCTS_DIR}/CIBGFMDB/CIBGFMDB.framework",
 				"${BUILT_PRODUCTS_DIR}/FMDB/FMDB.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BGFMDB.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CIBGFMDB.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FMDB.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;

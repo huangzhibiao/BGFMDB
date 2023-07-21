@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
 #  summary should be tweet-length, and the description more in depth.
 #
 
-s.name         = "BGFMDB"
+s.name         = "CIBGFMDB"
 s.version      = "2.1.0"
 s.summary      = "完美支持iOS大部分类型数据的存储,同时带有 字典转模型 功能模块."
 
